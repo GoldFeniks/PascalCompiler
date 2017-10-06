@@ -20,131 +20,30 @@ namespace My {
 
 		public:
 
-			enum Types { 
-				Identifier, 
-				Integer, 
-				Float,
-				String,
-				Plus,
-				Minus,
-				Mult,
-				Divide,
-				Equal,
-				Less,
-				Greater,
-				OpenBracket,
-				CloseBracket,
-				Comma,
-				Colon,
-				Semicolon,
-				Adress,
-				OpenParenthesis,
-				CloseParenthesis,
-				NotEqual,
-				LessOrEqual,
-				GreaterOrEqual,
-				Assign,
-				Range,
-				And,
-				Array,
-				Begin,
-				Case,
-				Const,
-				Div,
-				Do,
-				Downto,
-				Else,
-				End,
-				File,
-				For,
-				Function,
-				Goto,
-				If,
-				In,
-				Label,
-				Mod,
-				Nil,
-				Not,
-				Of,
-				Or,
-				Packed,
-				Procedure,
-				Program,
-				Record,
-				Repeat,
-				Set,
-				Then,
-				To,
-				Type,
-				Until,
-				Var,
-				While,
-				With
+			enum class Types {
+				Identifier, Integer, Float, String, Operator, Separator, ReservedWord, EndOfFile
 			};
 
-			const std::unordered_map<std::string, Types> KeyWords = {
-				{ "and", And },
-				{ "array", Array },
-				{ "begin", Begin },
-				{ "case", Case },
-				{ "const", Const },
-				{ "div", Div },
-				{ "do", Do },
-				{ "downto", Downto },
-				{ "else", Else },
-				{ "end", End },
-				{ "file", File },
-				{ "for", For },
-				{ "function", Function },
-				{ "goto", Goto },
-				{ "if", If },
-				{ "in", In },
-				{ "label", Label },
-				{ "mod", Mod },
-				{ "nil", Nil },
-				{ "not", Not },
-				{ "of", Of },
-				{ "packed", Packed },
-				{ "procedure", Procedure },
-				{ "program", Program },
-				{ "record", Record },
-				{ "repeat", Repeat },
-				{ "set", Set },
-				{ "then", Then },
-				{ "to", To },
-				{ "type", Type },
-				{ "until", Until },
-				{ "var", Var },
-				{ "while", While },
-				{ "with", With }
+			enum class SubTypes { 
+				Identifier,    Integer,          Float,             String,
+				Plus,          Minus,            Mult,              Divide,
+				Equal,         Less,             Greater,           OpenBracket,
+				CloseBracket,  Comma,            Colon,             Semicolon,
+				Adress,        OpenParenthesis,  CloseParenthesis,  NotEqual,
+				LessOrEqual,   GreaterOrEqual,   Assign,            Range,
+				And,           Array,            Begin,             Case,
+				Const,         Div,              Do,                Downto,
+				Else,          End,              File,              For,
+				Function,      Goto,             If,                In,
+				Label,         Mod,              Nil,               Not,
+				Of,            Or,               Packed,            Procedure,
+				Program,       Record,           Repeat,            Set,
+				Then,          To,               Type,              Until,
+				Var,           While,            With,              ProgramEnd
 			};
 
-			std::unordered_map<std::string, Types> Operators = {
-				{ "+", Plus },
-				{ "-", Minus },
-				{ "*", Mult },
-				{ "/", Divide },
-				{ "=", Equal },
-				{ "<", Less },
-				{ ">", Greater },
-				{ "@", Adress },
-				{ "^", Adress },
-				{ "<>", NotEqual },
-				{ "<=", LessOrEqual },
-				{ ">=", GreaterOrEqual },
-				{ ":=", Assign },
-				{ "..", Range }
-			};
-
-			std::unordered_map<std::string, Types> Separators = {
-				{ "[", OpenBracket },
-				{ "]", CloseBracket },
-				{ ",", Comma },
-				{ ":", Colon },
-				{ ";", Semicolon },
-				{ "(", OpenParenthesis },
-				{ ")", CloseParenthesis }
-			};
+			static const std::unordered_map<std::string, SubTypes> TokenSubTypes;
+			static const std::unordered_map<std::string, Types> TokenTypes;
 			
 			Token() = delete;
 			Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state);
@@ -160,7 +59,8 @@ namespace My {
 			~Token();
 
 			const std::pair<int, int>& GetPosition();
-			const Types& GetType();
+			const SubTypes GetSubType();
+			const Types GetType();
 			const std::string& GetString();
 			const char* GetStringValue();
 			const unsigned long long GetLongLongValue();
@@ -169,6 +69,7 @@ namespace My {
 			private:
 
 				std::pair<int, int> myPosition;
+				SubTypes mySubType;
 				Types myType;
 				std::string myString;
 
@@ -199,7 +100,7 @@ namespace My {
 
 		friend struct iterator;
 
-		static const Token endToken;
+		static const Token emptyToken;
 		int currentIndex = -1;
 		std::vector<Token> tokens;
 		std::ifstream file;

@@ -2,7 +2,33 @@
 #include <cstdio>
 #include <iostream>
 
-const My::Tokenizer::Token My::Tokenizer::endToken = Token({ 0, 0 }, "", FiniteAutomata::States::Identifier);
+const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokenizer::Token::TokenSubTypes = {
+	{ "and",  My::Tokenizer::Token::SubTypes::And },           { "array", My::Tokenizer::Token::SubTypes::Array },        { "begin", My::Tokenizer::Token::SubTypes::Begin },          { "case", My::Tokenizer::Token::SubTypes::Case },
+	{ "const", My::Tokenizer::Token::SubTypes::Const },        { "div", My::Tokenizer::Token::SubTypes::Div },            { "do", My::Tokenizer::Token::SubTypes::Do },                { "downto", My::Tokenizer::Token::SubTypes::Downto },
+	{ "else", My::Tokenizer::Token::SubTypes::Else },          { "end", My::Tokenizer::Token::SubTypes::End },            { "file", My::Tokenizer::Token::SubTypes::File },            { "for", My::Tokenizer::Token::SubTypes::For },
+	{ "function", My::Tokenizer::Token::SubTypes::Function },  { "goto", My::Tokenizer::Token::SubTypes::Goto },          { "if", My::Tokenizer::Token::SubTypes::If },                { "in", My::Tokenizer::Token::SubTypes::In },
+	{ "label", My::Tokenizer::Token::SubTypes::Label },        { "mod", My::Tokenizer::Token::SubTypes::Mod },            { "nil", My::Tokenizer::Token::SubTypes::Nil },              { "not", My::Tokenizer::Token::SubTypes::Not },
+	{ "of", My::Tokenizer::Token::SubTypes::Of },              { "packed", My::Tokenizer::Token::SubTypes::Packed },      { "procedure", My::Tokenizer::Token::SubTypes::Procedure },  { "program", My::Tokenizer::Token::SubTypes::Program },
+	{ "record", My::Tokenizer::Token::SubTypes::Record },      { "repeat", My::Tokenizer::Token::SubTypes::Repeat },      { "set", My::Tokenizer::Token::SubTypes::Set },              { "then", My::Tokenizer::Token::SubTypes::Then },
+	{ "to", My::Tokenizer::Token::SubTypes::To },              { "type", My::Tokenizer::Token::SubTypes::Type },          { "until", My::Tokenizer::Token::SubTypes::Until },          { "var", My::Tokenizer::Token::SubTypes::Var },
+	{ "while", My::Tokenizer::Token::SubTypes::While },        { "with", My::Tokenizer::Token::SubTypes::With },          { "+", My::Tokenizer::Token::SubTypes::Plus },               { "-", My::Tokenizer::Token::SubTypes::Minus },
+	{ "*", My::Tokenizer::Token::SubTypes::Mult },             { "/", My::Tokenizer::Token::SubTypes::Divide },           { "=", My::Tokenizer::Token::SubTypes::Equal },              { "<", My::Tokenizer::Token::SubTypes::Less },
+	{ ">", My::Tokenizer::Token::SubTypes::Greater },          { "@", My::Tokenizer::Token::SubTypes::Adress },           { "^", My::Tokenizer::Token::SubTypes::Adress },             { "<>", My::Tokenizer::Token::SubTypes::NotEqual },
+	{ "<=", My::Tokenizer::Token::SubTypes::LessOrEqual },     { ">=", My::Tokenizer::Token::SubTypes::GreaterOrEqual },  { ":=", My::Tokenizer::Token::SubTypes::Assign },            { "..", My::Tokenizer::Token::SubTypes::Range },
+	{ "[", My::Tokenizer::Token::SubTypes::OpenBracket },      { "]", My::Tokenizer::Token::SubTypes::CloseBracket },     { ",", My::Tokenizer::Token::SubTypes::Comma },              { ":", My::Tokenizer::Token::SubTypes::Colon },
+	{ ";", My::Tokenizer::Token::SubTypes::Semicolon },        { "(", My::Tokenizer::Token::SubTypes::OpenParenthesis },  { ")", My::Tokenizer::Token::SubTypes::CloseParenthesis },   { ".", My::Tokenizer::Token::SubTypes::ProgramEnd }
+};
+
+const std::unordered_map<std::string, My::Tokenizer::Token::Types> My::Tokenizer::Token::TokenTypes = {
+	{ "+", My::Tokenizer::Token::Types::Operator },         { "-", My::Tokenizer::Token::Types::Operator },         { "(", My::Tokenizer::Token::Types::Separator },          { ")", My::Tokenizer::Token::Types::Separator },
+	{ "*", My::Tokenizer::Token::Types::Operator },         { "/", My::Tokenizer::Token::Types::Operator },         { "=", My::Tokenizer::Token::Types::Operator },           { "<", My::Tokenizer::Token::Types::Operator },
+	{ ">", My::Tokenizer::Token::Types::Operator },         { "@", My::Tokenizer::Token::Types::Operator },         { "^", My::Tokenizer::Token::Types::Operator },           { "<>", My::Tokenizer::Token::Types::Operator },
+	{ "<=", My::Tokenizer::Token::Types::Operator },        { ">=", My::Tokenizer::Token::Types::Operator },        { ":=", My::Tokenizer::Token::Types::Operator },          { "..", My::Tokenizer::Token::Types::Operator },
+	{ "[", My::Tokenizer::Token::Types::Separator },        { "]", My::Tokenizer::Token::Types::Separator },        { ",", My::Tokenizer::Token::Types::Separator },          { ":", My::Tokenizer::Token::Types::Separator },
+	{ ";", My::Tokenizer::Token::Types::Separator },        { "(.", My::Tokenizer::Token::Types::Separator },       { ".)", My::Tokenizer::Token::Types::Separator },         { ".", My::Tokenizer::Token::Types::Separator }
+};
+
+const My::Tokenizer::Token My::Tokenizer::emptyToken = Token({ 0, 0 }, "", FiniteAutomata::States::Identifier);
 
 My::Tokenizer::Tokenizer(std::string file) {
 	this->file = std::ifstream(file);
@@ -41,7 +67,7 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
 			s.pop_back();
 			continue;
 		}
-		if (state > FiniteAutomata::States::Count)
+		if (state > FiniteAutomata::States::End)
 			switch (state) {
 			case FiniteAutomata::States::UnexpectedSymbol:
 				throw new UnexpectedSymbolException();
@@ -55,7 +81,9 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
 		cstate = state;
 		if (state == FiniteAutomata::States::Whitespace ||
 			state == FiniteAutomata::States::Comment ||
-			state == FiniteAutomata::States::CommentMultiline) {
+			state == FiniteAutomata::States::CommentMultiline ||
+			state == FiniteAutomata::States::Asterisk ||
+            state == FiniteAutomata::States::StringEnd) {
 			++column;
 			continue;
 		}
@@ -66,7 +94,10 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
 		}
 		s += c;
 	}
-	tokens.push_back(Token(std::make_pair(row, column), s, cstate));
+	if (file.eof())
+		tokens.push_back(Token(std::make_pair(row, column), s, FiniteAutomata::States::End));
+	else
+		tokens.push_back(Token(std::make_pair(row, column), s, cstate));
 	column += s.length();
 	++currentIndex;
 	return tokens.back();
@@ -82,7 +113,7 @@ const My::Tokenizer::Token& My::Tokenizer::Current() {
 
 const My::Tokenizer::Token& My::Tokenizer::First() {
 	if (currentIndex >= tokens.size())
-		return endToken;
+		return emptyToken;
 	currentIndex = 0;
 	return Current();
 }
@@ -125,7 +156,11 @@ const std::pair<int, int>& My::Tokenizer::Token::GetPosition() {
 	return myPosition;
 }
 
-const My::Tokenizer::Token::Types& My::Tokenizer::Token::GetType() {
+const My::Tokenizer::Token::SubTypes My::Tokenizer::Token::GetSubType() {
+	return mySubType;
+}
+
+const My::Tokenizer::Token::Types My::Tokenizer::Token::GetType() {
 	return myType;
 }
 
@@ -165,55 +200,52 @@ void My::Tokenizer::Token::saveString(const char* string) {
 My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state) {
 	myPosition = position;
 	myString = string;
-	std::unordered_map<std::string, Types>::const_iterator it;
+	std::unordered_map<std::string, SubTypes>::const_iterator it;
 	switch (state) {
 	case My::FiniteAutomata::Identifier:
-		it = KeyWords.find(string);
-		if (it != KeyWords.end())
-			myType = it->second;
-		else
+		it = TokenSubTypes.find(string);
+		if (it != TokenSubTypes.end()) {
+			mySubType = it->second;
+			myType = Types::ReservedWord;
+		}
+		else {
+			mySubType = SubTypes::Identifier;
 			myType = Types::Identifier;
+		}
 		saveString(string);
 		break;
 	case My::FiniteAutomata::ReturnInt:
 	case My::FiniteAutomata::Integer:
 		myType = Types::Integer;
+		mySubType = SubTypes::Integer;
 		myValue.UnsignedLongLong = std::strtoull(string.c_str(), NULL, 0);
 		break;
 	case My::FiniteAutomata::FloatEnd:
 	case My::FiniteAutomata::Float:
 		myType = Types::Float;
+		mySubType = SubTypes::Float;
 		myValue.LongDouble = std::strtold(string.c_str(), NULL);
 		break;
+    case My::FiniteAutomata::StringEnd:
 	case My::FiniteAutomata::String:
 		myType = Types::String;
-		saveString(string);
-		break;
-	case My::FiniteAutomata::Operator:
-		myType = Operators.find(string)->second;
-		saveString(string);
-		break;
-	case My::FiniteAutomata::OperatorGreater:
-		myType = Operators.find(string)->second;
-		saveString(string);
-		break;
-	case My::FiniteAutomata::OperatorLess:
-		myType = Operators.find(string)->second;
-		saveString(string);
-		break;
-	case My::FiniteAutomata::Colon:
-		myType = Types::Colon;
-		saveString(string);
-		break;
-	case My::FiniteAutomata::Parenthesis:
-	case My::FiniteAutomata::Separator:
-		myType = Separators.find(string)->second;
+		mySubType = SubTypes::String;
 		saveString(string);
 		break;
 	case My::FiniteAutomata::Slash:
-		myType = Operators.find(string)->second;
+	case My::FiniteAutomata::Separator:
+	case My::FiniteAutomata::Parenthesis:
+	case My::FiniteAutomata::Colon:
+	case My::FiniteAutomata::OperatorLess:
+	case My::FiniteAutomata::OperatorGreater:
+	case My::FiniteAutomata::Operator:
+		mySubType = TokenSubTypes.find(string)->second;
+		myType = TokenTypes.find(string)->second;
 		saveString(string);
 		break;
+	case My::FiniteAutomata::End:
+		myType = Types::EndOfFile;
+        break;
 	default:
 		throw std::exception();
 		break;

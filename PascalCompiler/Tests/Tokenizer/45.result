@@ -1,0 +1,5 @@
+(1,1)     ReservedWord        Var                           var                           var                           
+(2,1)     ReservedWord        Var                           var                           var                           
+(3,1)     Identifier          Identifier                    _var                          _var                          
+(4,1)     Identifier          Identifier                    &var                          &var                          
+(5,1)     Identifier          Identifier                    var_                          var_                          

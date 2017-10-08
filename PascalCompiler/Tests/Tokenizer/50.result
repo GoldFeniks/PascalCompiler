@@ -1,0 +1,16 @@
+(1,1)     ReservedWord        Var                           var                           var                           
+(2,4)     Identifier          Identifier                    a                             a                             
+(2,5)     Separator           Colon                         :                             :                             
+(2,7)     Identifier          Identifier                    integer                       integer                       
+(2,14)    Separator           Semicolon                     ;                             ;                             
+(3,1)     ReservedWord        Begin                         begin                         begin                         
+(4,4)     Identifier          Identifier                    a                             a                             
+(4,6)     Operator            Assign                        :=                            :=                            
+(4,9)     Integer             IntegerConst                  20                            20                            
+(4,12)    Operator            Plus                          +                             +                             
+(4,14)    Integer             IntegerConst                  123                           123                           
+(4,17)    Operator            Divide                        /                             /                             
+(4,18)    Float               FloatConst                    0.03123                       3.123e-2                      
+(4,26)    Separator           Semicolon                     ;                             ;                             
+(5,1)     ReservedWord        End                           end                           end                           
+(5,4)     Operator            Dot                           .                             .                             

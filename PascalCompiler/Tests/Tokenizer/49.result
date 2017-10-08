@@ -1,0 +1,6 @@
+(1,1)     Operator            And                           and                           and                           
+(2,1)     Operator            Or                            or                            or                            
+(3,1)     Operator            Xor                           xor                           xor                           
+(4,1)     Operator            Not                           not                           not                           
+(5,1)     Operator            ShiftLeft                     shl                           shl                           
+(6,1)     Operator            ShiftRight                    shr                           shr                           

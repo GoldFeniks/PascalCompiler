@@ -1,0 +1,7 @@
+(1,1)     Integer             IntegerConst                  0                             0                             
+(2,1)     Integer             IntegerConst                  1                             01                            
+(3,1)     Integer             IntegerConst                  123                           123                           
+(4,1)     Integer             IntegerConst                  1                             0001                          
+(5,1)     Integer             IntegerConst                  32                            0032                          
+(5,6)     Integer             IntegerConst                  32                            32                            
+(5,9)     Integer             IntegerConst                  1010                          01010                         

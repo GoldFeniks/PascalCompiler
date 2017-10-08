@@ -1,0 +1,17 @@
+(1,1)     Identifier          Identifier                    a                             a                             
+(1,3)     Operator            Assign                        :=                            :=                            
+(1,6)     Operator            Xor                           xor                           xor                           
+(1,10)    Operator            ShiftLeft                     shl                           shl                           
+(1,13)    Separator           OpenParenthesis               (                             (                             
+(1,14)    Integer             IntegerConst                  20                            20                            
+(1,16)    Separator           CloseParenthesis              )                             )                             
+(1,17)    Separator           Semicolon                     ;                             ;                             
+(2,1)     Identifier          Identifier                    b                             b                             
+(2,3)     Operator            PlusAssign                    +=                            +=                            
+(2,6)     Operator            ShiftRight                    shr                           shr                           
+(2,9)     Separator           OpenParenthesis               (                             (                             
+(2,10)    Integer             IntegerConst                  80                            $50                           
+(2,13)    Separator           CloseParenthesis              )                             )                             
+(2,15)    Operator            Div                           div                           div                           
+(2,19)    Integer             IntegerConst                  1320                          1320                          
+(2,23)    Separator           Semicolon                     ;                             ;                             

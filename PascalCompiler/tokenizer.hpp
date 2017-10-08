@@ -125,7 +125,7 @@ namespace My {
                 Then,              To,                Type,               Unit,         
                 Until,             Uses,              Var,                While,
                 With,              Xor,               Range,              Operator,
-                CharConst, 
+                CharConst,
 
 			};
 
@@ -134,7 +134,7 @@ namespace My {
 			static const std::unordered_map<std::string, SubTypes> TokenSubTypes;
 			
 			Token() = delete;
-			Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state);
+			Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state, std::string rawString);
 			Token(const Token& other);
 			Token(Token&& other);
 
@@ -173,6 +173,7 @@ namespace My {
 				bool stringUsed = false;
 				void saveString(std::string& string);
 				void saveString(const char* string);
+                std::string escape(std::string string);
 
 		};
 
@@ -198,6 +199,7 @@ namespace My {
 		int row = 1, column = 1;
 
         static long int codeToChar(My::FiniteAutomata::States state, const char* charCode);
+        void tryThrowException(My::FiniteAutomata::States state, char c);
 
 	};
 

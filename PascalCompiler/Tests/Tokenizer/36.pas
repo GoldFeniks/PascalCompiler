@@ -1,0 +1,5 @@
+'abcde'
+'abc''de'
+'abc''''de'
+'abc''''''de'
+'abcd''''''''de'

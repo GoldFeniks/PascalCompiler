@@ -1,0 +1,15 @@
+(1,1)     ReservedWord        Program                       program                       program                       
+(1,9)     Identifier          Identifier                    test5                         test5                         
+(1,14)    Separator           Semicolon                     ;                             ;                             
+(2,1)     ReservedWord        Var                           var                           var                           
+(3,5)     Identifier          Identifier                    c                             c                             
+(3,6)     Separator           Colon                         :                             :                             
+(3,8)     Identifier          Identifier                    char                          char                          
+(3,12)    Separator           Semicolon                     ;                             ;                             
+(4,1)     ReservedWord        Begin                         begin                         begin                         
+(5,5)     Identifier          Identifier                    c                             c                             
+(5,7)     Operator            Assign                        :=                            :=                            
+(5,10)    Char                CharConst                     {                             #123                          
+(5,14)    Separator           Semicolon                     ;                             ;                             
+(6,1)     ReservedWord        End                           end                           end                           
+(6,4)     Operator            Dot                           .                             .                             

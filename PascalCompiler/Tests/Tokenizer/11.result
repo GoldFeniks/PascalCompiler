@@ -1,0 +1,4 @@
+(1,6)     Identifier          Identifier                    f                             f                             
+(5,16)    Integer             IntegerConst                  4                             4                             
+(7,1)     Separator           Semicolon                     ;                             ;                             
+(8,9)     Identifier          Identifier                    k                             k                             

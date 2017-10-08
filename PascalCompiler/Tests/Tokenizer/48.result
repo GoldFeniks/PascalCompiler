@@ -1,0 +1,10 @@
+(1,1)     Operator            Less                          <                             <                             
+(2,1)     Operator            LessEqual                     <=                            <=                            
+(3,1)     Operator            GreaterEqual                  >=                            >=                            
+(4,1)     Operator            Greater                       >                             >                             
+(5,1)     Operator            Equal                         =                             =                             
+(6,1)     Operator            Assign                        :=                            :=                            
+(7,1)     Operator            PlusAssign                    +=                            +=                            
+(8,1)     Operator            MultAssign                    *=                            *=                            
+(9,1)     Operator            MinusAssign                   -=                            -=                            
+(10,1)    Operator            DivideAssign                  /=                            /=                            

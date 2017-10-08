@@ -1,0 +1,5 @@
+(1,1)     String              StringConst                   abcde                         'abcde'                       
+(2,1)     String              StringConst                   abc'de                        'abc''de'                     
+(3,1)     String              StringConst                   abc''de                       'abc''''de'                   
+(4,1)     String              StringConst                   abc'''de                      'abc''''''de'                 
+(5,1)     String              StringConst                   abcd''''de                    'abcd''''''''de'              

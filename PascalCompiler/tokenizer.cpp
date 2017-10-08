@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <iostream>
 #include "boost\format.hpp"
+#include <regex>
 
 const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokenizer::Token::TokenSubTypes = {
 	{ "and",  My::Tokenizer::Token::SubTypes::And },           { "array", My::Tokenizer::Token::SubTypes::Array },        { "begin", My::Tokenizer::Token::SubTypes::Begin },          { "case", My::Tokenizer::Token::SubTypes::Case },
@@ -22,10 +23,11 @@ const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokeni
     { "shl", My::Tokenizer::Token::SubTypes::ShiftLeft },      { "shr", My::Tokenizer::Token::SubTypes::ShiftRight },     { "**", My::Tokenizer::Token::SubTypes::Power },             { "><", My::Tokenizer::Token::SubTypes::SymmetricDiff },
     { "+=", My::Tokenizer::Token::SubTypes::PlusAssign },      { "-=", My::Tokenizer::Token::SubTypes::MinusAssign },     { "*=", My::Tokenizer::Token::SubTypes::MultAssign },        { "/=", My::Tokenizer::Token::SubTypes::DivideAssign },
     { "absolute", My::Tokenizer::Token::SubTypes::Absolute },  { "inline", My::Tokenizer::Token::SubTypes::Inline },      { "string", My::Tokenizer::Token::SubTypes::String },        { "unit", My::Tokenizer::Token::SubTypes::Unit },
-    { "uses", My::Tokenizer::Token::SubTypes::Uses },          { "xor", My::Tokenizer::Token::SubTypes::Xor },            { "operator", My::Tokenizer::Token::SubTypes::Operator },    { ".", My::Tokenizer::Token::SubTypes::Dot }
+    { "uses", My::Tokenizer::Token::SubTypes::Uses },          { "xor", My::Tokenizer::Token::SubTypes::Xor },            { "operator", My::Tokenizer::Token::SubTypes::Operator },    { ".", My::Tokenizer::Token::SubTypes::Dot },
+    { "or", My::Tokenizer::Token::SubTypes::Or }
 };
 
-const My::Tokenizer::Token My::Tokenizer::endToken = Token({ 0, 0 }, "", FiniteAutomata::States::End);
+const My::Tokenizer::Token My::Tokenizer::endToken = Token({ 0, 0 }, "", FiniteAutomata::States::End, "");
 
 const std::string My::Tokenizer::Token::TypesStrings[] = {
     "Identifier", "Integer", "Float", "Char", "String", "Operator", "Separator", "ReservedWord", "EndOfFile"
@@ -52,7 +54,7 @@ const std::string My::Tokenizer::Token::SubTypesStrings[] = {
     "Then",              "To",                "Type",               "Unit",
     "Until",             "Uses",              "Var",                "While",
     "With",              "Xor",               "Range",              "Operator",
-    "CharConst"
+    "CharConst",
 
 };
 My::Tokenizer::Tokenizer(std::string file) {
@@ -71,22 +73,29 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
 	if (IsEnd())
 		return endToken;
 	char c;
+    int tokenLen = 0;
 	std::string s = "";
+    std::string rawString = "";
     std::string charCode = "";
 	FiniteAutomata::States cstate = state;
 	while ((file >> c) && !file.eof()) {
+        if (c <= 0)
+            throw UnknownSymbolException(c, std::make_pair(row, column));
 		c = tolower(c);
-		state = FiniteAutomata::FiniteAutomata[state][c - 1];
+		state = My::FiniteAutomata::FiniteAutomata[state][c - 1];
         switch (state) {
+        case My::FiniteAutomata::States::StringEnd:
+            rawString += c;
+            ++tokenLen;
         case My::FiniteAutomata::States::Whitespace:
         case My::FiniteAutomata::States::Comment:
         case My::FiniteAutomata::States::CommentMultiline:
         case My::FiniteAutomata::States::Asterisk:
-        case My::FiniteAutomata::States::StringEnd:
-        case My::FiniteAutomata::States::OctStart:
-        case My::FiniteAutomata::States::HexStart:
-        case My::FiniteAutomata::States::BinStart:
-        case My::FiniteAutomata::States::Char:
+            if (c == '\n') {
+                ++row;
+                column = 0;
+            }
+            ++column;
             continue;
         case My::FiniteAutomata::States::NewLine:
             ++row;
@@ -96,24 +105,33 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
             file.putback(c);
             file.putback(s.back());
             s.pop_back();
+            cstate = My::FiniteAutomata::States::Decimal;
             goto tokenEnd;
-        case My::FiniteAutomata::States::Return:
-            file.putback(c);
-            file.putback(s.back());
+        case My::FiniteAutomata::States::BeginMultilineComment:
+        case My::FiniteAutomata::States::BeginComment:
             s.pop_back();
+            rawString.pop_back();
+            cstate = My::FiniteAutomata::States::TokenEnd;
             continue;
         case My::FiniteAutomata::States::DecimalCharCode:
         case My::FiniteAutomata::States::BinCharCode:
         case My::FiniteAutomata::States::HexCharCode:
         case My::FiniteAutomata::States::OctCharCode:
             cstate = state;
+            rawString += c;
             charCode += c;
+            ++column;
+            ++tokenLen;
             continue;
+        case My::FiniteAutomata::States::Char:
         case My::FiniteAutomata::States::StringStart:
             if (charCode.length()) {
                 s += codeToChar(cstate, charCode.c_str());
                 charCode = "";
             }
+            ++column;
+            ++tokenLen;
+            rawString += c;
             continue;
         case My::FiniteAutomata::States::TokenEnd:
             if (charCode.length()) {
@@ -123,29 +141,20 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
             file.putback(c);
         case My::FiniteAutomata::States::End:
             goto tokenEnd;
-        case My::FiniteAutomata::UnknownSymbol:
-            throw UnknownSymbolException(c, std::make_pair(row, column));
-        case My::FiniteAutomata::UnexpectedSymbol:
-            throw UnexpectedSymbolException(c, std::make_pair(row, column));
-        case My::FiniteAutomata::EOLWhileParsingString:
-            throw EOLWhileParsingStringException(c, std::make_pair(row, column));
-        case My::FiniteAutomata::ScaleFactorExpected:
-            throw ScaleFactorExpectedException(c, std::make_pair(row, column));
-        case My::FiniteAutomata::UnexpectedEndOfFile:
-            throw UnexpectedEndOfFileException(c, std::make_pair(row, column));
-        case My::FiniteAutomata::NumberExpected:
-            throw NumberExpectedException(c, std::make_pair(row, column));
-        case My::FiniteAutomata::FractionalPartExpected:
-            throw FractionalPartExpectedException(c, std::make_pair(row, column));
         default:
+            tryThrowException(state, c);
             break;
         }
         cstate = state;
         ++column;
+        ++tokenLen;
 		s += c;
+        rawString += c;
 	}
-    tokenEnd:
-	tokens.push_back(Token(std::make_pair(row, column - s.length()), s, cstate));
+    if (file.eof())
+        tryThrowException(My::FiniteAutomata::FiniteAutomata[state][127], c);
+tokenEnd:
+	tokens.push_back(Token(std::make_pair(row, column - tokenLen), s, cstate, rawString));
 	++currentIndex;
 	return tokens.back();
 }
@@ -171,6 +180,34 @@ long int My::Tokenizer::codeToChar(My::FiniteAutomata::States state, const char*
     default:
         throw std::exception();
     }
+}
+
+void My::Tokenizer::tryThrowException(My::FiniteAutomata::States state, char c) {
+    switch (state) {
+    case My::FiniteAutomata::UnknownSymbol:
+        throw UnknownSymbolException(c, std::make_pair(row, column));
+    case My::FiniteAutomata::UnexpectedSymbol:
+        throw UnexpectedSymbolException(c, std::make_pair(row, column));
+    case My::FiniteAutomata::EOLWhileParsingString:
+        throw EOLWhileParsingStringException(c, std::make_pair(row, column));
+    case My::FiniteAutomata::ScaleFactorExpected:
+        throw ScaleFactorExpectedException(c, std::make_pair(row, column));
+    case My::FiniteAutomata::UnexpectedEndOfFile:
+        throw UnexpectedEndOfFileException(c, std::make_pair(row, column));
+    case My::FiniteAutomata::NumberExpected:
+        throw NumberExpectedException(c, std::make_pair(row, column));
+    case My::FiniteAutomata::FractionalPartExpected:
+        throw FractionalPartExpectedException(c, std::make_pair(row, column));
+    default:
+        return;
+    }
+}
+
+std::string My::Tokenizer::Token::escape(std::string string) {
+    string = std::regex_replace(string, std::regex("(\\n)"), "\\n");
+    string = std::regex_replace(string, std::regex("(\\r)"), "\\r");
+    string = std::regex_replace(string, std::regex("(\\t)"), "\\t");
+    return string;
 }
 
 const My::Tokenizer::Token& My::Tokenizer::Current() {
@@ -251,17 +288,17 @@ const long double My::Tokenizer::Token::GetLongDoubleValue() {
 const std::string My::Tokenizer::Token::ToString() {
     switch (myType) {
     case Types::Integer:
-        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-30|%|4$-30|%|5$-30|%|6$-30|") 
+        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|") 
             % myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)]
             % SubTypesStrings[static_cast<unsigned int>(mySubType)] % myValue.UnsignedLongLong % myString);
     case Types::Float:
-        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-30|%|4$-30|%|5$-30|%|6$-30|")
+        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|")
             % myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)]
             % SubTypesStrings[static_cast<unsigned int>(mySubType)] % myValue.Double % myString);
     default:
-        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-30|%|4$-30|%|5$-30|%|6$-30|")
+        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|")
             % myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)]
-            % SubTypesStrings[static_cast<unsigned int>(mySubType)] % (stringUsed ? myValue.String : "") % myString);
+            % SubTypesStrings[static_cast<unsigned int>(mySubType)] % (stringUsed ? escape(myValue.String) : "") % myString);
     }
 }
 
@@ -282,16 +319,18 @@ void My::Tokenizer::Token::saveString(const char* string) {
 	stringUsed = true;
 }
 
-My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state) {
+My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state, std::string rawString) {
 	myPosition = position;
-	myString = string;
+	myString = rawString;
 	std::unordered_map<std::string, SubTypes>::const_iterator it;
 	switch (state) {
 	case My::FiniteAutomata::States::Identifier:
 		it = TokenSubTypes.find(string);
 		if (it != TokenSubTypes.end()) {
 			mySubType = it->second;
-            if (string == "shl" || string == "shr")
+            if (string == "shl" || string == "shr" || string == "xor"
+                || string == "mod" || string == "div" || string == "not"
+                || string == "or"  || string == "and")
                 myType = Types::Operator;
             else
 			    myType = Types::ReservedWord;
@@ -304,10 +343,25 @@ My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, Fi
 		break;
 	case My::FiniteAutomata::States::ReturnInt:
 	case My::FiniteAutomata::States::Decimal:
-		myType = Types::Integer;
-		mySubType = SubTypes::IntegerConst;
-		myValue.UnsignedLongLong = std::strtoull(string.c_str(), NULL, 0);
-		break;
+		myValue.UnsignedLongLong = std::strtoull(string.c_str(), NULL, 10);
+        myType = Types::Integer;
+        mySubType = SubTypes::IntegerConst;
+        break;
+    case My::FiniteAutomata::States::Hex:
+        myValue.UnsignedLongLong = std::strtoull(string.c_str() + 1, NULL, 16);
+        myType = Types::Integer;
+        mySubType = SubTypes::IntegerConst;
+        break;
+    case My::FiniteAutomata::States::Oct:
+        myValue.UnsignedLongLong = std::strtoull(string.c_str() + 1, NULL, 8);
+        myType = Types::Integer;
+        mySubType = SubTypes::IntegerConst;
+        break;
+    case My::FiniteAutomata::States::Bin:
+        myValue.UnsignedLongLong = std::strtoull(string.c_str() + 1, NULL, 2);
+        myType = Types::Integer;
+        mySubType = SubTypes::IntegerConst;
+        break;
 	case My::FiniteAutomata::States::FloatEnd:
 	case My::FiniteAutomata::States::Float:
 		myType = Types::Float;
@@ -316,10 +370,6 @@ My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, Fi
 		break;
     case My::FiniteAutomata::States::StringEnd:
 	case My::FiniteAutomata::States::String:
-		myType = Types::String;
-		mySubType = SubTypes::StringConst;
-		saveString(string);
-		break;
     case My::FiniteAutomata::States::DecimalCharCode:
     case My::FiniteAutomata::States::HexCharCode:
     case My::FiniteAutomata::States::OctCharCode:

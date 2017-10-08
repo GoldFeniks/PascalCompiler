@@ -24,33 +24,38 @@ namespace My {
 
 		public:
 
-			enum class Types {
-				Identifier, Integer, Float, String, Operator, Separator, ReservedWord, EndOfFile
+			enum class Types : unsigned int {
+				Identifier, Integer, Float, Char, String, Operator, Separator, ReservedWord, EndOfFile
 			};
 
-			enum class SubTypes { 
+            static const std::string TypesStrings[];
 
-				Identifier,        Integer,      Float,         StringConst,
-                Plus,              Minus,        Mult,          Divide,
-                Equal,             Less,         Greater,       OpenBracket,
-                CloseBracket,      Dot,          Comma,         OpenParenthesis,
-                CloseParenthesis,  Colon,        Semicolon,     Pointer,
-                ShiftLeft,         ShiftRight,   Power,         NotEqual,
-                SymmetricDiff,     LessEqual,    GreaterEqual,  Assign,
-                PlusAssign,        MinusAssign,  MultAssign,    DivideAssign,
-                Absolute,          And,          Array,         Asm,
-                Begin,             Case,         Const,         Div,
-                Do,                Downto,       Else,          End,        
-                File,              For,          Function,      Goto,
-                If,                In,           Inline,        Label,
-                Mod,               Nil,          Not,           Of,
-                Or,                Packed,       Procedure,     Program,
-                Record,            Repeat,       Set,           String,
-                Then,              To,           Type,          Unit,         
-                Until,             Uses,         Var,           While,
-                With,              Xor,          Range,         Operator
+			enum class SubTypes : unsigned int {
+
+				Identifier,        IntegerConst,      FloatConst,         StringConst,
+                Plus,              Minus,             Mult,               Divide,
+                Equal,             Less,              Greater,            OpenBracket,
+                CloseBracket,      Dot,               Comma,              OpenParenthesis,
+                CloseParenthesis,  Colon,             Semicolon,          Pointer,
+                ShiftLeft,         ShiftRight,        Power,              NotEqual,
+                SymmetricDiff,     LessEqual,         GreaterEqual,       Assign,
+                PlusAssign,        MinusAssign,       MultAssign,         DivideAssign,
+                Absolute,          And,               Array,              Asm,
+                Begin,             Case,              Const,              Div,
+                Do,                Downto,            Else,               End,        
+                File,              For,               Function,           Goto,
+                If,                In,                Inline,             Label,
+                Mod,               Nil,               Not,                Of,
+                Or,                Packed,            Procedure,          Program,
+                Record,            Repeat,            Set,                String,
+                Then,              To,                Type,               Unit,         
+                Until,             Uses,              Var,                While,
+                With,              Xor,               Range,              Operator,
+                CharConst, 
 
 			};
+
+            static const std::string SubTypesStrings[];
 
 			static const std::unordered_map<std::string, SubTypes> TokenSubTypes;
 			
@@ -74,6 +79,7 @@ namespace My {
 			const char* GetStringValue();
 			const unsigned long long GetLongLongValue();
 			const long double GetLongDoubleValue();
+            const std::string ToString();
 
 			private:
 
@@ -85,7 +91,7 @@ namespace My {
 				union Value {
 					char* String;
 					unsigned long long UnsignedLongLong;
-					long double LongDouble;
+					double Double;
 				};
 
 				Value myValue;
@@ -116,6 +122,8 @@ namespace My {
 		std::ifstream file;
 		FiniteAutomata::States state = FiniteAutomata::States::TokenEnd;
 		int row = 1, column = 1;
+
+        static long int codeToChar(My::FiniteAutomata::States state, const char* charCode);
 
 	};
 

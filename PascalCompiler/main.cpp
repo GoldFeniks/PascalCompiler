@@ -17,8 +17,22 @@ void tokenizerOutput(std::string inFile, std::string outFile) {
 }
 
 int main(int argc, char* argv[]) {
-	if (argc <= 1)
-		std::cout << "Pascal compiler. Tyshchenko Andrey 2017";
-    tokenizerOutput("Tests/Tokenizer/1.pas", "output.txt");
+    if (argc <= 1) {
+        std::cout << "Pascal compiler. Tyshchenko Andrey 2017";
+        return 0;
+    }
+    std::string key(argv[1]);
+    if (argc < 3) {
+        std::cout << "File is not specified";
+        return 0;
+    }
+    if (key == "-l") {
+        if (argc < 4)
+            tokenizerOutput(argv[2], "output.txt");
+        else
+            tokenizerOutput(argv[2], argv[3]);
+    }
+    else
+        std::cout << "Unknown key " << key;
 	return 0;
 }

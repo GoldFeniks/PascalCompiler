@@ -8,13 +8,17 @@
 
 namespace My {
 
-	class Tokenizer {
+    class Tokenizer {
 
-	public:
+    public:
 
-		class UnexpectedSymbolException : std::exception {};
-		class InvalidSyntaxException : std::exception {};
-		class EOLWhileParsingStringException : std::exception {};
+        class UnknownSymbolException : public std::exception {};
+        class UnexpectedSymbolException : public std::exception {};
+        class EOLWhileParsingStringException : public std::exception {};
+        class ScaleFactorExpectedException : public std::exception {};
+        class UnexpectedEndOfFileException : public std::exception {};
+        class NumberExpectedException : public std::exception {};
+        class FractionalPartExpectedException : public std::exception {};
 
 		class Token {
 
@@ -25,25 +29,30 @@ namespace My {
 			};
 
 			enum class SubTypes { 
-				Identifier,    Integer,          Float,             String,
-				Plus,          Minus,            Mult,              Divide,
-				Equal,         Less,             Greater,           OpenBracket,
-				CloseBracket,  Comma,            Colon,             Semicolon,
-				Adress,        OpenParenthesis,  CloseParenthesis,  NotEqual,
-				LessOrEqual,   GreaterOrEqual,   Assign,            Range,
-				And,           Array,            Begin,             Case,
-				Const,         Div,              Do,                Downto,
-				Else,          End,              File,              For,
-				Function,      Goto,             If,                In,
-				Label,         Mod,              Nil,               Not,
-				Of,            Or,               Packed,            Procedure,
-				Program,       Record,           Repeat,            Set,
-				Then,          To,               Type,              Until,
-				Var,           While,            With,              ProgramEnd
+
+				Identifier,        Integer,      Float,         StringConst,
+                Plus,              Minus,        Mult,          Divide,
+                Equal,             Less,         Greater,       OpenBracket,
+                CloseBracket,      Dot,          Comma,         OpenParenthesis,
+                CloseParenthesis,  Colon,        Semicolon,     Pointer,
+                ShiftLeft,         ShiftRight,   Power,         NotEqual,
+                SymmetricDiff,     LessEqual,    GreaterEqual,  Assign,
+                PlusAssign,        MinusAssign,  MultAssign,    DivideAssign,
+                Absolute,          And,          Array,         Asm,
+                Begin,             Case,         Const,         Div,
+                Do,                Downto,       Else,          End,        
+                File,              For,          Function,      Goto,
+                If,                In,           Inline,        Label,
+                Mod,               Nil,          Not,           Of,
+                Or,                Packed,       Procedure,     Program,
+                Record,            Repeat,       Set,           String,
+                Then,              To,           Type,          Unit,         
+                Until,             Uses,         Var,           While,
+                With,              Xor,          Range,         Operator
+
 			};
 
 			static const std::unordered_map<std::string, SubTypes> TokenSubTypes;
-			static const std::unordered_map<std::string, Types> TokenTypes;
 			
 			Token() = delete;
 			Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state);
@@ -96,15 +105,16 @@ namespace My {
 		const Token& First();
 		bool IsEnd();
 
+        static const Token endToken;
+
 	private:
 
 		friend struct iterator;
 
-		static const Token emptyToken;
 		int currentIndex = -1;
 		std::vector<Token> tokens;
 		std::ifstream file;
-		FiniteAutomata::States state = FiniteAutomata::States::Stop;
+		FiniteAutomata::States state = FiniteAutomata::States::TokenEnd;
 		int row = 1, column = 1;
 
 	};

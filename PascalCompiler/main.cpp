@@ -6,8 +6,7 @@ int main(int argc, char* argv[]) {
 		std::cout << "Pascal compiler. Tyshchenko Andrey 2017";
 	My::Tokenizer tokenizer("1.pas");
 	My::Tokenizer::Token token = tokenizer.First();
-	while (!tokenizer.IsEnd()) {
-		token = tokenizer.Next();
+	while ((token = tokenizer.Next()) != tokenizer.endToken) {
 		int a = 1;
 	}
 	return 0;

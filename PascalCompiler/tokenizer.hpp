@@ -12,13 +12,87 @@ namespace My {
 
     public:
 
-        class UnknownSymbolException : public std::exception {};
-        class UnexpectedSymbolException : public std::exception {};
-        class EOLWhileParsingStringException : public std::exception {};
-        class ScaleFactorExpectedException : public std::exception {};
-        class UnexpectedEndOfFileException : public std::exception {};
-        class NumberExpectedException : public std::exception {};
-        class FractionalPartExpectedException : public std::exception {};
+        class TokenizerException : public std::exception {
+
+        public:
+
+            virtual const char* what() const override;
+
+        protected:
+
+            TokenizerException(const char symbol, const std::pair<int, int> position, const char* format) :
+                symbol(symbol), position(position) { initMessage(format); };
+
+            const char* initMessage(const char* format);
+
+            const char symbol;
+            const std::pair<int, int> position;
+            char* message = nullptr;
+
+        };
+
+        class UnknownSymbolException : public TokenizerException {
+
+        public:
+
+            UnknownSymbolException(const char symbol, const std::pair<int, int> position) : 
+                TokenizerException(symbol, position, "Unknown symbol \"%1%\" at (%2%, %3%)") {};
+
+        };
+
+        class UnexpectedSymbolException : public TokenizerException {
+
+        public:
+
+            UnexpectedSymbolException(const char symbol, const std::pair<int, int> position) :
+                TokenizerException(symbol, position, "Unexpected symbol \"%1%\" at (%2%, %3%)") {};
+        
+        };
+
+        class EOLWhileParsingStringException : public TokenizerException {
+
+        public:
+
+            EOLWhileParsingStringException(const char symbol, const std::pair<int, int> position) :
+                TokenizerException(symbol, position, "End of line reached at (%2%, %3%) while pasing string") {};
+                    
+        };
+
+        class ScaleFactorExpectedException : public TokenizerException {
+
+        public:
+
+            ScaleFactorExpectedException(const char symbol, const std::pair<int, int> position) :
+                TokenizerException(symbol, position, "Scale factor expected at (%2%, %3%)") {};
+        
+        };
+
+        class UnexpectedEndOfFileException : public TokenizerException {
+        
+        public:
+
+            UnexpectedEndOfFileException(const char symbol, const std::pair<int, int> position) :
+                TokenizerException(symbol, position, "Unexpected end of file at (%2%, %3%)") {};
+
+        };
+
+        class NumberExpectedException : public TokenizerException {
+
+        public:
+
+            NumberExpectedException(const char symbol, const std::pair<int, int> position) :
+                TokenizerException(symbol, position, "Number expected at (%2%, %3%)") {};
+            
+        };
+
+        class FractionalPartExpectedException : public TokenizerException {
+
+        public:
+
+            FractionalPartExpectedException(const char symbol, const std::pair<int, int> position) :
+                TokenizerException(symbol, position, "fractional part expected at (%2%, %3%)") {};
+
+        };
 
 		class Token {
 

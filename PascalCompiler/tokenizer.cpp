@@ -22,7 +22,7 @@ const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokeni
     { "shl", My::Tokenizer::Token::SubTypes::ShiftLeft },      { "shr", My::Tokenizer::Token::SubTypes::ShiftRight },     { "**", My::Tokenizer::Token::SubTypes::Power },             { "><", My::Tokenizer::Token::SubTypes::SymmetricDiff },
     { "+=", My::Tokenizer::Token::SubTypes::PlusAssign },      { "-=", My::Tokenizer::Token::SubTypes::MinusAssign },     { "*=", My::Tokenizer::Token::SubTypes::MultAssign },        { "/=", My::Tokenizer::Token::SubTypes::DivideAssign },
     { "absolute", My::Tokenizer::Token::SubTypes::Absolute },  { "inline", My::Tokenizer::Token::SubTypes::Inline },      { "string", My::Tokenizer::Token::SubTypes::String },        { "unit", My::Tokenizer::Token::SubTypes::Unit },
-    { "usus", My::Tokenizer::Token::SubTypes::Uses },          { "xor", My::Tokenizer::Token::SubTypes::Xor },            { "operator", My::Tokenizer::Token::SubTypes::Operator },    { ".", My::Tokenizer::Token::SubTypes::Dot }
+    { "uses", My::Tokenizer::Token::SubTypes::Uses },          { "xor", My::Tokenizer::Token::SubTypes::Xor },            { "operator", My::Tokenizer::Token::SubTypes::Operator },    { ".", My::Tokenizer::Token::SubTypes::Dot }
 };
 
 const My::Tokenizer::Token My::Tokenizer::endToken = Token({ 0, 0 }, "", FiniteAutomata::States::End);
@@ -124,19 +124,19 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
         case My::FiniteAutomata::States::End:
             goto tokenEnd;
         case My::FiniteAutomata::UnknownSymbol:
-            throw UnknownSymbolException();
+            throw UnknownSymbolException(c, std::make_pair(row, column));
         case My::FiniteAutomata::UnexpectedSymbol:
-            throw UnexpectedSymbolException();
+            throw UnexpectedSymbolException(c, std::make_pair(row, column));
         case My::FiniteAutomata::EOLWhileParsingString:
-            throw EOLWhileParsingStringException();
+            throw EOLWhileParsingStringException(c, std::make_pair(row, column));
         case My::FiniteAutomata::ScaleFactorExpected:
-            throw ScaleFactorExpectedException();
+            throw ScaleFactorExpectedException(c, std::make_pair(row, column));
         case My::FiniteAutomata::UnexpectedEndOfFile:
-            throw UnexpectedEndOfFileException();
+            throw UnexpectedEndOfFileException(c, std::make_pair(row, column));
         case My::FiniteAutomata::NumberExpected:
-            throw NumberExpectedException();
+            throw NumberExpectedException(c, std::make_pair(row, column));
         case My::FiniteAutomata::FractionalPartExpected:
-            throw FractionalPartExpectedException();
+            throw FractionalPartExpectedException(c, std::make_pair(row, column));
         default:
             break;
         }
@@ -368,4 +368,19 @@ My::Tokenizer::Token::Token(const Token& other) {
 
 My::Tokenizer::Token::Token(Token&& other) {
 	*this = std::move(other);
+}
+
+
+const char* My::Tokenizer::TokenizerException::what() const {
+    return message;
+}
+
+const char* My::Tokenizer::TokenizerException::initMessage(const char* format) {
+    if (message)
+        return message;
+    auto bMessage = boost::str(boost::format(format) % symbol % position.first % position.second);
+    const int size = std::strlen(bMessage.c_str()) + 1;
+    message = new char[size];
+    std::memcpy(message, bMessage.c_str(), size);
+    return message;
 }

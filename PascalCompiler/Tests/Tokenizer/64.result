@@ -36,5 +36,5 @@
 (10,4)    ReservedWord        End                           end                           end                           
 (10,7)    Separator           Semicolon                     ;                             ;                             
 (29,1)    ReservedWord        Begin                         begin                         begin                         
-(42,0)    ReservedWord        End                           end                           end                           
+(42,1)    ReservedWord        End                           end                           end                           
 (42,4)    Operator            Dot                           .                             .                             

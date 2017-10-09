@@ -5,6 +5,7 @@
 #include <vector>
 #include "finite_automata.hpp"
 #include <unordered_map>
+#include <unordered_set>
 
 namespace My {
 
@@ -130,8 +131,8 @@ namespace My {
 			};
 
             static const std::string SubTypesStrings[];
-
 			static const std::unordered_map<std::string, SubTypes> TokenSubTypes;
+            static const std::unordered_set<std::string> CharOperators;
 			
 			Token() = delete;
 			Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state, std::string rawString);

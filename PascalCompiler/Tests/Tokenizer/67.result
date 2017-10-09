@@ -1,7 +1,7 @@
-(1,1)     Integer             IntegerConst                  1                             1.                            
+(1,2)     Integer             IntegerConst                  1                             1                             
 (1,3)     Operator            Range                         ..                            ..                            
 (1,5)     Integer             IntegerConst                  20                            20                            
-(2,1)     Integer             IntegerConst                  10                            10.                           
+(2,2)     Integer             IntegerConst                  10                            10                            
 (2,4)     Operator            Range                         ..                            ..                            
 (2,6)     Integer             IntegerConst                  20                            20                            
 (3,1)     Float               FloatConst                    10.05                         10.05                         

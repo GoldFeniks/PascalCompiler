@@ -57,6 +57,9 @@ const std::string My::Tokenizer::Token::SubTypesStrings[] = {
     "CharConst",
 
 };
+
+const std::unordered_set<std::string> My::Tokenizer::Token::CharOperators = { "shl", "shr", "xor", "mod", "div", "not", "or", "and" };
+
 My::Tokenizer::Tokenizer(std::string file) {
 	this->file = std::ifstream(file);
 	this->file >> std::noskipws;
@@ -73,30 +76,25 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
 	if (IsEnd())
 		return endToken;
 	char c;
-    int tokenLen = 0;
 	std::string s = "";
     std::string rawString = "";
     std::string charCode = "";
 	FiniteAutomata::States cstate = state;
-	while ((file >> c) && !file.eof()) {
+	while (!file.eof() && (file >> c)) {
         if (c <= 0)
             throw UnknownSymbolException(c, std::make_pair(row, column));
 		c = tolower(c);
-		state = My::FiniteAutomata::FiniteAutomata[state][c - 1];
+		state = My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][c - 1];
         switch (state) {
         case My::FiniteAutomata::States::StringEnd:
             rawString += c;
-            ++tokenLen;
         case My::FiniteAutomata::States::Whitespace:
         case My::FiniteAutomata::States::Comment:
         case My::FiniteAutomata::States::CommentMultiline:
         case My::FiniteAutomata::States::Asterisk:
-            if (c == '\n') {
-                ++row;
-                column = 0;
-            }
             ++column;
             continue;
+        case My::FiniteAutomata::States::CommentNewLine:
         case My::FiniteAutomata::States::NewLine:
             ++row;
             column = 1;
@@ -105,6 +103,7 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
             file.putback(c);
             file.putback(s.back());
             s.pop_back();
+            rawString.pop_back();
             cstate = My::FiniteAutomata::States::Decimal;
             goto tokenEnd;
         case My::FiniteAutomata::States::BeginMultilineComment:
@@ -121,7 +120,6 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
             rawString += c;
             charCode += c;
             ++column;
-            ++tokenLen;
             continue;
         case My::FiniteAutomata::States::Char:
         case My::FiniteAutomata::States::StringStart:
@@ -130,7 +128,6 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
                 charCode = "";
             }
             ++column;
-            ++tokenLen;
             rawString += c;
             continue;
         case My::FiniteAutomata::States::TokenEnd:
@@ -147,14 +144,13 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
         }
         cstate = state;
         ++column;
-        ++tokenLen;
 		s += c;
         rawString += c;
 	}
     if (file.eof())
-        tryThrowException(My::FiniteAutomata::FiniteAutomata[state][127], c);
+        tryThrowException(My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][127], c);
 tokenEnd:
-	tokens.push_back(Token(std::make_pair(row, column - tokenLen), s, cstate, rawString));
+	tokens.push_back(Token(std::make_pair(row, column - rawString.length()), s, cstate, rawString));
 	++currentIndex;
 	return tokens.back();
 }
@@ -184,19 +180,19 @@ long int My::Tokenizer::codeToChar(My::FiniteAutomata::States state, const char*
 
 void My::Tokenizer::tryThrowException(My::FiniteAutomata::States state, char c) {
     switch (state) {
-    case My::FiniteAutomata::UnknownSymbol:
+    case My::FiniteAutomata::States::UnknownSymbol:
         throw UnknownSymbolException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::UnexpectedSymbol:
+    case My::FiniteAutomata::States::UnexpectedSymbol:
         throw UnexpectedSymbolException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::EOLWhileParsingString:
+    case My::FiniteAutomata::States::EOLWhileParsingString:
         throw EOLWhileParsingStringException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::ScaleFactorExpected:
+    case My::FiniteAutomata::States::ScaleFactorExpected:
         throw ScaleFactorExpectedException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::UnexpectedEndOfFile:
+    case My::FiniteAutomata::States::UnexpectedEndOfFile:
         throw UnexpectedEndOfFileException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::NumberExpected:
+    case My::FiniteAutomata::States::NumberExpected:
         throw NumberExpectedException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::FractionalPartExpected:
+    case My::FiniteAutomata::States::FractionalPartExpected:
         throw FractionalPartExpectedException(c, std::make_pair(row, column));
     default:
         return;
@@ -323,14 +319,14 @@ My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, Fi
 	myPosition = position;
 	myString = rawString;
 	std::unordered_map<std::string, SubTypes>::const_iterator it;
+    std::unordered_set<std::string>::const_iterator sit;
 	switch (state) {
 	case My::FiniteAutomata::States::Identifier:
 		it = TokenSubTypes.find(string);
 		if (it != TokenSubTypes.end()) {
 			mySubType = it->second;
-            if (string == "shl" || string == "shr" || string == "xor"
-                || string == "mod" || string == "div" || string == "not"
-                || string == "or"  || string == "and")
+            sit = CharOperators.find(string);
+            if (sit != CharOperators.end())
                 myType = Types::Operator;
             else
 			    myType = Types::ReservedWord;

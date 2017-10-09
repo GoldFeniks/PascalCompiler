@@ -30,7 +30,7 @@ namespace My {
             const std::pair<int, int> position;
             char* message = nullptr;
 
-        };
+        };//class TokenizerException
 
         class UnknownSymbolException : public TokenizerException {
 
@@ -39,7 +39,7 @@ namespace My {
             UnknownSymbolException(const char symbol, const std::pair<int, int> position) : 
                 TokenizerException(symbol, position, "Unknown symbol \"%1%\" at (%2%, %3%)") {};
 
-        };
+        };//class UnknownSymbolException
 
         class UnexpectedSymbolException : public TokenizerException {
 
@@ -48,7 +48,7 @@ namespace My {
             UnexpectedSymbolException(const char symbol, const std::pair<int, int> position) :
                 TokenizerException(symbol, position, "Unexpected symbol \"%1%\" at (%2%, %3%)") {};
         
-        };
+        };//class UnexpectedSymbolException
 
         class EOLWhileParsingStringException : public TokenizerException {
 
@@ -57,7 +57,7 @@ namespace My {
             EOLWhileParsingStringException(const char symbol, const std::pair<int, int> position) :
                 TokenizerException(symbol, position, "End of line reached at (%2%, %3%) while pasing string") {};
                     
-        };
+        };//class EOLWhileParsingStringException
 
         class ScaleFactorExpectedException : public TokenizerException {
 
@@ -66,7 +66,7 @@ namespace My {
             ScaleFactorExpectedException(const char symbol, const std::pair<int, int> position) :
                 TokenizerException(symbol, position, "Scale factor expected at (%2%, %3%)") {};
         
-        };
+        };//class ScaleFactorExpectedException
 
         class UnexpectedEndOfFileException : public TokenizerException {
         
@@ -75,7 +75,7 @@ namespace My {
             UnexpectedEndOfFileException(const char symbol, const std::pair<int, int> position) :
                 TokenizerException(symbol, position, "Unexpected end of file at (%2%, %3%)") {};
 
-        };
+        };//class UnexpectedEndOfFileException
 
         class NumberExpectedException : public TokenizerException {
 
@@ -84,7 +84,7 @@ namespace My {
             NumberExpectedException(const char symbol, const std::pair<int, int> position) :
                 TokenizerException(symbol, position, "Number expected at (%2%, %3%)") {};
             
-        };
+        };//class NumberExpectedException
 
         class FractionalPartExpectedException : public TokenizerException {
 
@@ -93,7 +93,7 @@ namespace My {
             FractionalPartExpectedException(const char symbol, const std::pair<int, int> position) :
                 TokenizerException(symbol, position, "fractional part expected at (%2%, %3%)") {};
 
-        };
+        };//class FractionalPartExpectedException
 
 		class Token {
 
@@ -147,14 +147,17 @@ namespace My {
 
 			~Token();
 
-			const std::pair<int, int>& GetPosition();
-			const SubTypes GetSubType();
-			const Types GetType();
-			const std::string& GetString();
-			const char* GetStringValue();
-			const unsigned long long GetLongLongValue();
-			const long double GetLongDoubleValue();
-            const std::string ToString();
+			const std::pair<int, int>& GetPosition() const;
+			const SubTypes GetSubType() const;
+			const Types GetType() const;
+			const std::string& GetString() const;
+			const char* GetStringValue() const;
+			const unsigned long long GetLongLongValue() const;
+			const long double GetLongDoubleValue() const;
+            const std::string ToString() const;
+
+            template<typename T>
+            const T GetValueCopy();
 
 			private:
 
@@ -167,6 +170,12 @@ namespace My {
 					char* String;
 					unsigned long long UnsignedLongLong;
 					double Double;
+
+                    operator std::string() const { return std::string(String); }
+                    operator unsigned long long() const { return UnsignedLongLong; }
+                    operator double() const { return Double; }
+                    operator char() const { return String[0]; }
+
 				};
 
 				Value myValue;
@@ -174,18 +183,23 @@ namespace My {
 				bool stringUsed = false;
 				void saveString(std::string& string);
 				void saveString(const char* string);
-                std::string escape(std::string string);
+                static std::string escape(std::string string);
 
-		};
+		};//class Token
 
 		Tokenizer() = delete;
-		Tokenizer(std::string file);
-		Tokenizer(std::ifstream file);
+		Tokenizer(const std::string file);
+		Tokenizer(std::ifstream&& file);
+        Tokenizer(const Tokenizer&) = delete;
+        Tokenizer(Tokenizer&& other);
+
+        Tokenizer& operator=(const Tokenizer&) = delete;
+        Tokenizer& operator=(Tokenizer&& other);
 
 		const Token& Next();
-		const Token& Current();
+		const Token& Current() const; 
 		const Token& First();
-		bool IsEnd();
+		bool IsEnd() const;
 
         static const Token endToken;
 
@@ -200,8 +214,13 @@ namespace My {
 		int row = 1, column = 1;
 
         static long int codeToChar(My::FiniteAutomata::States state, const char* charCode);
-        void tryThrowException(My::FiniteAutomata::States state, char c);
+        void tryThrowException(My::FiniteAutomata::States state, char c) const;
 
-	};
+	};//class Tokenizer
+
+    template<typename T>
+    const T Tokenizer::Token::GetValueCopy() {
+        return T(myValue);
+    }
 
 }//namespace My

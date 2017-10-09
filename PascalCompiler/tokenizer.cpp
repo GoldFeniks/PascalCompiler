@@ -60,14 +60,28 @@ const std::string My::Tokenizer::Token::SubTypesStrings[] = {
 
 const std::unordered_set<std::string> My::Tokenizer::Token::CharOperators = { "shl", "shr", "xor", "mod", "div", "not", "or", "and" };
 
-My::Tokenizer::Tokenizer(std::string file) {
+My::Tokenizer::Tokenizer(const std::string file) {
 	this->file = std::ifstream(file);
 	this->file >> std::noskipws;
 }
 
-My::Tokenizer::Tokenizer(std::ifstream file) {
+My::Tokenizer::Tokenizer(std::ifstream&& file) {
 	this->file = std::move(file);
 	this->file >> std::noskipws;
+}
+
+My::Tokenizer::Tokenizer(Tokenizer&& other) {
+    *this = std::move(other);
+}
+
+My::Tokenizer& My::Tokenizer::operator=(Tokenizer&& other) {
+    std::swap(currentIndex, other.currentIndex);
+    std::swap(tokens, other.tokens);
+    std::swap(file, other.file);
+    std::swap(state, other.state);
+    std::swap(row, other.row);
+    std::swap(column, other.column);
+    return *this;
 }
 
 const My::Tokenizer::Token& My::Tokenizer::Next() {
@@ -155,7 +169,7 @@ tokenEnd:
 	return tokens.back();
 }
 
-bool My::Tokenizer::IsEnd() {
+bool My::Tokenizer::IsEnd() const {
 	return file.eof();
 }
 
@@ -178,7 +192,7 @@ long int My::Tokenizer::codeToChar(My::FiniteAutomata::States state, const char*
     }
 }
 
-void My::Tokenizer::tryThrowException(My::FiniteAutomata::States state, char c) {
+void My::Tokenizer::tryThrowException(My::FiniteAutomata::States state, char c) const {
     switch (state) {
     case My::FiniteAutomata::States::UnknownSymbol:
         throw UnknownSymbolException(c, std::make_pair(row, column));
@@ -206,7 +220,7 @@ std::string My::Tokenizer::Token::escape(std::string string) {
     return string;
 }
 
-const My::Tokenizer::Token& My::Tokenizer::Current() {
+const My::Tokenizer::Token& My::Tokenizer::Current() const {
 	return tokens[currentIndex];
 }
 
@@ -253,35 +267,35 @@ My::Tokenizer::Token::~Token() {
 		delete myValue.String;
 }
 
-const std::pair<int, int>& My::Tokenizer::Token::GetPosition() {
+const std::pair<int, int>& My::Tokenizer::Token::GetPosition() const {
 	return myPosition;
 }
 
-const My::Tokenizer::Token::SubTypes My::Tokenizer::Token::GetSubType() {
+const My::Tokenizer::Token::SubTypes My::Tokenizer::Token::GetSubType() const {
 	return mySubType;
 }
 
-const My::Tokenizer::Token::Types My::Tokenizer::Token::GetType() {
+const My::Tokenizer::Token::Types My::Tokenizer::Token::GetType() const {
 	return myType;
 }
 
-const std::string& My::Tokenizer::Token::GetString() {
+const std::string& My::Tokenizer::Token::GetString() const {
 	return myString;
 }
 
-const char* My::Tokenizer::Token::GetStringValue() {
+const char* My::Tokenizer::Token::GetStringValue() const {
 	return myValue.String;
 }
 
-const unsigned long long My::Tokenizer::Token::GetLongLongValue() {
+const unsigned long long My::Tokenizer::Token::GetLongLongValue() const {
 	return myValue.UnsignedLongLong;
 }
 
-const long double My::Tokenizer::Token::GetLongDoubleValue() {
+const long double My::Tokenizer::Token::GetLongDoubleValue() const {
 	return myValue.Double;
 }
 
-const std::string My::Tokenizer::Token::ToString() {
+const std::string My::Tokenizer::Token::ToString() const {
     switch (myType) {
     case Types::Integer:
         return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|") 

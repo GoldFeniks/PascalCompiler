@@ -1,1 +1,2 @@
-Unexpected symbol "2" at (1, 9)
+(1,1)     Integer             IntegerConst                  85                            %1010101                      
+(1,9)     Integer             IntegerConst                  20102                         20102                         

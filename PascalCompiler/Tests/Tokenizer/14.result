@@ -1,1 +1,2 @@
-Unexpected symbol "8" at (1, 5)
+(1,1)     Integer             IntegerConst                  83                            &123                          
+(1,5)     Integer             IntegerConst                  8                             8                             

@@ -4,7 +4,7 @@
 
 namespace My {
 
-    class SyntaxAnalizer {
+    class SyntaxAnalyzer {
 
     public:
 
@@ -96,7 +96,7 @@ namespace My {
 
             PExpressionNode Operand;
 
-        };
+        };//class UnaryOperation
 
         class BinaryOperation : ExpressionNode {
 
@@ -108,11 +108,17 @@ namespace My {
 
             PExpressionNode Left, Right;
 
-        };
+        };//class BinaryOperation
 
-        SyntaxAnalizer(Tokenizer&& tokenizer) : tokenizer(std::move(tokenizer)) {};
-        SyntaxAnalizer(const std::string file) : tokenizer(Tokenizer(file)) {};
-        SyntaxAnalizer(std::ifstream&& file) : tokenizer(std::move(file)) {};
+        SyntaxAnalyzer(Tokenizer&& tokenizer) : tokenizer(std::move(tokenizer)) {};
+        SyntaxAnalyzer(const std::string file) : tokenizer(Tokenizer(file)) {};
+        SyntaxAnalyzer(std::ifstream&& file) : tokenizer(std::move(file)) {};
+
+        SyntaxAnalyzer(const SyntaxAnalyzer&) = delete;
+        SyntaxAnalyzer(SyntaxAnalyzer&& other);
+
+        SyntaxAnalyzer& operator=(const SyntaxAnalyzer&) = delete;
+        SyntaxAnalyzer& operator=(SyntaxAnalyzer&& other);
 
         PExpressionNode ParseExpression();
         PExpressionNode ParseTerm();
@@ -124,6 +130,6 @@ namespace My {
 
         void require(const Tokenizer::Token& token, My::Tokenizer::Token::SubTypes type);
 
-    };//class SyntaxAnalizer
+    };//class SyntaxAnalyzer
 
 }// namespace My

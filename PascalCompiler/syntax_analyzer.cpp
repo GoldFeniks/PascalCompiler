@@ -3,9 +3,11 @@
 #include <iomanip>
 
 My::SyntaxAnalyzer::SyntaxErrorException::SyntaxErrorException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type) {
-    message = std::string(boost::str(boost::format("Syntax Error: %1% expected but %2% found") %
+    message = std::string(boost::str(boost::format("(%3%, %4%) Syntax Error: %2% expected but %1% found") %
         My::Tokenizer::Token::SubTypesStrings[static_cast<unsigned int>(token->GetSubType())] %
-        My::Tokenizer::Token::SubTypesStrings[static_cast<unsigned int>(type)]));
+        My::Tokenizer::Token::SubTypesStrings[static_cast<unsigned int>(type)] %
+        token->GetPosition().first % token->GetPosition().second
+    ));
 }
 
 const char* My::SyntaxAnalyzer::SyntaxErrorException::what() const {
@@ -88,9 +90,10 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFactor() {
 
 void My::SyntaxAnalyzer::Parse() {
     tokenizer.Next();
-    root = ParseExpression();
-    if (tokenizer.Current() != Tokenizer::endToken)
-        throw std::exception("Unexpected end of file");
+    if (tokenizer.Current() != Tokenizer::endToken) {
+        root = ParseExpression();
+        require(tokenizer.Current(), Tokenizer::Token::SubTypes::EndOfFile);
+    }
 }
 
 std::string My::SyntaxAnalyzer::ToString() {

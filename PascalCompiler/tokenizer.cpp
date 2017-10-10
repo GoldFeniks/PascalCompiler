@@ -54,7 +54,7 @@ const std::string My::Tokenizer::Token::SubTypesStrings[] = {
     "Then",              "To",                "Type",               "Unit",
     "Until",             "Uses",              "Var",                "While",
     "With",              "Xor",               "Range",              "Operator",
-    "CharConst",
+    "CharConst",         "EndOfFile",
 
 };
 
@@ -85,7 +85,7 @@ My::Tokenizer& My::Tokenizer::operator=(Tokenizer&& other) {
 }
 
 const My::Tokenizer::PToken My::Tokenizer::Next() {
-	if (currentIndex < tokens.size() - 1)
+	if (currentIndex + 1 < tokens.size())
 		return tokens[++currentIndex];
     if (IsEnd()) {
         currentIndex = tokens.size();
@@ -424,7 +424,7 @@ My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, Fi
     case My::FiniteAutomata::States::End:
     case My::FiniteAutomata::States::TokenEnd:
 		myType = Types::EndOfFile;
-        mySubType = SubTypes::Identifier;
+        mySubType = SubTypes::EndOfFile;
         break;
 	default:
 		throw std::exception();

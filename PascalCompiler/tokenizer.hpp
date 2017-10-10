@@ -127,7 +127,7 @@ namespace My {
                 Then,              To,                Type,               Unit,         
                 Until,             Uses,              Var,                While,
                 With,              Xor,               Range,              Operator,
-                CharConst,
+                CharConst,         EndOfFile,
 
 			};
 

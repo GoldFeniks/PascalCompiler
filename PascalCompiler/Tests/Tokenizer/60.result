@@ -38,7 +38,7 @@
 (15,14)   Operator            Assign                        :=                            :=                            
 (15,17)   Identifier          Identifier                    a                             a                             
 (15,19)   Operator            Equal                         =                             =                             
-(15,21)   EndOfFile           Identifier                                                  ''                            
+(15,21)   EndOfFile           EndOfFile                                                   ''                            
 (15,23)   Separator           Semicolon                     ;                             ;                             
 (16,7)    ReservedWord        Goto                          goto                          goto                          
 (16,12)   Identifier          Identifier                    loh                           loh                           

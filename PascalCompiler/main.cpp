@@ -19,8 +19,8 @@ void tokenizerOutput(std::string inFile, std::string outFile) {
 void syntaxAnalyzerOutput(std::string inFile, std::string outFile) {
     std::ofstream out(outFile);
     My::SyntaxAnalyzer syntaxAnalyzer(inFile);
-    syntaxAnalyzer.Parse();
     try {
+        syntaxAnalyzer.Parse();
         out << syntaxAnalyzer.ToString();
     }
     catch (My::SyntaxAnalyzer::SyntaxErrorException e) {

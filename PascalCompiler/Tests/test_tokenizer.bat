@@ -1,3 +1,2 @@
-cd Tokenizer
-py test.py
+py test.py Tokenizer l
 PAUSE

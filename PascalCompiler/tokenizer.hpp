@@ -6,6 +6,7 @@
 #include "finite_automata.hpp"
 #include <unordered_map>
 #include <unordered_set>
+#include <memory>
 
 namespace My {
 
@@ -157,7 +158,7 @@ namespace My {
             const std::string ToString() const;
 
             template<typename T>
-            const T GetValueCopy();
+            const T GetValue() const;
 
 			private:
 
@@ -171,7 +172,7 @@ namespace My {
 					unsigned long long UnsignedLongLong;
 					double Double;
 
-                    operator std::string() const { return std::string(String); }
+                    operator char*() const { return String; }
                     operator unsigned long long() const { return UnsignedLongLong; }
                     operator double() const { return Double; }
                     operator char() const { return String[0]; }
@@ -187,6 +188,8 @@ namespace My {
 
 		};//class Token
 
+        typedef std::shared_ptr<Token> PToken;
+
 		Tokenizer() = delete;
 		Tokenizer(const std::string file);
 		Tokenizer(std::ifstream&& file);
@@ -196,19 +199,19 @@ namespace My {
         Tokenizer& operator=(const Tokenizer&) = delete;
         Tokenizer& operator=(Tokenizer&& other);
 
-		const Token& Next();
-		const Token& Current() const; 
-		const Token& First();
+		const PToken Next();
+		const PToken Current() const; 
+		const PToken First();
 		bool IsEnd() const;
 
-        static const Token endToken;
+        static const PToken endToken;
 
 	private:
 
 		friend struct iterator;
 
 		int currentIndex = -1;
-		std::vector<Token> tokens;
+		std::vector<PToken> tokens;
 		std::ifstream file;
 		FiniteAutomata::States state = FiniteAutomata::States::TokenEnd;
 		int row = 1, column = 1;
@@ -219,7 +222,7 @@ namespace My {
 	};//class Tokenizer
 
     template<typename T>
-    const T Tokenizer::Token::GetValueCopy() {
+    const T Tokenizer::Token::GetValue() const {
         return T(myValue);
     }
 

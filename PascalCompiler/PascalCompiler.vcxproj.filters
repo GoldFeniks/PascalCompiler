@@ -21,7 +21,7 @@
     <ClCompile Include="tokenizer.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="syntax_analizer.cpp">
+    <ClCompile Include="syntax_analyzer.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClInclude Include="finite_automata.hpp">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="syntax_analizer.hpp">
+    <ClInclude Include="syntax_analyzer.hpp">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

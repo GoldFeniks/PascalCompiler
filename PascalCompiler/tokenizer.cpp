@@ -27,7 +27,7 @@ const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokeni
     { "or", My::Tokenizer::Token::SubTypes::Or }
 };
 
-const My::Tokenizer::Token My::Tokenizer::endToken = Token({ 0, 0 }, "", FiniteAutomata::States::End, "");
+const My::Tokenizer::PToken My::Tokenizer::endToken = PToken(new Token({ 0, 0 }, "", FiniteAutomata::States::End, ""));
 
 const std::string My::Tokenizer::Token::TypesStrings[] = {
     "Identifier", "Integer", "Float", "Char", "String", "Operator", "Separator", "ReservedWord", "EndOfFile"
@@ -84,11 +84,13 @@ My::Tokenizer& My::Tokenizer::operator=(Tokenizer&& other) {
     return *this;
 }
 
-const My::Tokenizer::Token& My::Tokenizer::Next() {
+const My::Tokenizer::PToken My::Tokenizer::Next() {
 	if (currentIndex < tokens.size() - 1)
 		return tokens[++currentIndex];
-	if (IsEnd())
-		return endToken;
+    if (IsEnd()) {
+        currentIndex = tokens.size();
+        return endToken;
+    }
 	char c;
 	std::string s = "";
     std::string rawString = "";
@@ -161,10 +163,15 @@ const My::Tokenizer::Token& My::Tokenizer::Next() {
 		s += c;
         rawString += c;
 	}
-    if (file.eof())
+    if (file.eof()) {
         tryThrowException(My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][127], c);
+        if (cstate == FiniteAutomata::States::End || cstate == FiniteAutomata::States::TokenEnd) {
+            currentIndex = tokens.size();
+            return endToken;
+        }
+    }
 tokenEnd:
-	tokens.push_back(Token(std::make_pair(row, column - rawString.length()), s, cstate, rawString));
+	tokens.push_back(PToken(new Token(std::make_pair(row, column - rawString.length()), s, cstate, rawString)));
 	++currentIndex;
 	return tokens.back();
 }
@@ -220,11 +227,13 @@ std::string My::Tokenizer::Token::escape(std::string string) {
     return string;
 }
 
-const My::Tokenizer::Token& My::Tokenizer::Current() const {
+const My::Tokenizer::PToken My::Tokenizer::Current() const {
+    if (currentIndex >= tokens.size())
+        return endToken;
 	return tokens[currentIndex];
 }
 
-const My::Tokenizer::Token& My::Tokenizer::First() {
+const My::Tokenizer::PToken My::Tokenizer::First() {
 	if (currentIndex >= tokens.size())
 		return endToken;
 	currentIndex = 0;
@@ -255,7 +264,7 @@ My::Tokenizer::Token& My::Tokenizer::Token::operator=(Token&& other) {
 }
 
 bool My::Tokenizer::Token::operator==(const Token& other) {
-	return myType == other.myType && mySubType == other.mySubType && myString == other.myString;
+	return myType == other.myType && mySubType == other.mySubType && myString == other.myString && myPosition == other.myPosition;
 }
 
 bool My::Tokenizer::Token::operator!=(const Token& other) {

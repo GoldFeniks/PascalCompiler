@@ -1,17 +1,29 @@
 #include <iostream>
 #include "tokenizer.hpp"
 #include <string>
-#include <iostream>
+#include "syntax_analyzer.hpp"
 
 void tokenizerOutput(std::string inFile, std::string outFile) {
     std::ofstream out(outFile);
     My::Tokenizer tokenizer(inFile);
-    My::Tokenizer::Token token = tokenizer.First();
+    My::Tokenizer::PToken token = tokenizer.First();
     try {
         while ((token = tokenizer.Next()) != tokenizer.endToken)
-            out << token.ToString() << std::endl;
+            out << token->ToString() << std::endl;
     }
     catch (My::Tokenizer::TokenizerException e) {
+        out << e.what();
+    }
+}
+
+void syntaxAnalyzerOutput(std::string inFile, std::string outFile) {
+    std::ofstream out(outFile);
+    My::SyntaxAnalyzer syntaxAnalyzer(inFile);
+    syntaxAnalyzer.Parse();
+    try {
+        out << syntaxAnalyzer.ToString();
+    }
+    catch (My::SyntaxAnalyzer::SyntaxErrorException e) {
         out << e.what();
     }
 }
@@ -26,12 +38,11 @@ int main(int argc, char* argv[]) {
         std::cout << "File is not specified";
         return 0;
     }
-    if (key == "-l") {
-        if (argc < 4)
-            tokenizerOutput(argv[2], "output.txt");
-        else
-            tokenizerOutput(argv[2], argv[3]);
-    }
+    std::string inFile = argc < 4 ? "output.txt" : argv[3];
+    if (key == "-l")
+        tokenizerOutput(argv[2], inFile);
+    else if (key == "-p")
+        syntaxAnalyzerOutput(argv[2], inFile);
     else
         std::cout << "Unknown key " << key;
 	return 0;

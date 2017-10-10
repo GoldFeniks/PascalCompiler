@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "tokenizer.hpp"
+#include "boost/format.hpp"
 
 namespace My {
 
@@ -12,9 +13,13 @@ namespace My {
 
         public:
 
-            SyntaxErrorException(const My::Tokenizer::Token& token, My::Tokenizer::Token::SubTypes type);
+            SyntaxErrorException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
 
             virtual const char* what() const override;
+
+        private:
+
+            std::string message;
 
         };
 
@@ -22,17 +27,13 @@ namespace My {
 
         public:
 
-            Node(const Tokenizer::Token& token, Node* parent) : position(token.GetPosition()), Parent(parent) {};
+            typedef std::shared_ptr<Node> PNode;
 
-            const std::pair<int, int>& GetPosition() {
-                return position;
-            }
+            Node(const Tokenizer::PToken token, PNode left = nullptr, PNode right = nullptr) : 
+                Token(token), Left(left), Right(right) {};
 
-            Node* Parent;
-
-        private:
-
-            const std::pair<int, int> position;
+            PNode Left, Right;
+            const Tokenizer::PToken Token;
 
         };//class Node
 
@@ -40,7 +41,8 @@ namespace My {
 
         public:
 
-            ExpressionNode(const Tokenizer::Token& token, Node* parent) : Node(token, parent) {};
+            ExpressionNode(const Tokenizer::PToken token, PNode left = nullptr, PNode right = nullptr) : 
+                Node(token, left, right) {};
 
         };//class ExpressionNode
 
@@ -48,12 +50,7 @@ namespace My {
 
         public:
 
-            VariableNode(const Tokenizer::Token& token, Node* parent) : 
-                ExpressionNode(token, parent), name(token.GetStringValue()) {};
-
-            const std::string& GetName() {
-                return name;
-            }
+            VariableNode(const Tokenizer::PToken token) : ExpressionNode(token) {};
 
         private:
 
@@ -66,47 +63,36 @@ namespace My {
 
         public:
 
-            ConstantNode(const Tokenizer::Token& token, Node* parent) : 
-                ExpressionNode(token, parent), value(token.GetValueCopy<T>()) {};
+            ConstantNode(const Tokenizer::PToken token) : 
+                ExpressionNode(token) {};
 
-            const T& GetValue() {
-                return value;
+            const T GetValue() {
+                return Token->GetValue<T>();
             }
-
-        private:
-
-            T value;
 
         };//class ConstantNode
 
         using IntNode = ConstantNode<unsigned long long>;
         using FloatNode = ConstantNode<double>;
-        using StringNode = ConstantNode<std::string>;
+        using StringNode = ConstantNode<char*>;
         using CharNode = ConstantNode<char>;
         //ConstantNode specifications
 
-        typedef std::shared_ptr<ExpressionNode> PExpressionNode;
-
-        class UnaryOperation : ExpressionNode {
+        class UnaryOperation : public ExpressionNode {
 
         public:
 
-            UnaryOperation(const My::Tokenizer::Token& token, std::shared_ptr<ExpressionNode> operand, Node* parent) :
-                ExpressionNode(token, parent), Operand(operand) {};
-
-            PExpressionNode Operand;
+            UnaryOperation(const My::Tokenizer::PToken token, PNode operand) :
+                ExpressionNode(token, operand) {};
 
         };//class UnaryOperation
 
-        class BinaryOperation : ExpressionNode {
+        class BinaryOperation : public ExpressionNode {
 
         public:
 
-            BinaryOperation(const My::Tokenizer::Token& token, std::shared_ptr<ExpressionNode> left, 
-                std::shared_ptr<ExpressionNode> right, Node* parent) : 
-                ExpressionNode(token, parent), Left(left), Right(right) {};
-
-            PExpressionNode Left, Right;
+            BinaryOperation(const My::Tokenizer::PToken token, PNode left, PNode right) : 
+                ExpressionNode(token, left, right) {};
 
         };//class BinaryOperation
 
@@ -115,20 +101,24 @@ namespace My {
         SyntaxAnalyzer(std::ifstream&& file) : tokenizer(std::move(file)) {};
 
         SyntaxAnalyzer(const SyntaxAnalyzer&) = delete;
-        SyntaxAnalyzer(SyntaxAnalyzer&& other);
+        SyntaxAnalyzer(SyntaxAnalyzer&& other) : tokenizer(std::move(other.tokenizer)) { std::swap(root, other.root); };
 
         SyntaxAnalyzer& operator=(const SyntaxAnalyzer&) = delete;
         SyntaxAnalyzer& operator=(SyntaxAnalyzer&& other);
 
-        PExpressionNode ParseExpression();
-        PExpressionNode ParseTerm();
-        PExpressionNode ParseFactor();
+        Node::PNode ParseExpression();
+        Node::PNode ParseTerm();
+        Node::PNode ParseFactor();
+        void Parse();
+        std::string ToString();
 
     private:
 
         Tokenizer tokenizer;
+        Node::PNode root = nullptr;
 
-        void require(const Tokenizer::Token& token, My::Tokenizer::Token::SubTypes type);
+        void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+        std::string walk(Node::PNode node, std::string prefix, bool last);
 
     };//class SyntaxAnalyzer
 

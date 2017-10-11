@@ -3,10 +3,10 @@
 #include <iomanip>
 
 My::SyntaxAnalyzer::SyntaxErrorException::SyntaxErrorException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type) {
-    message = std::string(boost::str(boost::format("(%3%, %4%) Syntax Error: %2% expected but %1% found") %
-        My::Tokenizer::Token::SubTypesStrings[static_cast<unsigned int>(token->GetSubType())] %
+    message = std::string(boost::str(boost::format("(%4%, %5%) Syntax Error: %1% expected but %2% \"%3%\" found") %
         My::Tokenizer::Token::SubTypesStrings[static_cast<unsigned int>(type)] %
-        token->GetPosition().first % token->GetPosition().second
+        My::Tokenizer::Token::TypesStrings[static_cast<unsigned int>(token->GetType())] %
+        token->GetValueString() % token->GetPosition().first % token->GetPosition().second
     ));
 }
 
@@ -90,7 +90,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFactor() {
 
 void My::SyntaxAnalyzer::Parse() {
     tokenizer.Next();
-    if (tokenizer.Current() != Tokenizer::endToken) {
+    if (tokenizer.Current() != tokenizer.GetEndToken()) {
         root = ParseExpression();
         require(tokenizer.Current(), Tokenizer::Token::SubTypes::EndOfFile);
     }

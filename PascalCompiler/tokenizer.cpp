@@ -27,8 +27,6 @@ const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokeni
     { "or", My::Tokenizer::Token::SubTypes::Or }
 };
 
-const My::Tokenizer::PToken My::Tokenizer::endToken = PToken(new Token({ 0, 0 }, "", FiniteAutomata::States::End, ""));
-
 const std::string My::Tokenizer::Token::TypesStrings[] = {
     "Identifier", "Integer", "Float", "Char", "String", "Operator", "Separator", "ReservedWord", "EndOfFile"
 };
@@ -89,6 +87,7 @@ const My::Tokenizer::PToken My::Tokenizer::Next() {
 		return tokens[++currentIndex];
     if (IsEnd()) {
         currentIndex = tokens.size();
+        endToken->myPosition = std::make_pair(row, column);
         return endToken;
     }
 	char c;
@@ -167,6 +166,7 @@ const My::Tokenizer::PToken My::Tokenizer::Next() {
         tryThrowException(My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][127], c);
         if (cstate == FiniteAutomata::States::End || cstate == FiniteAutomata::States::TokenEnd) {
             currentIndex = tokens.size();
+            endToken->myPosition = std::make_pair(row, column);
             return endToken;
         }
     }
@@ -178,6 +178,10 @@ tokenEnd:
 
 bool My::Tokenizer::IsEnd() const {
 	return file.eof();
+}
+
+const My::Tokenizer::PToken My::Tokenizer::GetEndToken() const {
+    return endToken;
 }
 
 long int My::Tokenizer::codeToChar(My::FiniteAutomata::States state, const char* charCode) {
@@ -304,21 +308,22 @@ const long double My::Tokenizer::Token::GetLongDoubleValue() const {
 	return myValue.Double;
 }
 
-const std::string My::Tokenizer::Token::ToString() const {
+std::string My::Tokenizer::Token::GetValueString() const {
     switch (myType) {
     case Types::Integer:
-        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|") 
-            % myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)]
-            % SubTypesStrings[static_cast<unsigned int>(mySubType)] % myValue.UnsignedLongLong % myString);
+        return std::string(std::to_string(myValue.UnsignedLongLong));
     case Types::Float:
-        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|")
-            % myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)]
-            % SubTypesStrings[static_cast<unsigned int>(mySubType)] % myValue.Double % myString);
+        return std::string(std::to_string(myValue.Double));
     default:
-        return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|")
-            % myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)]
-            % SubTypesStrings[static_cast<unsigned int>(mySubType)] % (stringUsed ? escape(myValue.String) : "") % myString);
+        return std::string(stringUsed ? escape(myValue.String) : "");
     }
+}
+
+const std::string My::Tokenizer::Token::ToString() const {
+    return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|") %
+        myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)] %
+        SubTypesStrings[static_cast<unsigned int>(mySubType)] % myString
+    );
 }
 
 void My::Tokenizer::Token::saveString(std::string& string) {

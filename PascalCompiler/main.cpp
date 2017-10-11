@@ -8,7 +8,7 @@ void tokenizerOutput(std::string inFile, std::string outFile) {
     My::Tokenizer tokenizer(inFile);
     My::Tokenizer::PToken token = tokenizer.First();
     try {
-        while ((token = tokenizer.Next()) != tokenizer.endToken)
+        while ((token = tokenizer.Next()) != tokenizer.GetEndToken())
             out << token->ToString() << std::endl;
     }
     catch (My::Tokenizer::TokenizerException e) {

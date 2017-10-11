@@ -1,1 +1,1 @@
-(1, 5) Syntax Error: EndOfFile expected but OpenParenthesis found
+(1, 5) Syntax Error: EndOfFile expected but Separator "(" found

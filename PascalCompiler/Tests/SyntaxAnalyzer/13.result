@@ -1,1 +1,1 @@
-(0, 0) Syntax Error: CloseParenthesis expected but EndOfFile found
+(1, 17) Syntax Error: CloseParenthesis expected but EndOfFile "" found

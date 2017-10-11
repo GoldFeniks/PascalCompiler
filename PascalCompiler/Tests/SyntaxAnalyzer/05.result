@@ -1,1 +1,1 @@
-(1, 5) Syntax Error: Identifier expected but Begin found
+(1, 5) Syntax Error: Identifier expected but ReservedWord "begin" found

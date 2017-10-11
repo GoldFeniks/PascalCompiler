@@ -155,6 +155,7 @@ namespace My {
 			const char* GetStringValue() const;
 			const unsigned long long GetLongLongValue() const;
 			const long double GetLongDoubleValue() const;
+            std::string GetValueString() const;
             const std::string ToString() const;
 
             template<typename T>
@@ -186,6 +187,8 @@ namespace My {
 				void saveString(const char* string);
                 static std::string escape(std::string string);
 
+                friend class Tokenizer;
+
 		};//class Token
 
         typedef std::shared_ptr<Token> PToken;
@@ -203,13 +206,13 @@ namespace My {
 		const PToken Current() const; 
 		const PToken First();
 		bool IsEnd() const;
-
-        static const PToken endToken;
+        const PToken GetEndToken() const;
 
 	private:
 
 		friend struct iterator;
 
+        PToken endToken = PToken(new Token({ 1, 1 }, "", FiniteAutomata::States::End, ""));
 		int currentIndex = -1;
 		std::vector<PToken> tokens;
 		std::ifstream file;

@@ -1,1 +1,1 @@
-(1, 13) Syntax Error: EndOfFile expected but Identifier found
+(1, 13) Syntax Error: EndOfFile expected but Identifier "abc" found

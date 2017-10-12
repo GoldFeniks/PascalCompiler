@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include "tokenizer.hpp"
 #include "boost/format.hpp"
 
@@ -29,10 +30,25 @@ namespace My {
 
             typedef std::shared_ptr<Node> PNode;
 
-            Node(const Tokenizer::PToken token, PNode left = nullptr, PNode right = nullptr) : 
-                Token(token), Left(left), Right(right) {};
+            template<typename... C>
+            Node(const Tokenizer::PToken token, C... children) : Token(token) {
+                Add(children...);
+            };
 
-            PNode Left, Right;
+            Node(const Tokenizer::PToken token) : Token(token) {};
+
+            template<typename... C>
+            void Add(PNode node, C... children) {
+                Add(node);
+                Add(children...);
+            }
+
+            virtual bool Add(PNode node) {
+                Children.push_back(node);
+                return true;
+            }
+
+            std::vector<PNode> Children;
             const Tokenizer::PToken Token;
 
         };//class Node
@@ -41,16 +57,29 @@ namespace My {
 
         public:
 
-            ExpressionNode(const Tokenizer::PToken token, PNode left = nullptr, PNode right = nullptr) : 
-                Node(token, left, right) {};
+            template<typename... C>
+            ExpressionNode(const Tokenizer::PToken token, C... children) : 
+                Node(token, children...) {};
 
         };//class ExpressionNode
 
-        class VariableNode : public ExpressionNode {
+        class FinalExpressionNode : public ExpressionNode {
 
         public:
 
-            VariableNode(const Tokenizer::PToken token) : ExpressionNode(token) {};
+            template<typename... C>
+            FinalExpressionNode(const Tokenizer::PToken token, C... children) :
+                ExpressionNode(token, children...) {};
+
+            virtual bool Add(PNode) override { return false; }
+
+        };//class FinalExpressionNode
+
+        class VariableNode : public FinalExpressionNode {
+
+        public:
+
+            VariableNode(const Tokenizer::PToken token) : FinalExpressionNode(token) {};
 
         private:
 
@@ -59,12 +88,11 @@ namespace My {
         };//class VariableNode
 
         template <typename T>
-        class ConstantNode : public ExpressionNode {
+        class ConstantNode : public FinalExpressionNode {
 
         public:
 
-            ConstantNode(const Tokenizer::PToken token) : 
-                ExpressionNode(token) {};
+            ConstantNode(const Tokenizer::PToken token) : FinalExpressionNode(token) {};
 
             const T GetValue() {
                 return Token->GetValue<T>();
@@ -78,20 +106,22 @@ namespace My {
         using CharNode = ConstantNode<char>;
         //ConstantNode specifications
 
-        class UnaryOperation : public ExpressionNode {
+        class UnaryOperation : public FinalExpressionNode {
 
         public:
 
             UnaryOperation(const My::Tokenizer::PToken token, PNode operand) :
-                ExpressionNode(token, operand) {};
+                FinalExpressionNode(token, operand) {};
+
+            virtual bool Add(PNode node) override { return false; }
 
         };//class UnaryOperation
 
-        class BinaryOperation : public ExpressionNode {
+        class Operation : public ExpressionNode {
 
         public:
 
-            BinaryOperation(const My::Tokenizer::PToken token, PNode left, PNode right) : 
+            Operation(const My::Tokenizer::PToken token, PNode left, PNode right) : 
                 ExpressionNode(token, left, right) {};
 
         };//class BinaryOperation
@@ -118,7 +148,30 @@ namespace My {
         Node::PNode root = nullptr;
 
         void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
-        std::string walk(Node::PNode node, std::string prefix, bool last);
+        std::string walk(const Node::PNode node, std::string prefix, bool last);
+
+        inline static bool expressionOperators(const Tokenizer::Token::SubTypes type) {
+            return type == Tokenizer::Token::SubTypes::Plus ||
+                type == Tokenizer::Token::SubTypes::Minus;
+        }
+
+        inline static bool termOperators(const Tokenizer::Token::SubTypes type) {
+            return type == Tokenizer::Token::SubTypes::Divide ||
+                type == Tokenizer::Token::SubTypes::Mult;
+        }
+
+        template<typename NNode, Node::PNode(SyntaxAnalyzer::*NParse)(void), bool(*Cond)(const Tokenizer::Token::SubTypes)>
+        Node::PNode parse(Node::PNode e) {
+            auto token = tokenizer.Current();
+            while (Cond(token->GetSubType())) {
+                tokenizer.Next();
+                auto t = (this->*NParse)();
+                if (e->Token->GetSubType() != token->GetSubType() || !e->Add(t))
+                    e = Node::PNode(new NNode(token, e, t));
+                token = tokenizer.Current();
+            }
+            return e;
+        }
 
     };//class SyntaxAnalyzer
 

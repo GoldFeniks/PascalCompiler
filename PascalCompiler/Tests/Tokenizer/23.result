@@ -7,6 +7,6 @@
 (4,1)     Operator            Plus                          +                             +                             
 (4,2)     Integer             IntegerConst                  0                             0                             
 (5,1)     Operator            Minus                         -                             -                             
-(5,2)     Float               FloatConst                    123.123                       123.123                       
+(5,2)     Float               FloatConst                    123.123000                    123.123                       
 (6,1)     Operator            Plus                          +                             +                             
-(6,2)     Float               FloatConst                    123.123                       123.123                       
+(6,2)     Float               FloatConst                    123.123000                    123.123                       

@@ -1,8 +1,8 @@
-(1,1)     Float               FloatConst                    1                             1.0                           
-(2,1)     Float               FloatConst                    1.5                           1.5                           
-(3,1)     Float               FloatConst                    1.5e-10                       1.5e-10                       
-(4,1)     Float               FloatConst                    3e+10                         3e+10                         
-(5,1)     Float               FloatConst                    400000                        4e5                           
-(6,1)     Float               FloatConst                    1.0005                        1.0005                        
-(7,1)     Float               FloatConst                    1234.1                        1234.1000000                  
-(8,1)     Float               FloatConst                    0                             0.0                           
+(1,1)     Float               FloatConst                    1.000000                      1.0                           
+(2,1)     Float               FloatConst                    1.500000                      1.5                           
+(3,1)     Float               FloatConst                    0.000000                      1.5e-10                       
+(4,1)     Float               FloatConst                    30000000000.000000            3e+10                         
+(5,1)     Float               FloatConst                    400000.000000                 4e5                           
+(6,1)     Float               FloatConst                    1.000500                      1.0005                        
+(7,1)     Float               FloatConst                    1234.100000                   1234.1000000                  
+(8,1)     Float               FloatConst                    0.000000                      0.0                           

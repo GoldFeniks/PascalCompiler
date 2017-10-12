@@ -10,7 +10,7 @@
 (2,8)     Identifier          Identifier                    d                             d                             
 (3,1)     Identifier          Identifier                    a                             a                             
 (3,3)     Operator            DivideAssign                  /=                            /=                            
-(3,6)     Float               FloatConst                    43.32                         43.32                         
+(3,6)     Float               FloatConst                    43.320000                     43.32                         
 (3,11)    Operator            Div                           div                           div                           
 (3,15)    Integer             IntegerConst                  17                            17                            
 (4,1)     Identifier          Identifier                    b                             b                             

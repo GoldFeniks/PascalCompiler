@@ -322,7 +322,7 @@ std::string My::Tokenizer::Token::GetValueString() const {
 const std::string My::Tokenizer::Token::ToString() const {
     return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|") %
         myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)] %
-        SubTypesStrings[static_cast<unsigned int>(mySubType)] % myString
+        SubTypesStrings[static_cast<unsigned int>(mySubType)] % GetValueString() % myString
     );
 }
 

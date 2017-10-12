@@ -12,4 +12,4 @@
 (3,5)     Identifier          Identifier                    e20                           e20                           
 (4,2)     Integer             IntegerConst                  1                             1                             
 (4,3)     Operator            Range                         ..                            ..                            
-(4,5)     Float               FloatConst                    4e+20                         4e20                          
+(4,5)     Float               FloatConst                    400000000000000000000.000000  4e20                          

@@ -22,4 +22,4 @@
 (3,11)    Operator            Assign                        :=                            :=                            
 (3,14)    Identifier          Identifier                    result                        result                        
 (3,21)    Operator            NotEqual                      <>                            <>                            
-(3,24)    Identifier          Identifier                    isendoftheday                 isendoftheday                 
+(3,24)    Identifier          Identifier                    isEndOfTheDay                 isEndOfTheDay                 

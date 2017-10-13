@@ -4,7 +4,7 @@
 (2,1)     ReservedWord        Var                           var                           var                           
 (3,5)     Identifier          Identifier                    c                             c                             
 (3,6)     Separator           Colon                         :                             :                             
-(3,8)     Identifier          Identifier                    char                          char                          
+(3,8)     Identifier          Identifier                    Char                          Char                          
 (3,12)    Separator           Semicolon                     ;                             ;                             
 (4,1)     ReservedWord        Begin                         begin                         begin                         
 (5,5)     Identifier          Identifier                    c                             c                             

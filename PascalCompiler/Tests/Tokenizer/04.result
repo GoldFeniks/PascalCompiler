@@ -4,7 +4,7 @@
 (2,1)     ReservedWord        Var                           var                           var                           
 (3,5)     Identifier          Identifier                    a                             a                             
 (3,6)     Separator           Colon                         :                             :                             
-(3,8)     ReservedWord        String                        string                        string                        
+(3,8)     Identifier          Identifier                    String                        String                        
 (3,14)    Separator           Semicolon                     ;                             ;                             
 (4,1)     ReservedWord        Begin                         begin                         begin                         
 (5,5)     Identifier          Identifier                    a                             a                             

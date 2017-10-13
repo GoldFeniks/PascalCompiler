@@ -96,10 +96,7 @@ const My::Tokenizer::PToken My::Tokenizer::Next() {
     std::string charCode = "";
 	FiniteAutomata::States cstate = state;
 	while (!file.eof() && (file >> c)) {
-        if (c <= 0)
-            throw UnknownSymbolException(c, std::make_pair(row, column));
-		c = tolower(c);
-		state = My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][c - 1];
+        state = My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][c < 0 ? 129 : tolower(c)];
         switch (state) {
         case My::FiniteAutomata::States::StringEnd:
             rawString += c;
@@ -163,7 +160,7 @@ const My::Tokenizer::PToken My::Tokenizer::Next() {
         rawString += c;
 	}
     if (file.eof()) {
-        tryThrowException(My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][127], c);
+        tryThrowException(My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][128], c);
         if (cstate == FiniteAutomata::States::End || cstate == FiniteAutomata::States::TokenEnd) {
             currentIndex = tokens.size();
             endToken->myPosition = std::make_pair(row, column);

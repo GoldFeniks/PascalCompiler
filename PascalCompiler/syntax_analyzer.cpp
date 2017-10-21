@@ -24,10 +24,10 @@ std::string My::SyntaxAnalyzer::walk(const Node::PNode node, std::string prefix,
     if (node == nullptr)
         return std::string();
     std::string result = boost::str(boost::format("%1%%2%%3%\n") % prefix % 
-        (last ? "\xE2\x94\x94\xE2\x94\x80" : "\xE2\x94\x9C\xE2\x94\x80") % node->Token->GetString());
+        (last ? "\xE2\x94\x94\xE2\x94\x80" : "\xE2\x94\x9C\xE2\x94\x80") % node->ToString());
     if (!node->Children.size())
         return result;
-    std::string spaces = std::string(node->Token->GetString().length() - 1, ' ');
+    std::string spaces = std::string(node->ToString().length() - 1, ' ');
     prefix += last ? "  " : "\xE2\x94\x82 ";
     prefix += spaces;
     for (int i = 0; i < node->Children.size() - 1; ++i)
@@ -42,34 +42,34 @@ My::SyntaxAnalyzer& My::SyntaxAnalyzer::operator=(SyntaxAnalyzer&& other) {
     return *this;
 }
 
-My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseExpression() {
+My::SyntaxAnalyzer::ExpressionNode::PExpressionNode My::SyntaxAnalyzer::ParseExpression() {
     auto token = tokenizer.Current();
     if (expressionOperators(token->GetSubType())) {
         tokenizer.Next();
         return parse<Operation, &SyntaxAnalyzer::ParseTerm, expressionOperators>(
-            Node::PNode(new UnaryOperation(token, ParseTerm()))
+            ExpressionNode::PExpressionNode(new UnaryOperation(token, ParseTerm()))
         );
     }
     return parse<Operation, &SyntaxAnalyzer::ParseTerm, expressionOperators>(ParseTerm());
 }
 
-My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseTerm() {
+My::SyntaxAnalyzer::ExpressionNode::PExpressionNode My::SyntaxAnalyzer::ParseTerm() {
     return parse<Operation, &SyntaxAnalyzer::ParseFactor, termOperators>(ParseFactor());
 }
 
-My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFactor() {
+My::SyntaxAnalyzer::ExpressionNode::PExpressionNode My::SyntaxAnalyzer::ParseFactor() {
     const auto& token = tokenizer.Current(); tokenizer.Next();
     switch (token->GetSubType()) {
     case Tokenizer::Token::SubTypes::Identifier:
-        return Node::PNode(new VariableNode(token));
+        return My::SyntaxAnalyzer::ExpressionNode::PExpressionNode(new VariableNode(token));
     case Tokenizer::Token::SubTypes::IntegerConst:
-        return Node::PNode(new IntNode(token));
+        return My::SyntaxAnalyzer::ExpressionNode::PExpressionNode(new IntNode(token));
     case Tokenizer::Token::SubTypes::FloatConst:
-        return Node::PNode(new FloatNode(token));
+        return My::SyntaxAnalyzer::ExpressionNode::PExpressionNode(new FloatNode(token));
     case Tokenizer::Token::SubTypes::StringConst:
-        return Node::PNode(new StringNode(token));
+        return My::SyntaxAnalyzer::ExpressionNode::PExpressionNode(new StringNode(token));
     case Tokenizer::Token::SubTypes::CharConst:
-        return Node::PNode(new CharNode(token));
+        return My::SyntaxAnalyzer::ExpressionNode::PExpressionNode(new CharNode(token));
     case Tokenizer::Token::SubTypes::OpenParenthesis:
     {
         auto e = ParseExpression();
@@ -92,4 +92,8 @@ void My::SyntaxAnalyzer::Parse() {
 
 std::string My::SyntaxAnalyzer::ToString() {
     return walk(root, "", true);
+}
+
+const std::string & My::SyntaxAnalyzer::Node::ToString() {
+    return message;
 }

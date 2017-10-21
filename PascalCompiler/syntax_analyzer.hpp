@@ -31,11 +31,11 @@ namespace My {
             typedef std::shared_ptr<Node> PNode;
 
             template<typename... C>
-            Node(const Tokenizer::PToken token, C... children) : Token(token) {
+            Node(const std::string message, C... children) : message(message) {
                 Add(children...);
             };
 
-            Node(const Tokenizer::PToken token) : Token(token) {};
+            Node(const std::string message) : message(message) {};
 
             template<typename... C>
             void Add(PNode node, C... children) {
@@ -48,8 +48,13 @@ namespace My {
                 return true;
             }
 
+            const std::string& ToString();
+
             std::vector<PNode> Children;
-            const Tokenizer::PToken Token;
+
+        private:
+
+            std::string message;
 
         };//class Node
 
@@ -57,9 +62,13 @@ namespace My {
 
         public:
 
+            typedef std::shared_ptr<ExpressionNode> PExpressionNode;
+
             template<typename... C>
             ExpressionNode(const Tokenizer::PToken token, C... children) : 
-                Node(token, children...) {};
+                Node(token->GetString(), children...), Token(token) {};
+
+            Tokenizer::PToken Token;
 
         };//class ExpressionNode
 
@@ -136,9 +145,9 @@ namespace My {
         SyntaxAnalyzer& operator=(const SyntaxAnalyzer&) = delete;
         SyntaxAnalyzer& operator=(SyntaxAnalyzer&& other);
 
-        Node::PNode ParseExpression();
-        Node::PNode ParseTerm();
-        Node::PNode ParseFactor();
+        ExpressionNode::PExpressionNode ParseExpression();
+        ExpressionNode::PExpressionNode ParseTerm();
+        ExpressionNode::PExpressionNode ParseFactor();
         void Parse();
         std::string ToString();
 
@@ -160,14 +169,14 @@ namespace My {
                 type == Tokenizer::Token::SubTypes::Mult;
         }
 
-        template<typename NNode, Node::PNode(SyntaxAnalyzer::*NParse)(void), bool(*Cond)(const Tokenizer::Token::SubTypes)>
-        Node::PNode parse(Node::PNode e) {
+        template<typename NNode, ExpressionNode::PExpressionNode(SyntaxAnalyzer::*NParse)(void), bool(*Cond)(const Tokenizer::Token::SubTypes)>
+        ExpressionNode::PExpressionNode parse(ExpressionNode::PExpressionNode e) {
             auto token = tokenizer.Current();
             while (Cond(token->GetSubType())) {
                 tokenizer.Next();
                 auto t = (this->*NParse)();
                 if (e->Token->GetSubType() != token->GetSubType() || !e->Add(t))
-                    e = Node::PNode(new NNode(token, e, t));
+                    e = ExpressionNode::PExpressionNode(new NNode(token, e, t));
                 token = tokenizer.Current();
             }
             return e;

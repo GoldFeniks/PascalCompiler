@@ -151,13 +151,11 @@ identifier_list = identifier, { ",", identifier };
 
 range = constant, "..", constant;
 
-constant = ( [ sign ], variable_identifier | number ) | char_constant;
+constant = ( [ sign ], variable_identifier | unsigned_number ) | char_constant;
 
 char_constant = "'", letter, "'" | "#", unsigned_integer;
 
 sign = "+" | "-";
-
-number = [ sign ], unsigned_number;
 
 unsigned_number = 
     unsigned_real

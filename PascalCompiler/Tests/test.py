@@ -19,7 +19,7 @@ for i in listdir(args.dir):
         a, b = f1.read(), f2.read();
         if a != b:
             print('Test "{}" failed'.format(i))
-            print(b, file=open(args.dir + '/{}.result'.format(name.group('name')), 'w'), end='')
+            #print(b, file=open(args.dir + '/{}.result'.format(name.group('name')), 'w'), end='')
         else:
             print('Test "{}" passed'.format(i))
         f1.close()

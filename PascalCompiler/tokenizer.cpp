@@ -168,6 +168,8 @@ const My::Tokenizer::PToken My::Tokenizer::Next() {
         }
     }
 tokenEnd:
+    if (charCode.length())
+        s += codeToChar(cstate, charCode.c_str());
 	tokens.push_back(PToken(new Token(std::make_pair(row, column - rawString.length()), s, cstate, rawString)));
 	++currentIndex;
 	return tokens.back();
@@ -181,22 +183,27 @@ const My::Tokenizer::PToken My::Tokenizer::GetEndToken() const {
     return endToken;
 }
 
-long int My::Tokenizer::codeToChar(My::FiniteAutomata::States state, const char* charCode) {
-    switch (state) {
-    case My::FiniteAutomata::States::DecimalCharCode:
-        return std::strtol(charCode, NULL, 10);
-        break;
-    case My::FiniteAutomata::States::BinCharCode:
-        return std::strtol(charCode + 1, NULL, 2);
-        break;
-    case My::FiniteAutomata::States::HexCharCode:
-        return std::strtol(charCode + 1, NULL, 16);
-        break;
-    case My::FiniteAutomata::States::OctCharCode:
-        return std::strtol(charCode + 1, NULL, 8);
-        break;
-    default:
-        throw std::exception();
+int My::Tokenizer::codeToChar(My::FiniteAutomata::States state, const char* charCode) {
+    try {
+        switch (state) {
+        case My::FiniteAutomata::States::DecimalCharCode:
+            return std::stoi(charCode, NULL, 10);
+            break;
+        case My::FiniteAutomata::States::BinCharCode:
+            return std::stoi(charCode + 1, NULL, 2);
+            break;
+        case My::FiniteAutomata::States::HexCharCode:
+            return std::stoi(charCode + 1, NULL, 16);
+            break;
+        case My::FiniteAutomata::States::OctCharCode:
+            return std::stoi(charCode + 1, NULL, 8);
+            break;
+        default:
+            throw std::exception();
+        }
+    }
+    catch (std::out_of_range e) {
+        throw OverflowException(charCode, std::make_pair(row, column), "Integer");
     }
 }
 
@@ -345,92 +352,98 @@ My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, Fi
 	myString = rawString;
 	std::unordered_map<std::string, SubTypes>::const_iterator it;
     std::unordered_set<std::string>::const_iterator sit;
-	switch (state) {
-	case My::FiniteAutomata::States::Identifier:
-		it = TokenSubTypes.find(string);
-		if (it != TokenSubTypes.end()) {
-			mySubType = it->second;
-            sit = CharOperators.find(string);
-            if (sit != CharOperators.end())
-                myType = Types::Operator;
-            else
-			    myType = Types::ReservedWord;
-		}
-		else {
-			mySubType = SubTypes::Identifier;
-			myType = Types::Identifier;
-		}
-		saveString(string);
-		break;
-	case My::FiniteAutomata::States::ReturnInt:
-	case My::FiniteAutomata::States::Decimal:
-		myValue.UnsignedLongLong = std::strtoull(string.c_str(), NULL, 10);
-        myType = Types::Integer;
-        mySubType = SubTypes::IntegerConst;
-        break;
-    case My::FiniteAutomata::States::Hex:
-        myValue.UnsignedLongLong = std::strtoull(string.c_str() + 1, NULL, 16);
-        myType = Types::Integer;
-        mySubType = SubTypes::IntegerConst;
-        break;
-    case My::FiniteAutomata::States::Oct:
-        myValue.UnsignedLongLong = std::strtoull(string.c_str() + 1, NULL, 8);
-        myType = Types::Integer;
-        mySubType = SubTypes::IntegerConst;
-        break;
-    case My::FiniteAutomata::States::Bin:
-        myValue.UnsignedLongLong = std::strtoull(string.c_str() + 1, NULL, 2);
-        myType = Types::Integer;
-        mySubType = SubTypes::IntegerConst;
-        break;
-	case My::FiniteAutomata::States::FloatEnd:
-	case My::FiniteAutomata::States::Float:
-		myType = Types::Float;
-		mySubType = SubTypes::FloatConst;
-		myValue.Double = std::strtold(string.c_str(), NULL);
-		break;
-    case My::FiniteAutomata::States::StringEnd:
-	case My::FiniteAutomata::States::String:
-    case My::FiniteAutomata::States::DecimalCharCode:
-    case My::FiniteAutomata::States::HexCharCode:
-    case My::FiniteAutomata::States::OctCharCode:
-    case My::FiniteAutomata::States::BinCharCode:
-        if (string.length() > 1) {
-            myType = Types::String;
-            mySubType = SubTypes::StringConst;
+    try {
+        switch (state) {
+        case My::FiniteAutomata::States::Identifier:
+            it = TokenSubTypes.find(string);
+            if (it != TokenSubTypes.end()) {
+                mySubType = it->second;
+                sit = CharOperators.find(string);
+                if (sit != CharOperators.end())
+                    myType = Types::Operator;
+                else
+                    myType = Types::ReservedWord;
+            }
+            else {
+                mySubType = SubTypes::Identifier;
+                myType = Types::Identifier;
+            }
+            saveString(string);
+            break;
+        case My::FiniteAutomata::States::ReturnInt:
+        case My::FiniteAutomata::States::Decimal:
+            myValue.UnsignedLongLong = std::stoull(string.c_str(), NULL, 10);
+            myType = Types::Integer;
+            mySubType = SubTypes::IntegerConst;
+            break;
+        case My::FiniteAutomata::States::Hex:
+            myValue.UnsignedLongLong = std::stoull(string.c_str() + 1, NULL, 16);
+            myType = Types::Integer;
+            mySubType = SubTypes::IntegerConst;
+            break;
+        case My::FiniteAutomata::States::Oct:
+            myValue.UnsignedLongLong = std::stoull(string.c_str() + 1, NULL, 8);
+            myType = Types::Integer;
+            mySubType = SubTypes::IntegerConst;
+            break;
+        case My::FiniteAutomata::States::Bin:
+            myValue.UnsignedLongLong = std::stoull(string.c_str() + 1, NULL, 2);
+            myType = Types::Integer;
+            mySubType = SubTypes::IntegerConst;
+            break;
+        case My::FiniteAutomata::States::FloatEnd:
+        case My::FiniteAutomata::States::Float:
+            myType = Types::Float;
+            mySubType = SubTypes::FloatConst;
+            myValue.Double = std::stold(string.c_str(), NULL);
+            break;
+        case My::FiniteAutomata::States::StringEnd:
+        case My::FiniteAutomata::States::String:
+        case My::FiniteAutomata::States::DecimalCharCode:
+        case My::FiniteAutomata::States::HexCharCode:
+        case My::FiniteAutomata::States::OctCharCode:
+        case My::FiniteAutomata::States::BinCharCode:
+            if (string.length() > 1) {
+                myType = Types::String;
+                mySubType = SubTypes::StringConst;
+            }
+            else {
+                myType = Types::Char;
+                mySubType = SubTypes::CharConst;
+            }
+            saveString(string);
+            break;
+        case My::FiniteAutomata::States::Separator:
+        case My::FiniteAutomata::States::Parenthesis:
+        case My::FiniteAutomata::States::Colon:
+            mySubType = TokenSubTypes.find(string)->second;
+            myType = Types::Separator;
+            saveString(string);
+            break;
+        case My::FiniteAutomata::States::Slash:
+        case My::FiniteAutomata::States::OperatorLess:
+        case My::FiniteAutomata::States::OperatorGreater:
+        case My::FiniteAutomata::States::OperatorPlus:
+        case My::FiniteAutomata::States::OperatorMult:
+        case My::FiniteAutomata::States::OperatorDot:
+        case My::FiniteAutomata::States::Operator:
+            mySubType = TokenSubTypes.find(string)->second;
+            myType = Types::Operator;
+            saveString(string);
+            break;
+        case My::FiniteAutomata::States::End:
+        case My::FiniteAutomata::States::TokenEnd:
+            myType = Types::EndOfFile;
+            mySubType = SubTypes::EndOfFile;
+            break;
+        default:
+            throw std::exception();
         }
-        else {
-            myType = Types::Char;
-            mySubType = SubTypes::CharConst;
-        }
-        saveString(string);
-        break;
-    case My::FiniteAutomata::States::Separator:
-    case My::FiniteAutomata::States::Parenthesis:
-    case My::FiniteAutomata::States::Colon:
-        mySubType = TokenSubTypes.find(string)->second;
-        myType = Types::Separator;
-        saveString(string);
-        break;
-	case My::FiniteAutomata::States::Slash:
-	case My::FiniteAutomata::States::OperatorLess:
-	case My::FiniteAutomata::States::OperatorGreater:
-    case My::FiniteAutomata::States::OperatorPlus:
-    case My::FiniteAutomata::States::OperatorMult:
-    case My::FiniteAutomata::States::OperatorDot:
-	case My::FiniteAutomata::States::Operator:
-		mySubType = TokenSubTypes.find(string)->second;
-        myType = Types::Operator;
-        saveString(string);
-		break;
-    case My::FiniteAutomata::States::End:
-    case My::FiniteAutomata::States::TokenEnd:
-		myType = Types::EndOfFile;
-        mySubType = SubTypes::EndOfFile;
-        break;
-	default:
-		throw std::exception();
-	}
+    }
+    catch (std::out_of_range e) {
+        throw Tokenizer::OverflowException(rawString, position, 
+            state == My::FiniteAutomata::States::Float || state == My::FiniteAutomata::States::FloatEnd ? "Double" : "Integer");
+    }
 }
 
 My::Tokenizer::Token::Token(const Token& other) {
@@ -446,7 +459,7 @@ const char* My::Tokenizer::TokenizerException::what() const {
     return message;
 }
 
-const char* My::Tokenizer::TokenizerException::initMessage(const char* format) {
+const char* My::Tokenizer::TokenizerSymbolException::initMessage(const char* format) {
     if (message)
         return message;
     auto bMessage = boost::str(boost::format(format) % symbol % position.first % position.second);
@@ -454,4 +467,11 @@ const char* My::Tokenizer::TokenizerException::initMessage(const char* format) {
     message = new char[size];
     std::memcpy(message, bMessage.c_str(), size);
     return message;
+}
+
+My::Tokenizer::OverflowException::OverflowException(const std::string& string, const std::pair<int, int>& position, const char* type) : TokenizerException(position) {
+    auto bm = boost::str(boost::format("%1% overflow \"%2%\" at (%3%, %4%)") % type % string % position.first  % position.second);
+    const int size = std::strlen(bm.c_str()) + 1;
+    message = new char[size];
+    std::memcpy(message, bm.c_str(), size);
 }

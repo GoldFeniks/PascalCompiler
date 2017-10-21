@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
+#include "boost/format.hpp"
 
 namespace My {
 
@@ -22,79 +23,96 @@ namespace My {
 
         protected:
 
-            TokenizerException(const char symbol, const std::pair<int, int> position, const char* format) :
-                symbol(symbol), position(position) { initMessage(format); };
+            TokenizerException(const std::pair<int, int>& position) : position(position) {};
+
+            const std::pair<int, int> position;
+            char* message = nullptr;
+
+        };
+
+        class TokenizerSymbolException : public TokenizerException {
+
+        protected:
+
+            TokenizerSymbolException(const char symbol, const std::pair<int, int>& position, const char* format) :
+                TokenizerException(position), symbol(symbol) { initMessage(format); };
 
             const char* initMessage(const char* format);
 
             const char symbol;
-            const std::pair<int, int> position;
-            char* message = nullptr;
 
         };//class TokenizerException
 
-        class UnknownSymbolException : public TokenizerException {
+        class UnknownSymbolException : public TokenizerSymbolException {
 
         public:
 
             UnknownSymbolException(const char symbol, const std::pair<int, int> position) : 
-                TokenizerException(symbol, position, "Unknown symbol \"%1%\" at (%2%, %3%)") {};
+                TokenizerSymbolException(symbol, position, "Unknown symbol \"%1%\" at (%2%, %3%)") {};
 
         };//class UnknownSymbolException
 
-        class UnexpectedSymbolException : public TokenizerException {
+        class UnexpectedSymbolException : public TokenizerSymbolException {
 
         public:
 
             UnexpectedSymbolException(const char symbol, const std::pair<int, int> position) :
-                TokenizerException(symbol, position, "Unexpected symbol \"%1%\" at (%2%, %3%)") {};
+                TokenizerSymbolException(symbol, position, "Unexpected symbol \"%1%\" at (%2%, %3%)") {};
         
         };//class UnexpectedSymbolException
 
-        class EOLWhileParsingStringException : public TokenizerException {
+        class EOLWhileParsingStringException : public TokenizerSymbolException {
 
         public:
 
             EOLWhileParsingStringException(const char symbol, const std::pair<int, int> position) :
-                TokenizerException(symbol, position, "End of line reached at (%2%, %3%) while pasing string") {};
+                TokenizerSymbolException(symbol, position, "End of line reached at (%2%, %3%) while pasing string") {};
                     
         };//class EOLWhileParsingStringException
 
-        class ScaleFactorExpectedException : public TokenizerException {
+        class ScaleFactorExpectedException : public TokenizerSymbolException {
 
         public:
 
             ScaleFactorExpectedException(const char symbol, const std::pair<int, int> position) :
-                TokenizerException(symbol, position, "Scale factor expected at (%2%, %3%)") {};
+                TokenizerSymbolException(symbol, position, "Scale factor expected at (%2%, %3%)") {};
         
         };//class ScaleFactorExpectedException
 
-        class UnexpectedEndOfFileException : public TokenizerException {
+        class UnexpectedEndOfFileException : public TokenizerSymbolException {
         
         public:
 
             UnexpectedEndOfFileException(const char symbol, const std::pair<int, int> position) :
-                TokenizerException(symbol, position, "Unexpected end of file at (%2%, %3%)") {};
+                TokenizerSymbolException(symbol, position, "Unexpected end of file at (%2%, %3%)") {};
 
         };//class UnexpectedEndOfFileException
 
-        class NumberExpectedException : public TokenizerException {
+        class NumberExpectedException : public TokenizerSymbolException {
 
         public:
 
             NumberExpectedException(const char symbol, const std::pair<int, int> position) :
-                TokenizerException(symbol, position, "Number expected at (%2%, %3%)") {};
+                TokenizerSymbolException(symbol, position, "Number expected at (%2%, %3%)") {};
             
         };//class NumberExpectedException
 
-        class FractionalPartExpectedException : public TokenizerException {
+        class FractionalPartExpectedException : public TokenizerSymbolException {
 
         public:
 
             FractionalPartExpectedException(const char symbol, const std::pair<int, int> position) :
-                TokenizerException(symbol, position, "fractional part expected at (%2%, %3%)") {};
+                TokenizerSymbolException(symbol, position, "fractional part expected at (%2%, %3%)") {};
 
         };//class FractionalPartExpectedException
+
+        class OverflowException : public TokenizerException {
+
+        public:
+
+            OverflowException(const std::string& string, const std::pair<int, int>& position, const char* type);
+
+        };
 
 		class Token {
 
@@ -219,7 +237,7 @@ namespace My {
 		FiniteAutomata::States state = FiniteAutomata::States::TokenEnd;
 		int row = 1, column = 1;
 
-        static long int codeToChar(My::FiniteAutomata::States state, const char* charCode);
+        int codeToChar(My::FiniteAutomata::States state, const char* charCode);
         void tryThrowException(My::FiniteAutomata::States state, char c) const;
 
 	};//class Tokenizer

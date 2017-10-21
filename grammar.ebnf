@@ -153,7 +153,7 @@ range = constant, "..", constant;
 
 constant = ( [ sign ], variable_identifier | number ) | char_constant;
 
-char_constant = "'", letter, "'";
+char_constant = "'", letter, "'" | "#", unsigned_integer;
 
 sign = "+" | "-";
 

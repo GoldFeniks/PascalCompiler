@@ -60,13 +60,13 @@ type_alias = identifier;
 typed_constant_declaration = identifier, ":", type, "=", typed_constant, ";";
 
 typed_constant =
-    constant
-    | array_constant
-    | record_constant;
+    array_constant
+    | record_constant
+    | expression;
 
 constant_declaration = identifier, "=", expression, ";";
 
-variable_declaration = identifier, ":", type, [ "=", expression ];
+variable_declaration = identifier, ":", type, [ "=", typed_constant ];
 
 procedure_declaration = procedure_header, block, ";";
 
@@ -149,7 +149,7 @@ digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
 identifier_list = identifier, { ",", identifier };
 
-range = constant, "..", constant;
+range = expression, "..", expression;
 
 constant = ( [ sign ], variable_identifier | unsigned_number ) | char_constant;
 

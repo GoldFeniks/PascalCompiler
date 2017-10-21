@@ -1,0 +1,213 @@
+program = program_header, ";", block, ".";
+
+program_header = "program", identifier;
+
+block = declaration_part, statement_part;
+
+declaration_part = { 
+    type_declaration_part
+    | constant_declaration_part 
+    | variable_declaration_part 
+    | procedure_function_declaration_part 
+};
+
+type_declaration_part = "type", type_declaration, { type_declaration };
+             
+constant_declaration_part = "const", typed_constant_declaration | constant_declaration, { 
+                                                                                            typed_constant_declaration
+                                                                                            | constant_declaration
+                                                                                        };
+
+variable_declaration_part = "var", variable_declaration, { variable_declaration };
+
+procedure_function_declaration_part = {
+    procedure_declaration
+    | function_declaration    
+};
+
+statement_part = compound_statement;
+
+type_declaration = identifier, "=", type, ";";
+
+type = 
+    simple_type
+    | structured_type
+    | type_alias
+    | type_identifier;
+
+simple_type = 
+    ordinal_type
+    | real_type;
+
+ordinal_type = 
+    "Char" 
+    | "Integer";
+
+real_type = "Real";
+
+structured_type = 
+    array_type
+    | record_type;
+
+array_type = "array", "[", range, "]", "of", type;
+
+record_type = "record", [ field_list ], "end"; 
+
+field_list = { identifier_list, ":", type, ";" };
+
+type_alias = identifier;
+
+typed_constant_declaration = identifier, ":", type, "=", typed_constant, ";";
+
+typed_constant =
+    constant
+    | array_constant
+    | record_constant;
+
+constant_declaration = identifier, "=", expression, ";";
+
+variable_declaration = identifier, ":", type, [ "=", expression ];
+
+procedure_declaration = procedure_header, block, ";";
+
+procedure_header = "procedure", identifier, formal_parameter_list;
+
+formal_parameter_list = "(", [ parameter_declaration, { ";", parameter_declaration } ], ")";
+
+parameter_declaration = 
+    value_parameter
+    | variable_parameter
+    | const_parameter;
+
+value_parameter = 
+    (*identifier, ":", type_identifier, "=", constant | *)
+    identifier_list, ":", type_identifier;
+
+variable_parameter = "var", identifier_list;
+
+const_parameter = "const", 
+    (*identifier, ":", type_identifier, "=", constant | *)
+    identifier_list, ":", type_identifier;
+
+function_declaration = function_header, block, ";";
+
+function_header = "function", identifier, formal_parameter_list, ":", result_type;
+
+compound_statement = "begin", statement_list, "end";
+
+statement = [ 
+    simple_statement 
+    | structured_statement
+];
+
+simple_statement = 
+    assignment_statement
+    | procedure_statement;
+
+assignment_statement = ":=" | "+=" | "-=" | "*=" | "/=", expression;
+
+procedure_statement = procedure_identifier, [ actual_parameter_list ];
+
+actual_parameter_list = "(", { ",", expression }, ")";
+
+indexed_variable = array_identifier, "[", expression_list, "]";
+
+expression_list = expression, { ",", expression };
+
+statement_list = statement, { ";", statement };
+
+structured_statement = 
+    compound_statement
+    | if_statement
+    | repetitive_statement;
+
+if_statement = "if", expression, "then", statement, [ "else", statement ];
+
+repetitive_statement = 
+    for_statement
+    | repeat_statement
+    | while_statement;
+
+for_statement = "for", variable_identifier, ":=", expression, "to" | "downto", expression, "do", statement;
+
+repeat_statement = "repeat", statement_list, "until", expression;
+
+while_statement = "while", expression, "do", statement;
+
+identifier = [ "&" ], letter, { letter | digit };
+
+letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+       | "V" | "W" | "X" | "Y" | "Z" |
+       | "a" | "b" | "c" | "d" | "e" | "f" | "g"
+       | "h" | "i" | "j" | "k" | "l" | "m" | "n"
+       | "o" | "p" | "q" | "r" | "s" | "t" | "u"
+       | "v" | "w" | "x" | "y" | "z";
+
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+identifier_list = identifier, { ",", identifier };
+
+range = constant, "..", constant;
+
+constant = ( [ sign ], variable_identifier | number ) | char_constant;
+
+char_constant = "'", letter, "'";
+
+sign = "+" | "-";
+
+number = [ sign ], unsigned_number;
+
+unsigned_number = 
+    unsigned_real
+    | unsigned_integer;
+
+unsigned_real = digit_sequence, [ ".", digit_sequence ], [ scale_factor ];
+
+scale_factor = "E" | "e", [ sign ], digit_sequence;
+
+unsigned_integer = 
+    digit_sequence
+    | "$", hex_digit_sequence
+    | "&", octal_digit_sequence
+    | "%", bin_digit_sequence;
+
+digit_sequence = digit, { digit };
+
+hex_digit_sequence = hex_digit, { hex_digit }; 
+
+hex_digit = "A" | "a" | "B" | "b" | "C" | "c" | "D" | "d" | "E" | "e" | "F" | "f" | digit;
+
+octal_digit_sequence = octal_digit, { octal_digit };
+
+octal_digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
+
+bin_digit_sequence = "0" | "1", { "0" | "1" };
+
+variable_identifier = identifier;
+
+type_identifier = identifier;
+
+procedure_identifier = identifier;
+
+array_identifier = identifier;
+
+array_constant = "(", typed_constant, { ",", typed_constant }, ")";
+
+record_constant = "(", field_constant, { ";", field_constant }, ")";
+
+field_constant = [ identifier, ":", typed_constant ];
+
+expression = simple_expression, { "<" | ">" | "<=" | ">=" | "=" | "<>", simple_expression };
+
+simple_expression = term, { "+" | "-", term };
+
+term = factor, { "*" | "/" | "div" | "mod", factor };
+
+factor = 
+    "(", expression, ")"
+    | procedure_statement
+    | constant
+    | sign, factor
+    | indexed_variable;

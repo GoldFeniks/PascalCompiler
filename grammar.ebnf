@@ -90,7 +90,7 @@ const_parameter = "const",
 
 function_declaration = function_header, block, ";";
 
-function_header = "function", identifier, formal_parameter_list, ":", result_type;
+function_header = "function", identifier, formal_parameter_list, ":", type_identifier;
 
 compound_statement = "begin", statement_list, "end";
 

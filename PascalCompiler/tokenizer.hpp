@@ -145,8 +145,7 @@ namespace My {
                 Then,              To,                Type,               Unit,         
                 Until,             Uses,              Var,                While,
                 With,              Xor,               Range,              Operator,
-                CharConst,         EndOfFile,
-
+                CharConst,         EndOfFile,         
 			};
 
             static const std::string SubTypesStrings[];
@@ -225,6 +224,7 @@ namespace My {
 		const PToken First();
 		bool IsEnd() const;
         const PToken GetEndToken() const;
+        void Back(const int i);
 
 	private:
 

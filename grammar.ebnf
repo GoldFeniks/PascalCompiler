@@ -107,7 +107,7 @@ assignment_statement = ":=" | "+=" | "-=" | "*=" | "/=", expression;
 
 procedure_statement = procedure_identifier, [ actual_parameter_list ];
 
-actual_parameter_list = "(", { ",", expression }, ")";
+actual_parameter_list = "(", [ expression_list ], ")";
 
 indexed_variable = array_identifier, "[", expression_list, "]";
 

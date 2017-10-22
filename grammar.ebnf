@@ -82,7 +82,7 @@ value_parameter =
     identifier, ":", type_identifier, "=", expression
     | identifier_list, ":", type_identifier;
 
-variable_parameter = "var", identifier_list;
+variable_parameter = "var", identifier_list, type_identifier;
 
 const_parameter = "const", 
     identifier, ":", type_identifier, "=", expression

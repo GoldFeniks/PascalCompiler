@@ -79,14 +79,14 @@ parameter_declaration =
     | const_parameter;
 
 value_parameter = 
-    (*identifier, ":", type_identifier, "=", constant | *)
-    identifier_list, ":", type_identifier;
+    identifier, ":", type_identifier, "=", expression
+    | identifier_list, ":", type_identifier;
 
 variable_parameter = "var", identifier_list;
 
 const_parameter = "const", 
-    (*identifier, ":", type_identifier, "=", constant | *)
-    identifier_list, ":", type_identifier;
+    identifier, ":", type_identifier, "=", expression
+    | identifier_list, ":", type_identifier;
 
 function_declaration = function_header, block, ";";
 

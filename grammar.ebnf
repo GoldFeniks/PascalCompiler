@@ -69,7 +69,7 @@ variable_declaration = identifier_list, ":", type, [ "=", typed_constant ], ";";
 
 procedure_declaration = procedure_header, block, ";";
 
-procedure_header = "procedure", identifier, formal_parameter_list;
+procedure_header = "procedure", identifier, [ formal_parameter_list ];
 
 formal_parameter_list = "(", [ parameter_declaration, { ";", parameter_declaration } ], ")";
 

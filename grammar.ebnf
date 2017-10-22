@@ -67,7 +67,7 @@ constant_declaration = identifier, "=", expression, ";";
 
 variable_declaration = identifier_list, ":", type, [ "=", typed_constant ], ";";
 
-procedure_declaration = procedure_header, block, ";";
+procedure_declaration = procedure_header, ";", block, ";";
 
 procedure_header = "procedure", identifier, [ formal_parameter_list ];
 
@@ -88,7 +88,7 @@ const_parameter = "const",
     identifier, ":", type_identifier, "=", expression
     | identifier_list, ":", type_identifier;
 
-function_declaration = function_header, block, ";";
+function_declaration = function_header, ";", block, ";";
 
 function_header = "function", identifier, formal_parameter_list, ":", type_identifier;
 

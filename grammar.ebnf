@@ -32,8 +32,7 @@ type_declaration = identifier, "=", type, ";";
 type = 
     simple_type
     | structured_type
-    | type_alias
-    | type_identifier;
+    | type_alias;
 
 simple_type = 
     ordinal_type
@@ -66,7 +65,7 @@ typed_constant =
 
 constant_declaration = identifier, "=", expression, ";";
 
-variable_declaration = identifier, ":", type, [ "=", typed_constant ];
+variable_declaration = identifier_list, ":", type, [ "=", typed_constant ], ";";
 
 procedure_declaration = procedure_header, block, ";";
 

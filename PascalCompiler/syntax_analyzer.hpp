@@ -130,7 +130,7 @@ namespace My {
             enum class ScalarType {
                 Integer,
                 Real,
-                Char
+                Char,
             };
 
             ScalarNode(std::string name, ScalarType scalar_type, Node::PNode node = nullptr) : TypeNode(name, TypeIdentifier::Scalar, node), MyScalarType(scalar_type) {};
@@ -158,42 +158,65 @@ namespace My {
 
         };//class RecordNode
 
+        class ConstantNode : public Node {
+
+        public:
+
+            typedef std::shared_ptr<ConstantNode> PConstantNode;
+
+            ConstantNode(std::string name, Tokenizer::Token::Value value, ScalarNode::ScalarType scalar_type) : Node(name, Type::Const),
+                value(value), ScalarType(scalar_type) {};
+
+            ScalarNode::ScalarType ScalarType;
+
+            template<typename T>
+            const T GetValue() {
+                switch (ScalarType) {
+                case ScalarNode::ScalarType::Integer:
+                    return T(long long(value));
+                case ScalarNode::ScalarType::Real:
+                    return T(double(value));
+                case ScalarNode::ScalarType::Char:
+                    return T(*((char*)(value)));
+                default:
+                    break;
+                }
+            }
+
+        private:
+
+            Tokenizer::Token::Value value;
+
+        };//class ConstantNode
+
         class VariableNode : public Node {
 
         public:
 
-            VariableNode(std::string name, TypeNode::PTypeNode type, bool is_const, PNode value = nullptr) : Node(name, Type::Variable, type, value), IsConst(is_const), type(type) {};
+            VariableNode(std::string name, TypeNode::PTypeNode type, bool is_const, Node::PNode value = nullptr) :
+                Node(name, Type::Variable, type), IsConst(is_const), type(type) {
+                SetValue(value);
+            };
 
             TypeNode::PTypeNode type;
+            Node::PNode Value;
+
+            void SetValue(Node::PNode value) {
+                Value = value;
+                Add(value);
+            }
 
             bool IsConst;
 
         };//class VariableNode
 
-        enum class ConstantType {
-            Integer, 
-            Real,
-            String,
-            Char
-        };
-
-        template <typename T, ConstantType NConstantType>
-        class ConstantNode : public Node {
+        class StringNode : public Node {
 
         public:
 
-            ConstantNode(const Tokenizer::PToken token) : Node(token->GetString(), Type::Const), Value(token->GetValue<T>()) {};
+            StringNode(const Tokenizer::PToken t) : Node(t->GetValueString(), Type::Const) {};
 
-            ConstantType MyConstantType = NConstantType;
-            T Value;
-
-        };//class ConstantNode
-
-        using IntNode = ConstantNode<unsigned long long, ConstantType::Integer>;
-        using FloatNode = ConstantNode<double, ConstantType::Real>;
-        using StringNode = ConstantNode<char*, ConstantType::String>;
-        using CharNode = ConstantNode<char, ConstantType::Char>;
-        //ConstantNode specifications
+        };//class StringNode
 
         class TypedConstantNode : public Node {
 
@@ -313,6 +336,23 @@ namespace My {
         Node::PNode root = nullptr;
         std::vector<Declaration> declarations;
 
+        typedef std::unordered_map<std::string, std::function<ConstantNode::PConstantNode(ConstantNode::PConstantNode, ConstantNode::PConstantNode)>> binaryOpMap_t;
+        typedef std::unordered_map<std::string, std::function<ConstantNode::PConstantNode(ConstantNode::PConstantNode)>> unaryOpMap_t;
+        
+        static const binaryOpMap_t binaryOpMap;
+        static const unaryOpMap_t unaryOpMap;
+
+        template<typename F>
+        static ConstantNode::PConstantNode calc(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right, bool real_only = false) {
+            F f;
+            if (left->ScalarType == ScalarNode::ScalarType::Integer && right->ScalarType == ScalarNode::ScalarType::Integer && !real_only) {
+                long long result = std::floor(f(left->GetValue<double>(), right->GetValue<double>()));
+                return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Integer));
+            }
+            double result = f(left->GetValue<double>(), right->GetValue<double>());
+            return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Real));
+        }
+
         template<typename T>
         void requireUnique(const std::string& value, T& set) {
             if (set.count(value) > 0)
@@ -320,13 +360,21 @@ namespace My {
                 throw SyntaxErrorException("Dublicate identifier");
         }
 
+        ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
+        void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, bool allow_left_int);
+        void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right);
+        void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
+        static void requireInteger(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
+        TypeNode::PTypeNode getBaseType(TypeNode::PTypeNode type);
+
         TypeNode::PTypeNode findTypeDeclaration(const std::string& name);
         Node::PNode findVarDeclaration(const std::string& name);
         Node::PNode findProcedureDeclaration(const std::string& name);
+
         void requireFirstDecl(const std::string& name);
         void requireDeclaration(const std::string& name);
-
         void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+
         std::string walk(const Node::PNode node, std::string prefix, bool last);
 
         inline static bool simpleExpressionOperators(const Tokenizer::Token::SubTypes type) {

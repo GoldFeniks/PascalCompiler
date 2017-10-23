@@ -170,32 +170,44 @@ namespace My {
 			const Types GetType() const;
 			const std::string& GetString() const;
 			const char* GetStringValue() const;
-			const unsigned long long GetLongLongValue() const;
+			const long long GetLongLongValue() const;
 			const long double GetLongDoubleValue() const;
             std::string GetValueString() const;
             const std::string ToString() const;
 
             template<typename T>
-            const T GetValue() const;
+            T GetValue() const;
+
+            union Value {
+
+                char* String;
+                long long LongLong;
+                double Double;
+
+                operator char*() const { return String; }
+                operator long long() const { return LongLong; }
+                operator double() const { return Double; }
+                operator char() const { return String[0]; }
+
+                Value(char* String) : String(String) {};
+                Value(long long LongLong) : LongLong(LongLong) {};
+                Value(double Double) : Double(Double) {};
+                Value() {};
+
+            };
+
+            Value GetValue() const {
+                return myValue;
+            };
 
 			private:
 
 				std::pair<int, int> myPosition;
 				SubTypes mySubType;
 				Types myType;
-				std::string myString;
+                std::string myString;
 
-				union Value {
-					char* String;
-					unsigned long long UnsignedLongLong;
-					double Double;
-
-                    operator char*() const { return String; }
-                    operator unsigned long long() const { return UnsignedLongLong; }
-                    operator double() const { return Double; }
-                    operator char() const { return String[0]; }
-
-				};
+                friend class CnstantNode;
 
 				Value myValue;
 
@@ -243,7 +255,7 @@ namespace My {
 	};//class Tokenizer
 
     template<typename T>
-    const T Tokenizer::Token::GetValue() const {
+    T Tokenizer::Token::GetValue() const {
         return T(myValue);
     }
 

@@ -18,6 +18,78 @@ const std::string My::SyntaxAnalyzer::Node::TypeNames[] = {
 
 const std::string My::SyntaxAnalyzer::TypeNode::TypeIdentifierNames[] = { " scalar", " array", " record", " alias" };
 
+const My::SyntaxAnalyzer::binaryOpMap_t My::SyntaxAnalyzer::binaryOpMap = {
+
+    { "+", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                return My::SyntaxAnalyzer::calc<std::plus<double>>(left, right);
+            }
+    },
+
+    { "-", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                return My::SyntaxAnalyzer::calc<std::minus<double>>(left, right);
+            }
+    },
+
+    { "*", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                return My::SyntaxAnalyzer::calc<std::multiplies<double>>(left, right);
+            }
+    },
+
+    { "/", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                return My::SyntaxAnalyzer::calc<std::divides<double>>(left, right, true);
+            }
+    },
+
+    { "mod", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                My::SyntaxAnalyzer::requireInteger(left, right);
+                long long result = left->GetValue<long long>() % right->GetValue<long long>();
+                return My::SyntaxAnalyzer::ConstantNode::PConstantNode(new My::SyntaxAnalyzer::ConstantNode(std::to_string(result),
+                    My::Tokenizer::Token::Value(result), left->ScalarType));
+            }
+    },
+
+    { "div", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                My::SyntaxAnalyzer::requireInteger(left, right);
+                return My::SyntaxAnalyzer::calc<std::divides<double>>(left, right);
+            }
+    },
+
+    { "shl", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                My::SyntaxAnalyzer::requireInteger(left, right);
+                long long result = left->GetValue<long long>() << right->GetValue<long long>();
+                return My::SyntaxAnalyzer::ConstantNode::PConstantNode(new My::SyntaxAnalyzer::ConstantNode(std::to_string(result),
+                    My::Tokenizer::Token::Value(result), left->ScalarType));
+            }
+    },
+
+    { "shr", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left, My::SyntaxAnalyzer::ConstantNode::PConstantNode right) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                My::SyntaxAnalyzer::requireInteger(left, right);
+                long long result = left->GetValue<long long>() >> right->GetValue<long long>();
+                return My::SyntaxAnalyzer::ConstantNode::PConstantNode(new My::SyntaxAnalyzer::ConstantNode(std::to_string(result),
+                    My::Tokenizer::Token::Value(result), left->ScalarType));
+            }
+    }
+
+};
+
+const My::SyntaxAnalyzer::unaryOpMap_t My::SyntaxAnalyzer::unaryOpMap = {
+
+    { "-", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                if (left->ScalarType == My::SyntaxAnalyzer::ScalarNode::ScalarType::Integer)
+                    return My::SyntaxAnalyzer::ConstantNode::PConstantNode(new My::SyntaxAnalyzer::ConstantNode(std::to_string(-left->GetValue<long long>()),
+                        My::Tokenizer::Token::Value(-left->GetValue<long long>()), left->ScalarType));
+                return My::SyntaxAnalyzer::ConstantNode::PConstantNode(new My::SyntaxAnalyzer::ConstantNode(std::to_string(-left->GetValue<double>()),
+                    My::Tokenizer::Token::Value(-left->GetValue<double>()), left->ScalarType));
+            }
+    },
+
+    { "+", [](My::SyntaxAnalyzer::ConstantNode::PConstantNode left) -> My::SyntaxAnalyzer::ConstantNode::PConstantNode {
+                return left;
+            }
+    }
+
+};
+
 std::string My::SyntaxAnalyzer::ExpectedException::getMessage(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type) {
     return std::string(boost::str(boost::format("(%4%, %5%) Syntax Error: %1% expected but %2% \"%3%\" found") %
         My::Tokenizer::Token::SubTypesStrings[static_cast<unsigned int>(type)] %
@@ -28,6 +100,80 @@ std::string My::SyntaxAnalyzer::ExpectedException::getMessage(const My::Tokenize
 
 const char* My::SyntaxAnalyzer::SyntaxErrorException::what() const {
     return message.c_str();
+}
+
+My::SyntaxAnalyzer::ConstantNode::PConstantNode My::SyntaxAnalyzer::calculateConstExpr(Node::PNode n) {
+    switch (n->MyType) {
+    case Node::Type::Const:
+        return std::dynamic_pointer_cast<ConstantNode>(n);
+    case Node::Type::Variable:
+    {
+        auto var = std::dynamic_pointer_cast<VariableNode>(n);
+        if (!var->IsConst || var->type != nullptr)
+            throw SyntaxErrorException("Illegal expression"); // only const in constexpr
+        return std::dynamic_pointer_cast<ConstantNode>(var->Value);
+    }
+    case Node::Type::Operation:
+    {
+        auto op = std::dynamic_pointer_cast<OperationNode>(n);
+        auto left = calculateConstExpr(op->Children[0]);
+        if (op->Children.size() > 1) {
+            for (int i = 1; i < op->Children.size(); ++i) {
+                auto right = calculateConstExpr(op->Children[i]);
+                requireTypesCompatibility(left, right);
+                left = binaryOpMap.at(op->ToString())(left, right);
+            }
+        }
+        else
+            left = unaryOpMap.at(op->ToString())(left);
+        return left;
+    }
+    default:
+        break;
+    }
+    throw std::exception();
+}
+
+void My::SyntaxAnalyzer::requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, bool allow_left_int = true) {
+    //TODO allow char
+    left = getBaseType(left); right = getBaseType(right);
+    if (left == right)
+        return;
+    if (left->MyTypeIdentifier != right->MyTypeIdentifier)
+        throw SyntaxErrorException("Can't convert");
+    auto l = std::dynamic_pointer_cast<ScalarNode>(left);
+    auto r = std::dynamic_pointer_cast<ScalarNode>(right);
+    if (l->MyScalarType == ScalarNode::ScalarType::Char && r->MyScalarType != ScalarNode::ScalarType::Char ||
+        !allow_left_int && l->MyScalarType == ScalarNode::ScalarType::Integer && r->MyScalarType == ScalarNode::ScalarType::Real)
+        throw SyntaxErrorException("Can't convert");
+}
+
+void My::SyntaxAnalyzer::requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right) {
+    //TODO allow char
+    if (left->MyTypeIdentifier != TypeNode::TypeIdentifier::Scalar)
+        throw SyntaxErrorException("Can't convert");
+    auto l = std::dynamic_pointer_cast<ScalarNode>(left);
+    if (l->MyScalarType == ScalarNode::ScalarType::Real && right->ScalarType == ScalarNode::ScalarType::Integer ||
+        l->MyScalarType == right->ScalarType)
+        return;
+    throw SyntaxErrorException("Can't convert");
+}
+
+void My::SyntaxAnalyzer::requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right) {
+    if (left->ScalarType != ScalarNode::ScalarType::Char && left->ScalarType != ScalarNode::ScalarType::Char)
+        return;
+}
+
+void My::SyntaxAnalyzer::requireInteger(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right) {
+    if (left->ScalarType != My::SyntaxAnalyzer::ScalarNode::ScalarType::Integer ||
+        right->ScalarType != My::SyntaxAnalyzer::ScalarNode::ScalarType::Integer)
+        throw My::SyntaxAnalyzer::SyntaxErrorException("Illegal expression");
+}
+
+My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::getBaseType(TypeNode::PTypeNode type) {
+    while (type->MyTypeIdentifier == TypeNode::TypeIdentifier::Alias)
+        type = std::dynamic_pointer_cast<TypeNode>(type->Children[0]);
+    return type;
 }
 
 My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::findTypeDeclaration(const std::string& name) {
@@ -82,7 +228,11 @@ void My::SyntaxAnalyzer::require(const Tokenizer::PToken token, My::Tokenizer::T
 std::string My::SyntaxAnalyzer::walk(const Node::PNode node, std::string prefix, bool last) {
     if (node == nullptr)
         return std::string();
-    std::string type = Node::TypeNames[static_cast<int>(node->MyType)];
+    std::string type = ""; 
+    if (node->MyType == Node::Type::Variable && std::dynamic_pointer_cast<VariableNode>(node)->IsConst)
+        type = "const ";
+    else
+        type = Node::TypeNames[static_cast<int>(node->MyType)];
     std::string type_i = "";
     if (node->MyType == Node::Type::Type)
         type_i = TypeNode::TypeIdentifierNames[static_cast<int>(std::dynamic_pointer_cast<TypeNode>(node)->MyTypeIdentifier)];
@@ -169,13 +319,13 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFactor() {
     }
     case Tokenizer::Token::SubTypes::IntegerConst:
         tokenizer.Next();
-        return Node::PNode(new IntNode(token));
+        return Node::PNode(new ConstantNode(token->GetString(), token->GetValue(), ScalarNode::ScalarType::Integer));
     case Tokenizer::Token::SubTypes::FloatConst:
         tokenizer.Next();
-        return Node::PNode(new FloatNode(token));
+        return Node::PNode(new ConstantNode(token->GetString(), token->GetValue(), ScalarNode::ScalarType::Real));
     case Tokenizer::Token::SubTypes::CharConst:
         tokenizer.Next();
-        return Node::PNode(new CharNode(token));
+        return Node::PNode(new ConstantNode(token->GetString(), token->GetValue(), ScalarNode::ScalarType::Char));
     case Tokenizer::Token::SubTypes::OpenParenthesis:
     {
         tokenizer.Next();
@@ -263,8 +413,7 @@ void My::SyntaxAnalyzer::ParseStatementList(Node::PNode p) {
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseTypedConst(TypeNode::PTypeNode type) {
     //TODO rewrite???
-    while (type->MyTypeIdentifier == TypeNode::TypeIdentifier::Alias)
-        type = std::dynamic_pointer_cast<TypeNode>(type->Children.front());
+    type = getBaseType(type);
     if (type->MyTypeIdentifier == TypeNode::TypeIdentifier::Scalar)
         return ParseExpression();
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::OpenParenthesis);
@@ -272,8 +421,8 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseTypedConst(TypeNode::PT
     if (type->MyTypeIdentifier == TypeNode::TypeIdentifier::Array) {
         auto a = std::dynamic_pointer_cast<ArrayNode>(type);
         //TODO calculate possible expression
-        auto end = std::dynamic_pointer_cast<IntNode>(a->Children[1])->Value;
-        for (auto i = std::dynamic_pointer_cast<IntNode>(a->Children[0])->Value;
+        auto end = std::dynamic_pointer_cast<ConstantNode>(a->Children[1])->GetValue<long long>();
+        for (auto i = std::dynamic_pointer_cast<ConstantNode>(a->Children[0])->GetValue<long long>();
             i <= end; ++i) {
             tokenizer.Next();
             n->Add(ParseTypedConst(a->type));
@@ -376,8 +525,10 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFormalParameterList() {
             tokenizer.Next();
         }
         else {
+            bool is_const = false;
             if (t->GetSubType() == Tokenizer::Token::SubTypes::Const) {
                 c = Node::PNode(new Node("const", Node::Type::Block));
+                is_const = true;
                 tokenizer.Next();
             }
             else {
@@ -390,19 +541,22 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFormalParameterList() {
             //TODO rewrite
             auto type = findTypeDeclaration(tokenizer.Current()->GetValueString());
             for (int i = 0; i < c->Children.size(); ++i) {
-                c->Children[i] = Node::PNode(new VariableNode(c->Children[i]->ToString(), type, false));
+                c->Children[i] = Node::PNode(new VariableNode(c->Children[i]->ToString(), type, is_const));
                 declarations.back().Vars[c->Children[i]->ToString()] = c->Children[i];
             }
             if (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::Equal) {
-                if (c->Children.size() > 2)
+                if (c->Children.size() > 1)
                     //TODO add more info
                     throw SyntaxErrorException("Only 1 variable can be initialized");
                 //TODO check type
                 tokenizer.Next();
                 //TODO check constexpr 
-                auto value = ParseExpression();
-                for (int i = 0; i < c->Children.size(); ++i)
-                    c->Children[i]->Add(value);
+                auto value = calculateConstExpr(ParseExpression());
+                auto var = std::dynamic_pointer_cast<VariableNode>(c->Children.back());
+                requireTypesCompatibility(var->type, value);
+                var->SetValue(value);
+                c->Add(var);
+                declarations.back().Vars[var->ToString()] = var;
                 end = true;
                 last = true;
             }
@@ -523,7 +677,8 @@ void My::SyntaxAnalyzer::ParseVarDeclaration(Node::PNode p) {
                 //TODO more info
                 throw SyntaxErrorException("Only 1 variable can be initialized");
             tokenizer.Next();
-            p->Children.back()->Add(ParseTypedConst(type));
+            //check type!!!
+            std::dynamic_pointer_cast<VariableNode>(p->Children.back())->SetValue(ParseTypedConst(type));
         }
         require(tokenizer.Current(), Tokenizer::Token::SubTypes::Semicolon);
         t = tokenizer.Next();
@@ -534,7 +689,7 @@ void My::SyntaxAnalyzer::ParseConstDeclaration(Node::PNode p) {
     auto t = tokenizer.Current();
     while (t->GetSubType() == Tokenizer::Token::SubTypes::Identifier) {
         requireFirstDecl(t->GetValueString());
-        TypeNode::PTypeNode type;
+        TypeNode::PTypeNode type = nullptr;
         Node::PNode value;
         if (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::Colon) {
             tokenizer.Next();
@@ -546,7 +701,7 @@ void My::SyntaxAnalyzer::ParseConstDeclaration(Node::PNode p) {
         else {
             require(tokenizer.Current(), Tokenizer::Token::SubTypes::Equal);
             tokenizer.Next();
-            value = ParseExpression();
+            value = calculateConstExpr(ParseExpression());
             //deduce type
         }
         auto var = Node::PNode(new VariableNode(t->GetValueString(), type, true, value));

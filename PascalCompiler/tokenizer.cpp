@@ -307,8 +307,8 @@ const char* My::Tokenizer::Token::GetStringValue() const {
 	return myValue.String;
 }
 
-const unsigned long long My::Tokenizer::Token::GetLongLongValue() const {
-	return myValue.UnsignedLongLong;
+const long long My::Tokenizer::Token::GetLongLongValue() const {
+	return myValue.LongLong;
 }
 
 const long double My::Tokenizer::Token::GetLongDoubleValue() const {
@@ -318,7 +318,7 @@ const long double My::Tokenizer::Token::GetLongDoubleValue() const {
 std::string My::Tokenizer::Token::GetValueString() const {
     switch (myType) {
     case Types::Integer:
-        return std::string(std::to_string(myValue.UnsignedLongLong));
+        return std::string(std::to_string(myValue.LongLong));
     case Types::Float:
         return std::string(std::to_string(myValue.Double));
     default:
@@ -375,22 +375,22 @@ My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, Fi
             break;
         case My::FiniteAutomata::States::ReturnInt:
         case My::FiniteAutomata::States::Decimal:
-            myValue.UnsignedLongLong = std::stoull(string.c_str(), NULL, 10);
+            myValue.LongLong = std::stoull(string.c_str(), NULL, 10);
             myType = Types::Integer;
             mySubType = SubTypes::IntegerConst;
             break;
         case My::FiniteAutomata::States::Hex:
-            myValue.UnsignedLongLong = std::stoull(string.c_str() + 1, NULL, 16);
+            myValue.LongLong = std::stoull(string.c_str() + 1, NULL, 16);
             myType = Types::Integer;
             mySubType = SubTypes::IntegerConst;
             break;
         case My::FiniteAutomata::States::Oct:
-            myValue.UnsignedLongLong = std::stoull(string.c_str() + 1, NULL, 8);
+            myValue.LongLong = std::stoull(string.c_str() + 1, NULL, 8);
             myType = Types::Integer;
             mySubType = SubTypes::IntegerConst;
             break;
         case My::FiniteAutomata::States::Bin:
-            myValue.UnsignedLongLong = std::stoull(string.c_str() + 1, NULL, 2);
+            myValue.LongLong = std::stoull(string.c_str() + 1, NULL, 2);
             myType = Types::Integer;
             mySubType = SubTypes::IntegerConst;
             break;

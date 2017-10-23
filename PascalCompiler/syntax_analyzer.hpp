@@ -15,7 +15,7 @@ namespace My {
 
         public:
 
-            SyntaxErrorException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+            SyntaxErrorException(const std::string& message) : message(message) {};
 
             virtual const char* what() const override;
 
@@ -25,18 +25,44 @@ namespace My {
 
         };
 
+        class ExpectedException : public SyntaxErrorException {
+
+        public:
+
+            ExpectedException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type) : SyntaxErrorException(getMessage(token, type)) {};
+
+        private:
+
+            std::string getMessage(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+
+        };
+
         class Node {
 
         public:
 
+            enum class Type {
+                Variable,
+                Type,
+                Const,
+                Operation,
+                Call,
+                Index,
+                Procedure,
+                Function,
+                Block
+            };
+
+            static const std::string TypeNames[];
+
             typedef std::shared_ptr<Node> PNode;
 
             template<typename... C>
-            Node(const std::string message, C... children) : message(message) {
+            Node(const std::string name, Type type, C... children) : name(name), MyType(type) {
                 Add(children...);
             };
 
-            Node(const std::string message) : message(message) {};
+            Node(const std::string message, Type type) : name(message), MyType(type) {};
 
             template<typename... C>
             void Add(PNode node, C... children) {
@@ -51,80 +77,178 @@ namespace My {
             }
 
             const std::string& ToString();
+
             void ChangeName(const std::string& name) {
-                message = name;
+                this->name = name;
             }
 
             std::vector<PNode> Children;
+            Type MyType;
 
         private:
 
-            std::string message;
+            std::string name;
 
         };//class Node
 
-        class ExpressionNode : public Node {
+        class TypeNode : public Node {
 
         public:
 
-            typedef std::shared_ptr<ExpressionNode> PExpressionNode;
+            typedef std::shared_ptr<TypeNode> PTypeNode;
+
+            enum class TypeIdentifier {
+                Scalar,
+                Array,
+                Record,
+                Alias
+            };
+
+            TypeIdentifier MyTypeIdentifier; 
+
+            static const std::string TypeIdentifierNames[];
+
+        protected:
 
             template<typename... C>
-            ExpressionNode(const Tokenizer::PToken token, C... children) : 
-                Node(token->GetString(), children...), Token(token) {};
+            TypeNode(std::string name, TypeIdentifier identifier, C... children) : Node(name, Type::Type, children...), MyTypeIdentifier(identifier) {};
 
-            Tokenizer::PToken Token;
+        };//class TypeNode
 
-        };//class ExpressionNode
-
-        class VariableNode : public ExpressionNode {
+        class TypeAliasNode : public TypeNode {
 
         public:
 
-            VariableNode(const Tokenizer::PToken token) : ExpressionNode(token) {};
+            TypeAliasNode(std::string name, Node::PNode node) : TypeNode(name, TypeIdentifier::Alias, node) {};
+
+        };
+
+        class ScalarNode : public TypeNode {
+
+        public:
+
+            enum class ScalarType {
+                Integer,
+                Real,
+                Char
+            };
+
+            ScalarNode(std::string name, ScalarType scalar_type, Node::PNode node = nullptr) : TypeNode(name, TypeIdentifier::Scalar, node), MyScalarType(scalar_type) {};
+
+            ScalarType MyScalarType;
+
+        };//class ScalarNode
+
+        class ArrayNode : public TypeNode {
+
+        public:
+
+            ArrayNode(std::string name, PNode from, PNode to, PTypeNode node) : TypeNode(name, TypeIdentifier::Array, from, to, node), type(node) {};
+
+            PTypeNode type;
+
+        };//class ArrayNode
+
+        class RecordNode : public TypeNode {
+
+        public:
+
+            template<typename... C>
+            RecordNode(std::string name, C... children) : TypeNode(name, TypeIdentifier::Record, children...) {};
+
+        };//class RecordNode
+
+        class VariableNode : public Node {
+
+        public:
+
+            VariableNode(std::string name, TypeNode::PTypeNode type, bool is_const, PNode value = nullptr) : Node(name, Type::Variable, type, value), IsConst(is_const), type(type) {};
+
+            TypeNode::PTypeNode type;
+
+            bool IsConst;
 
         };//class VariableNode
 
-        template <typename T>
-        class ConstantNode : public ExpressionNode {
+        enum class ConstantType {
+            Integer, 
+            Real,
+            String,
+            Char
+        };
+
+        template <typename T, ConstantType NConstantType>
+        class ConstantNode : public Node {
 
         public:
 
-            ConstantNode(const Tokenizer::PToken token) : ExpressionNode(token) {};
+            ConstantNode(const Tokenizer::PToken token) : Node(token->GetString(), Type::Const), Value(token->GetValue<T>()) {};
 
-            const T GetValue() {
-                return Token->GetValue<T>();
-            }
+            ConstantType MyConstantType = NConstantType;
+            T Value;
 
         };//class ConstantNode
 
-        using IntNode = ConstantNode<unsigned long long>;
-        using FloatNode = ConstantNode<double>;
-        using StringNode = ConstantNode<char*>;
-        using CharNode = ConstantNode<char>;
+        using IntNode = ConstantNode<unsigned long long, ConstantType::Integer>;
+        using FloatNode = ConstantNode<double, ConstantType::Real>;
+        using StringNode = ConstantNode<char*, ConstantType::String>;
+        using CharNode = ConstantNode<char, ConstantType::Char>;
         //ConstantNode specifications
 
-        class UnaryOperation : public ExpressionNode {
+        class TypedConstantNode : public Node {
 
         public:
 
-            UnaryOperation(const My::Tokenizer::PToken token, PNode operand) :
-                ExpressionNode(token, operand) {};
+            template<typename... C>
+            TypedConstantNode(PNode node, C... children) : Node("typed_const", Type::Const, node, children...) {};
 
-        };//class UnaryOperation
+        };
 
-        class Operation : public ExpressionNode {
+        class OperationNode : public Node {
 
         public:
 
-            Operation(const My::Tokenizer::PToken token, PNode left, PNode right) : 
-                ExpressionNode(token, left, right) {};
+            template<typename... C>
+            OperationNode(const My::Tokenizer::PToken token, C... children) : 
+                Node(token->GetStringValue(), Type::Operation, children...) {};
 
         };//class BinaryOperation
 
+        class CallNode : public Node {
+
+        public:
+
+            CallNode(std::string name, PNode args) : Node(name, Type::Call, args) {};
+
+        };//class CallNode
+
+        class IndexNode : public Node {
+
+        public:
+
+            IndexNode(std::string name, PNode args) : Node(name, Type::Index, args) {};
+
+        };//class IndexNode
+
+        class ProcedureNode : public Node {
+
+        public:
+
+            ProcedureNode(std::string name, PNode args, PNode block) : Node(name, Type::Procedure, args, block) {};
+
+        };//class ProcedureNode
+
+        class FunctionNode : public Node {
+
+        public:
+
+            FunctionNode(std::string name, PNode args, PNode return_type, PNode block) : Node(name, Type::Function, args, return_type, block) {};
+
+        };//class FunctionNode
+
         struct Declaration {
 
-            std::unordered_map<std::string, Node::PNode> Types, Vars, Consts, Procedures, Functions;
+            std::unordered_map<std::string, Node::PNode> Types, Vars, Procedures;
 
         };//struct Declaration
 
@@ -146,7 +270,7 @@ namespace My {
         Node::PNode ParseBlock();
         Node::PNode ParseCompoundStatement();
         void ParseTypeDeclaration(Node::PNode p);
-        Node::PNode ParseType();
+        TypeNode::PTypeNode ParseType(std::string);
         void ParseVarDeclaration(Node::PNode p);
         void ParseConstDeclaration(Node::PNode p);
         Node::PNode ParseStatement();
@@ -156,12 +280,13 @@ namespace My {
         Node::PNode ParseRepeatStatement();
         Node::PNode ParseDeclarationPart();
         void ParseStatementList(Node::PNode p);
-        Node::PNode ParseTypedConst(Node::PNode type);
+        Node::PNode ParseTypedConst(TypeNode::PTypeNode type);
         Node::PNode ParseActualParameterList();
         void ParseExprressionList(Node::PNode p);
         Node::PNode ParseProcedure();
         Node::PNode ParseFunction();
         Node::PNode ParseFormalParameterList();
+        Node::PNode ParseField(Node::PNode var);
 
         template<typename T, typename... Args>
         void ParseIdentifierList(Node::PNode p, T& set, Args... args) {
@@ -169,13 +294,13 @@ namespace My {
             require(t, Tokenizer::Token::SubTypes::Identifier);
             requireUnique(t->GetValueString(), set);
             set.emplace(t->GetValueString(), args...);
-            p->Add(Node::PNode(new Node(t->GetValueString())));
+            p->Add(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
             while (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::Comma) {
                 t = tokenizer.Next();
                 require(t, Tokenizer::Token::SubTypes::Identifier);
                 requireUnique(t->GetValueString(), set);
                 set.emplace(t->GetValueString(), args...);
-                p->Add(Node::PNode(new Node(t->GetValueString())));
+                p->Add(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
             }
         };
 
@@ -191,10 +316,11 @@ namespace My {
         template<typename T>
         void requireUnique(const std::string& value, T& set) {
             if (set.count(value) > 0)
-                throw std::exception(); // dublicate
+                //Add more info
+                throw SyntaxErrorException("Dublicate identifier");
         }
 
-        Node::PNode findTypeDeclaration(const std::string& name);
+        TypeNode::PTypeNode findTypeDeclaration(const std::string& name);
         Node::PNode findVarDeclaration(const std::string& name);
         Node::PNode findProcedureDeclaration(const std::string& name);
         void requireFirstDecl(const std::string& name);

@@ -1,0 +1,57 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─type myinteger alias
+           │    │                    └─type integer scalar
+           │    ├─type myarray array
+           │    │                  ├─1
+           │    │                  ├─10
+           │    │                  └─type myinteger alias
+           │    │                                       └─type integer scalar
+           │    ├─type myrecord record
+           │    │                    ├─value a
+           │    │                    │       └─type myinteger alias
+           │    │                    │                            └─type integer scalar
+           │    │                    └─value b
+           │    │                            └─type myarray array
+           │    │                                               ├─1
+           │    │                                               ├─10
+           │    │                                               └─type myinteger alias
+           │    │                                                                    └─type integer scalar
+           │    ├─type myrecord2 record
+           │    │                     └─value a
+           │    │                             └─type myrecord record
+           │    │                                                  ├─value a
+           │    │                                                  │       └─type myinteger alias
+           │    │                                                  │                            └─type integer scalar
+           │    │                                                  └─value b
+           │    │                                                          └─type myarray array
+           │    │                                                                             ├─1
+           │    │                                                                             ├─10
+           │    │                                                                             └─type myinteger alias
+           │    │                                                                                                  └─type integer scalar
+           │    ├─value a1
+           │    │        └─type myrecord record
+           │    │                             ├─value a
+           │    │                             │       └─type myinteger alias
+           │    │                             │                            └─type integer scalar
+           │    │                             └─value b
+           │    │                                     └─type myarray array
+           │    │                                                        ├─1
+           │    │                                                        ├─10
+           │    │                                                        └─type myinteger alias
+           │    │                                                                             └─type integer scalar
+           │    └─value a2
+           │             └─type myrecord2 record
+           │                                   └─value a
+           │                                           └─type myrecord record
+           │                                                                ├─value a
+           │                                                                │       └─type myinteger alias
+           │                                                                │                            └─type integer scalar
+           │                                                                └─value b
+           │                                                                        └─type myarray array
+           │                                                                                           ├─1
+           │                                                                                           ├─10
+           │                                                                                           └─type myinteger alias
+           │                                                                                                                └─type integer scalar
+           └─statements

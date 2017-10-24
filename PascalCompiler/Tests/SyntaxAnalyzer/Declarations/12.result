@@ -1,0 +1,19 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─type myinteger alias
+           │    │                    └─type integer scalar
+           │    ├─type myreal alias
+           │    │                 └─type real scalar
+           │    ├─type mychar alias
+           │    │                 └─type char scalar
+           │    ├─value a
+           │    │       └─type myinteger alias
+           │    │                            └─type integer scalar
+           │    ├─value b
+           │    │       └─type myreal alias
+           │    │                         └─type real scalar
+           │    └─value c
+           │            └─type mychar alias
+           │                              └─type char scalar
+           └─statements

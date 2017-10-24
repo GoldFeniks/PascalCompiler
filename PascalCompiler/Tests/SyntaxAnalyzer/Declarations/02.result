@@ -1,0 +1,16 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─value a
+           │    │       └─type integer scalar
+           │    ├─value b
+           │    │       └─type integer scalar
+           │    ├─value c
+           │    │       └─type integer scalar
+           │    ├─value d
+           │    │       └─type real scalar
+           │    ├─value e
+           │    │       └─type real scalar
+           │    └─value f
+           │            └─type char scalar
+           └─statements

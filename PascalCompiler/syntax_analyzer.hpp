@@ -16,11 +16,11 @@ namespace My {
 
         public:
 
-            SyntaxErrorException(const std::string& message) : message(message) {};
+            SyntaxErrorException(const std::string message = "") : message(message) {};
 
             virtual const char* what() const override;
 
-        private:
+        protected:
 
             std::string message;
 
@@ -30,11 +30,7 @@ namespace My {
 
         public:
 
-            ExpectedException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type) : SyntaxErrorException(getMessage(token, type)) {};
-
-        private:
-
-            std::string getMessage(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+            ExpectedException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
 
         };// class ExpectedException
 
@@ -42,13 +38,33 @@ namespace My {
 
         public:
 
-            DudlicateIdentifierException(const My::Tokenizer::PToken token) : SyntaxErrorException(getMessage(token)) {};
-
-        private:
-
-            std::string getMessage(const My::Tokenizer::PToken token);
+            DudlicateIdentifierException(const My::Tokenizer::PToken token);
 
         };// class DublicateIdentifierException
+
+        class IllegalInitializationOrderException : public SyntaxErrorException {
+
+        public:
+
+            IllegalInitializationOrderException(Tokenizer::PToken token);
+
+        };// class IllegalInitializationOrderException
+
+        class InitializationOverloadException : public SyntaxErrorException {
+
+        public:
+
+            InitializationOverloadException(Tokenizer::PToken token);
+
+        };// class InitializationOverloadException
+
+        class DeclarationNotFoundException : public SyntaxErrorException {
+
+        public:
+
+            DeclarationNotFoundException(Tokenizer::PToken token);
+
+        };// class DeclarationNotFoundException
 
         class Node {
 
@@ -58,9 +74,8 @@ namespace My {
                 Variable,
                 Type,
                 Const,
+                TypedConst,
                 Operation,
-                Call,
-                Index,
                 Procedure,
                 Function,
                 Block
@@ -71,11 +86,11 @@ namespace My {
             typedef std::shared_ptr<Node> PNode;
 
             template<typename... C>
-            Node(const std::string name, Type type, C... children) : name(name), MyType(type) {
+            Node(const std::string name, Type type, Tokenizer::PToken token, C... children) : name(name), MyType(type), Token(token) {
                 push_back(children...);
             };
 
-            Node(const std::string message, Type type) : name(message), MyType(type) {};
+            Node(const std::string message, Type type, Tokenizer::PToken token) : name(message), MyType(type), Token(token) {};
 
             template<typename... C>
             void push_back(PNode node, C... children) {
@@ -96,6 +111,7 @@ namespace My {
             }
 
             std::vector<PNode> Children;
+            Tokenizer::PToken Token;
             Type MyType;
 
         private:
@@ -110,12 +126,7 @@ namespace My {
 
             typedef std::shared_ptr<TypeNode> PTypeNode;
 
-            enum class TypeIdentifier {
-                Scalar,
-                Array,
-                Record,
-                Alias
-            };
+            enum class TypeIdentifier { Scalar, Array, Record, Alias };
 
             TypeIdentifier MyTypeIdentifier; 
 
@@ -124,7 +135,7 @@ namespace My {
         protected:
 
             template<typename... C>
-            TypeNode(std::string name, TypeIdentifier identifier, C... children) : Node(name, Type::Type, children...), MyTypeIdentifier(identifier) {};
+            TypeNode(std::string name, TypeIdentifier identifier, Tokenizer::PToken token, C... children) : Node(name, Type::Type, token, children...), MyTypeIdentifier(identifier) {};
 
         };//class TypeNode
 
@@ -132,7 +143,7 @@ namespace My {
 
         public:
 
-            TypeAliasNode(std::string name, Node::PNode node) : TypeNode(name, TypeIdentifier::Alias, node) {};
+            TypeAliasNode(std::string name, Node::PNode node, Tokenizer::PToken token) : TypeNode(name, TypeIdentifier::Alias, token, node) {};
 
         };
 
@@ -140,13 +151,10 @@ namespace My {
 
         public:
 
-            enum class ScalarType {
-                Integer,
-                Real,
-                Char,
-            };
+            enum class ScalarType { Integer, Real, Char };
 
-            ScalarNode(std::string name, ScalarType scalar_type, Node::PNode node = nullptr) : TypeNode(name, TypeIdentifier::Scalar, node), MyScalarType(scalar_type) {};
+            ScalarNode(std::string name, ScalarType scalar_type, Tokenizer::PToken token, Node::PNode node = nullptr) : 
+                TypeNode(name, TypeIdentifier::Scalar, token, node), MyScalarType(scalar_type) {};
 
             ScalarType MyScalarType;
 
@@ -156,7 +164,8 @@ namespace My {
 
         public:
 
-            ArrayNode(std::string name, PNode from, PNode to, PTypeNode node) : TypeNode(name, TypeIdentifier::Array, from, to, node), type(node) {};
+            ArrayNode(std::string name, PNode from, PNode to, PTypeNode node, Tokenizer::PToken token) :
+                TypeNode(name, TypeIdentifier::Array, token, from, to, node), type(node) {};
 
             PTypeNode type;
 
@@ -167,7 +176,7 @@ namespace My {
         public:
 
             template<typename... C>
-            RecordNode(std::string name, C... children) : TypeNode(name, TypeIdentifier::Record, children...) {};
+            RecordNode(std::string name, Tokenizer::PToken token, C... children) : TypeNode(name, TypeIdentifier::Record, token, children...) {};
 
         };//class RecordNode
 
@@ -177,7 +186,7 @@ namespace My {
 
             typedef std::shared_ptr<ConstantNode> PConstantNode;
 
-            ConstantNode(std::string name, Tokenizer::Token::Value value, ScalarNode::ScalarType scalar_type) : Node(name, Type::Const),
+            ConstantNode(std::string name, Tokenizer::Token::Value value, ScalarNode::ScalarType scalar_type, Tokenizer::PToken token) : Node(name, Type::Const, token),
                 value(value), ScalarType(scalar_type) {};
 
             ScalarNode::ScalarType ScalarType;
@@ -208,8 +217,8 @@ namespace My {
 
             enum class VariableType { Value, Const, Var };
 
-            VariableNode(std::string name, TypeNode::PTypeNode type, VariableType v_type, Node::PNode value = nullptr) :
-                Node(name, Type::Variable, type), vType(v_type), type(type) {
+            VariableNode(std::string name, TypeNode::PTypeNode type, VariableType v_type, Tokenizer::PToken token, Node::PNode value = nullptr) :
+                Node(name, Type::Variable, token, type), vType(v_type), type(type) {
                 SetValue(value);
             };
 
@@ -230,7 +239,7 @@ namespace My {
 
         public:
 
-            StringNode(const Tokenizer::PToken t) : Node(t->GetValueString(), Type::Const) {};
+            StringNode(const Tokenizer::PToken t) : Node(t->GetValueString(), Type::Const, t) {};
 
         };//class StringNode
 
@@ -239,7 +248,9 @@ namespace My {
         public:
 
             template<typename... C>
-            TypedConstantNode(PNode node, C... children) : Node("typed_const", Type::Const, node, children...) {};
+            TypedConstantNode(Tokenizer::PToken token, TypeNode::PTypeNode type, C... children) : Node("typed_const", Type::TypedConst, token, children...), type(type) {};
+
+            TypeNode::PTypeNode type;
 
         };
 
@@ -248,36 +259,18 @@ namespace My {
         public:
 
             template<typename... C>
-            OperationNode(std::string name, TypeNode::PTypeNode return_type, C... children) : 
-                Node(name, Type::Operation, children..., return_type), ReturnType(return_type) {};
+            OperationNode(std::string name, TypeNode::PTypeNode return_type, Tokenizer::PToken token, C... children) : 
+                Node(name, Type::Operation, token, children..., return_type), ReturnType(return_type) {};
 
             TypeNode::PTypeNode ReturnType;
 
         };//class OperationNode
 
-        class CallNode : public Node {
-
-        public:
-
-            CallNode(std::string name, PNode obj, PNode args, TypeNode::PTypeNode return_type) : Node(name, Type::Call, obj, args, return_type), ReturnType(return_type) {};
-
-            TypeNode::PTypeNode ReturnType;
-
-        };//class CallNode
-
-        class IndexNode : public Node {
-
-        public:
-
-            IndexNode(std::string name, PNode obj, PNode args) : Node(name, Type::Index, obj, args) {};
-
-        };//class IndexNode
-
         class ProcedureNode : public Node {
 
         public:
 
-            ProcedureNode(std::string name, PNode args, PNode block) : Node(name, Type::Procedure, args, block) {};
+            ProcedureNode(std::string name, PNode args, PNode block, Tokenizer::PToken token) : Node(name, Type::Procedure, token, args, block) {};
 
         };//class ProcedureNode
 
@@ -285,14 +278,22 @@ namespace My {
 
         public:
 
-            FunctionNode(std::string name, PNode args, TypeNode::PTypeNode return_type, PNode block) : 
-                Node(name, Type::Function, args, return_type, block), ReturnType(return_type), Args(args) {};
+            FunctionNode(std::string name, PNode args, TypeNode::PTypeNode return_type, PNode block, Tokenizer::PToken token) :
+                Node(name, Type::Function, token, args, return_type, block), ReturnType(return_type), Args(args) {};
 
             TypeNode::PTypeNode ReturnType;
             PNode Args;
 
 
         };//class FunctionNode
+
+        class IncompatibleTypesException : public SyntaxErrorException {
+
+        public:
+
+            IncompatibleTypesException(const TypeNode::PTypeNode left, const TypeNode::PTypeNode right, const My::Tokenizer::PToken token);
+
+        };//class IncompatibleTypesException
 
         struct Declaration {
 
@@ -368,7 +369,7 @@ namespace My {
         
         static ScalarNode::ScalarType getScalarType(Node::PNode n);
         static TypeNode::PTypeNode getConstantType(ConstantNode::PConstantNode n);
-        static TypeNode::PTypeNode deduceType(Node::PNode left, Node::PNode right, bool allow_left_int = true);
+        static TypeNode::PTypeNode deduceType(Node::PNode left, Node::PNode right, Tokenizer::PToken token, bool allow_left_int = true);
         static TypeNode::PTypeNode getType(Node::PNode n);
 
         typedef std::unordered_map<std::string, std::function<ConstantNode::PConstantNode(ConstantNode::PConstantNode, ConstantNode::PConstantNode)>> binaryOpMap_t;
@@ -377,15 +378,16 @@ namespace My {
         static const binaryOpMap_t binaryOpMap;
         static const unaryOpMap_t unaryOpMap;
 
-        template<typename F>
+        template<template<typename T> typename F>
         static ConstantNode::PConstantNode calc(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right, bool real_only = false) {
-            F f;
             if (left->ScalarType == ScalarNode::ScalarType::Integer && right->ScalarType == ScalarNode::ScalarType::Integer && !real_only) {
-                long long result = std::floor(f(left->GetValue<double>(), right->GetValue<double>()));
-                return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Integer));
+                F<long long> f;
+                long long result = f(left->GetValue<long long>(), right->GetValue<long long>());
+                return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Integer, nullptr));
             }
+            F<double> f;
             double result = f(left->GetValue<double>(), right->GetValue<double>());
-            return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Real));
+            return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Real, nullptr));
         }
 
         template<typename T>
@@ -395,12 +397,12 @@ namespace My {
         }
 
         static ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
-        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, bool allow_left_int);
-        static void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right);
-        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::TypeIdentifier t);
-        static void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, Tokenizer::PToken token, bool allow_left_int = false);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right, Tokenizer::PToken token);
+        static void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right, Tokenizer::PToken token);
         static void requireInteger(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
         static void requireArgsCompatibility(Node::PNode f, Node::PNode n);
+        static void requireType(TypeNode::PTypeNode type, TypeNode::TypeIdentifier id, Tokenizer::PToken token);
         static TypeNode::PTypeNode getBaseType(TypeNode::PTypeNode type);
 
         Node::PNode findDeclaration(const My::Tokenizer::PToken t);
@@ -419,7 +421,9 @@ namespace My {
             return type == Tokenizer::Token::SubTypes::Divide ||
                 type == Tokenizer::Token::SubTypes::Mult ||
                 type == Tokenizer::Token::SubTypes::Mod ||
-                type == Tokenizer::Token::SubTypes::Div;
+                type == Tokenizer::Token::SubTypes::Div ||
+                type == Tokenizer::Token::SubTypes::ShiftLeft ||
+                type == Tokenizer::Token::SubTypes::ShiftRight;
         }
         
         inline static bool expressionOperators(const Tokenizer::Token::SubTypes type) {
@@ -428,7 +432,9 @@ namespace My {
                 type == Tokenizer::Token::SubTypes::Equal ||
                 type == Tokenizer::Token::SubTypes::Greater ||
                 type == Tokenizer::Token::SubTypes::GreaterEqual ||
-                type == Tokenizer::Token::SubTypes::NotEqual;
+                type == Tokenizer::Token::SubTypes::NotEqual ||
+                type == Tokenizer::Token::SubTypes::And ||
+                type == Tokenizer::Token::SubTypes::Or;
         }
 
         template<typename NNode, Node::PNode(SyntaxAnalyzer::*NParse)(void), bool(*Cond)(const Tokenizer::Token::SubTypes)>
@@ -438,8 +444,8 @@ namespace My {
                 tokenizer.Next();
                 auto t = (this->*NParse)();
                 //if (e->Token->GetSubType() != token->GetSubType())
-                auto type = deduceType(e, t);
-                e = Node::PNode(new NNode(token->GetStringValue(), type, e, t));
+                auto type = deduceType(e, t, token);
+                e = Node::PNode(new NNode(token->GetStringValue(), type, token, e, t));
                 //else
                     //e->push_back(t);
                 token = tokenizer.Current();

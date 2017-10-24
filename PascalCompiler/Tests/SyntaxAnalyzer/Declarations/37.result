@@ -1,0 +1,28 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─const a
+           │    │       └─0
+           │    ├─const b
+           │    │       └─1
+           │    ├─const c
+           │    │       └─8
+           │    ├─const d
+           │    │       └─2
+           │    ├─const e
+           │    │       └─4
+           │    ├─const f
+           │    │       └─1
+           │    ├─const g
+           │    │       └─1
+           │    ├─const h
+           │    │       └─0
+           │    ├─const i
+           │    │       └─1
+           │    ├─const j
+           │    │       └─0
+           │    ├─const k
+           │    │       └─1
+           │    └─const l
+           │            └─0
+           └─statements

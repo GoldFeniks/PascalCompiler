@@ -192,6 +192,7 @@ namespace My {
                 Value(char* String) : String(String) {};
                 Value(long long LongLong) : LongLong(LongLong) {};
                 Value(double Double) : Double(Double) {};
+                Value(bool b) : LongLong(b ? 0 : 1) {};
                 Value() {};
 
             };

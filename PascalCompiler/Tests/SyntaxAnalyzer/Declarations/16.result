@@ -1,0 +1,13 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─type i alias
+           │    │            └─type integer scalar
+           │    └─type r record
+           │                  ├─value i
+           │                  │       └─type i alias
+           │                  │                    └─type integer scalar
+           │                  └─value j
+           │                          └─type i alias
+           │                                       └─type integer scalar
+           └─statements

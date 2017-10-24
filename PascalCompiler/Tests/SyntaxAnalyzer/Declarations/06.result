@@ -1,0 +1,10 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─type a alias
+           │    │            └─type integer scalar
+           │    ├─type b alias
+           │    │            └─type real scalar
+           │    └─type c alias
+           │                 └─type char scalar
+           └─statements

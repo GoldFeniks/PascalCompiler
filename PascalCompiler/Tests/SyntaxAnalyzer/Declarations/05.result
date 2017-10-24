@@ -1,0 +1,11 @@
+└─test
+     └─block
+           ├─decl
+           │    └─value a
+           │            └─type anonymous array
+           │                                 ├─2
+           │                                 ├─20
+           │                                 └─type anonymous record
+           │                                                       └─value a
+           │                                                               └─type integer scalar
+           └─statements

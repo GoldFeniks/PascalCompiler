@@ -1,0 +1,34 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─type myinteger alias
+           │    │                    └─type integer scalar
+           │    ├─type myarray array
+           │    │                  ├─1
+           │    │                  ├─2
+           │    │                  └─type myinteger alias
+           │    │                                       └─type integer scalar
+           │    ├─type myarray2 array
+           │    │                   ├─1
+           │    │                   ├─2
+           │    │                   └─type myarray array
+           │    │                                      ├─1
+           │    │                                      ├─2
+           │    │                                      └─type myinteger alias
+           │    │                                                           └─type integer scalar
+           │    ├─value a1
+           │    │        └─type myarray array
+           │    │                           ├─1
+           │    │                           ├─2
+           │    │                           └─type myinteger alias
+           │    │                                                └─type integer scalar
+           │    └─value a2
+           │             └─type myarray2 array
+           │                                 ├─1
+           │                                 ├─2
+           │                                 └─type myarray array
+           │                                                    ├─1
+           │                                                    ├─2
+           │                                                    └─type myinteger alias
+           │                                                                         └─type integer scalar
+           └─statements

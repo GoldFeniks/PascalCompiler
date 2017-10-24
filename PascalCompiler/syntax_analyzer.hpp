@@ -4,6 +4,7 @@
 #include "tokenizer.hpp"
 #include "boost/format.hpp"
 #include <unordered_map>
+#include <exception>
 
 namespace My {
 
@@ -23,7 +24,7 @@ namespace My {
 
             std::string message;
 
-        };
+        };// class SyntaxErrorException
 
         class ExpectedException : public SyntaxErrorException {
 
@@ -35,7 +36,19 @@ namespace My {
 
             std::string getMessage(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
 
-        };
+        };// class ExpectedException
+
+        class DudlicateIdentifierException : public SyntaxErrorException {
+
+        public:
+
+            DudlicateIdentifierException(const My::Tokenizer::PToken token) : SyntaxErrorException(getMessage(token)) {};
+
+        private:
+
+            std::string getMessage(const My::Tokenizer::PToken token);
+
+        };// class DublicateIdentifierException
 
         class Node {
 
@@ -59,18 +72,18 @@ namespace My {
 
             template<typename... C>
             Node(const std::string name, Type type, C... children) : name(name), MyType(type) {
-                Add(children...);
+                push_back(children...);
             };
 
             Node(const std::string message, Type type) : name(message), MyType(type) {};
 
             template<typename... C>
-            void Add(PNode node, C... children) {
-                Add(node);
-                Add(children...);
+            void push_back(PNode node, C... children) {
+                push_back(node);
+                push_back(children...);
             }
 
-            virtual void Add(PNode node) {
+            virtual void push_back(PNode node) {
                 if (node == nullptr)
                     return;
                 Children.push_back(node);
@@ -203,7 +216,7 @@ namespace My {
 
             void SetValue(Node::PNode value) {
                 Value = value;
-                Add(value);
+                push_back(value);
             }
 
             bool IsConst;
@@ -232,16 +245,20 @@ namespace My {
         public:
 
             template<typename... C>
-            OperationNode(const My::Tokenizer::PToken token, C... children) : 
-                Node(token->GetStringValue(), Type::Operation, children...) {};
+            OperationNode(std::string name, TypeNode::PTypeNode return_type, C... children) : 
+                Node(name, Type::Operation, children..., return_type), ReturnType(return_type) {};
 
-        };//class BinaryOperation
+            TypeNode::PTypeNode ReturnType;
+
+        };//class OperationNode
 
         class CallNode : public Node {
 
         public:
 
-            CallNode(std::string name, PNode args) : Node(name, Type::Call, args) {};
+            CallNode(std::string name, PNode obj, PNode args, TypeNode::PTypeNode return_type) : Node(name, Type::Call, obj, args, return_type), ReturnType(return_type) {};
+
+            TypeNode::PTypeNode ReturnType;
 
         };//class CallNode
 
@@ -249,7 +266,7 @@ namespace My {
 
         public:
 
-            IndexNode(std::string name, PNode args) : Node(name, Type::Index, args) {};
+            IndexNode(std::string name, PNode obj, PNode args) : Node(name, Type::Index, obj, args) {};
 
         };//class IndexNode
 
@@ -265,13 +282,18 @@ namespace My {
 
         public:
 
-            FunctionNode(std::string name, PNode args, PNode return_type, PNode block) : Node(name, Type::Function, args, return_type, block) {};
+            FunctionNode(std::string name, PNode args, TypeNode::PTypeNode return_type, PNode block) : 
+                Node(name, Type::Function, args, return_type, block), ReturnType(return_type), Args(args) {};
+
+            TypeNode::PTypeNode ReturnType;
+            PNode Args;
+
 
         };//class FunctionNode
 
         struct Declaration {
 
-            std::unordered_map<std::string, Node::PNode> Types, Vars, Procedures;
+            std::unordered_map<std::string, Node::PNode> Symbols;
 
         };//struct Declaration
 
@@ -309,21 +331,23 @@ namespace My {
         Node::PNode ParseProcedure();
         Node::PNode ParseFunction();
         Node::PNode ParseFormalParameterList();
-        Node::PNode ParseField(Node::PNode var);
+        Node::PNode ParseField(Node::PNode var, TypeNode::PTypeNode type);
+        Node::PNode ParseFunctionCall(Node::PNode n);
+        Node::PNode ParseArrayIndex(Node::PNode n, TypeNode::PTypeNode type);
 
-        template<typename T, typename... Args>
-        void ParseIdentifierList(Node::PNode p, T& set, Args... args) {
+        template<typename C, typename T, typename... Args>
+        void ParseIdentifierList(C p, T& set, Args... args) {
             auto t = tokenizer.Current();
             require(t, Tokenizer::Token::SubTypes::Identifier);
-            requireUnique(t->GetValueString(), set);
+            requireUnique(t, set);
             set.emplace(t->GetValueString(), args...);
-            p->Add(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
+            p->push_back(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
             while (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::Comma) {
                 t = tokenizer.Next();
                 require(t, Tokenizer::Token::SubTypes::Identifier);
-                requireUnique(t->GetValueString(), set);
+                requireUnique(t, set);
                 set.emplace(t->GetValueString(), args...);
-                p->Add(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
+                p->push_back(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
             }
         };
 
@@ -354,25 +378,22 @@ namespace My {
         }
 
         template<typename T>
-        void requireUnique(const std::string& value, T& set) {
-            if (set.count(value) > 0)
-                //Add more info
-                throw SyntaxErrorException("Dublicate identifier");
+        void requireUnique(const Tokenizer::PToken t, T& set) {
+            if (set.count(t->GetValueString()) > 0)
+                throw DudlicateIdentifierException(t);
         }
 
         ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
         void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, bool allow_left_int);
         void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right);
+        void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::TypeIdentifier t);
         void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
         static void requireInteger(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
         TypeNode::PTypeNode getBaseType(TypeNode::PTypeNode type);
 
-        TypeNode::PTypeNode findTypeDeclaration(const std::string& name);
-        Node::PNode findVarDeclaration(const std::string& name);
-        Node::PNode findProcedureDeclaration(const std::string& name);
-
-        void requireFirstDecl(const std::string& name);
-        void requireDeclaration(const std::string& name);
+        Node::PNode findDeclaration(const My::Tokenizer::PToken t);
+        void requireNodeType(Node::PNode n, Node::Type type);
+        void requireDeclaration(const My::Tokenizer::PToken t);
         void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
 
         std::string walk(const Node::PNode node, std::string prefix, bool last);
@@ -405,9 +426,9 @@ namespace My {
                 tokenizer.Next();
                 auto t = (this->*NParse)();
                 //if (e->Token->GetSubType() != token->GetSubType())
-                e = Node::PNode(new NNode(token, e, t));
+                e = Node::PNode(new NNode(token->GetStringValue(), nullptr, e, t));
                 //else
-                    //e->Add(t);
+                    //e->push_back(t);
                 token = tokenizer.Current();
             }
             return e;

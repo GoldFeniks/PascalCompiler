@@ -206,12 +206,15 @@ namespace My {
 
         public:
 
-            VariableNode(std::string name, TypeNode::PTypeNode type, bool is_const, Node::PNode value = nullptr) :
-                Node(name, Type::Variable, type), IsConst(is_const), type(type) {
+            enum class VariableType { Value, Const, Var };
+
+            VariableNode(std::string name, TypeNode::PTypeNode type, VariableType v_type, Node::PNode value = nullptr) :
+                Node(name, Type::Variable, type), vType(v_type), type(type) {
                 SetValue(value);
             };
 
             TypeNode::PTypeNode type;
+            VariableType vType;
             Node::PNode Value;
 
             void SetValue(Node::PNode value) {
@@ -219,7 +222,7 @@ namespace My {
                 push_back(value);
             }
 
-            bool IsConst;
+            static const std::string VariableTypeNames[];
 
         };//class VariableNode
 
@@ -333,21 +336,22 @@ namespace My {
         Node::PNode ParseFormalParameterList();
         Node::PNode ParseField(Node::PNode var, TypeNode::PTypeNode type);
         Node::PNode ParseFunctionCall(Node::PNode n);
+        Node::PNode ParseProcedureCall(Node::PNode n);
         Node::PNode ParseArrayIndex(Node::PNode n, TypeNode::PTypeNode type);
 
         template<typename C, typename T, typename... Args>
-        void ParseIdentifierList(C p, T& set, Args... args) {
+        void ParseIdentifierList(C& p, T& set, Args... args) {
             auto t = tokenizer.Current();
             require(t, Tokenizer::Token::SubTypes::Identifier);
             requireUnique(t, set);
             set.emplace(t->GetValueString(), args...);
-            p->push_back(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
+            p.push_back(t->GetValueString());
             while (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::Comma) {
                 t = tokenizer.Next();
                 require(t, Tokenizer::Token::SubTypes::Identifier);
                 requireUnique(t, set);
                 set.emplace(t->GetValueString(), args...);
-                p->push_back(Node::PNode(new Node(t->GetValueString(), Node::Type::Block)));
+                p.push_back(t->GetValueString());
             }
         };
 
@@ -359,6 +363,13 @@ namespace My {
         Tokenizer tokenizer;
         Node::PNode root = nullptr;
         std::vector<Declaration> declarations;
+
+        static const TypeNode::PTypeNode integerNode, realNode, charNode;
+        
+        static ScalarNode::ScalarType getScalarType(Node::PNode n);
+        static TypeNode::PTypeNode getConstantType(ConstantNode::PConstantNode n);
+        static TypeNode::PTypeNode deduceType(Node::PNode left, Node::PNode right, bool allow_left_int = true);
+        static TypeNode::PTypeNode getType(Node::PNode n);
 
         typedef std::unordered_map<std::string, std::function<ConstantNode::PConstantNode(ConstantNode::PConstantNode, ConstantNode::PConstantNode)>> binaryOpMap_t;
         typedef std::unordered_map<std::string, std::function<ConstantNode::PConstantNode(ConstantNode::PConstantNode)>> unaryOpMap_t;
@@ -383,20 +394,21 @@ namespace My {
                 throw DudlicateIdentifierException(t);
         }
 
-        ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
-        void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, bool allow_left_int);
-        void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right);
-        void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::TypeIdentifier t);
-        void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
+        static ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, bool allow_left_int);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::TypeIdentifier t);
+        static void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
         static void requireInteger(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
-        TypeNode::PTypeNode getBaseType(TypeNode::PTypeNode type);
+        static void requireArgsCompatibility(Node::PNode f, Node::PNode n);
+        static TypeNode::PTypeNode getBaseType(TypeNode::PTypeNode type);
 
         Node::PNode findDeclaration(const My::Tokenizer::PToken t);
-        void requireNodeType(Node::PNode n, Node::Type type);
+        static void requireNodeType(Node::PNode n, Node::Type type);
         void requireDeclaration(const My::Tokenizer::PToken t);
-        void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+        static void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
 
-        std::string walk(const Node::PNode node, std::string prefix, bool last);
+        static std::string walk(const Node::PNode node, std::string prefix, bool last);
 
         inline static bool simpleExpressionOperators(const Tokenizer::Token::SubTypes type) {
             return type == Tokenizer::Token::SubTypes::Plus ||
@@ -426,7 +438,8 @@ namespace My {
                 tokenizer.Next();
                 auto t = (this->*NParse)();
                 //if (e->Token->GetSubType() != token->GetSubType())
-                e = Node::PNode(new NNode(token->GetStringValue(), nullptr, e, t));
+                auto type = deduceType(e, t);
+                e = Node::PNode(new NNode(token->GetStringValue(), type, e, t));
                 //else
                     //e->push_back(t);
                 token = tokenizer.Current();

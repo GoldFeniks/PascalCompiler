@@ -4,6 +4,15 @@
 #include <vector>
 #include <unordered_set>
 
+const My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::integerNode = 
+    My::SyntaxAnalyzer::TypeNode::PTypeNode(new My::SyntaxAnalyzer::ScalarNode("integer", My::SyntaxAnalyzer::ScalarNode::ScalarType::Integer));
+
+const My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::realNode =
+    My::SyntaxAnalyzer::TypeNode::PTypeNode(new My::SyntaxAnalyzer::ScalarNode("real", My::SyntaxAnalyzer::ScalarNode::ScalarType::Real));
+
+const My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::charNode =
+    My::SyntaxAnalyzer::TypeNode::PTypeNode(new My::SyntaxAnalyzer::ScalarNode("char", My::SyntaxAnalyzer::ScalarNode::ScalarType::Char));
+
 const std::string My::SyntaxAnalyzer::Node::TypeNames[] = {
     "",
     "type ",
@@ -17,6 +26,7 @@ const std::string My::SyntaxAnalyzer::Node::TypeNames[] = {
 };
 
 const std::string My::SyntaxAnalyzer::TypeNode::TypeIdentifierNames[] = { " scalar", " array", " record", " alias" };
+const std::string My::SyntaxAnalyzer::VariableNode::VariableTypeNames[] = { "value ", "const ", "var " };
 
 const My::SyntaxAnalyzer::binaryOpMap_t My::SyntaxAnalyzer::binaryOpMap = {
 
@@ -109,7 +119,7 @@ My::SyntaxAnalyzer::ConstantNode::PConstantNode My::SyntaxAnalyzer::calculateCon
     case Node::Type::Variable:
     {
         auto var = std::dynamic_pointer_cast<VariableNode>(n);
-        if (!var->IsConst || var->type != nullptr)
+        if (var->vType != VariableNode::VariableType::Const || var->type != nullptr)
             throw SyntaxErrorException("Illegal expression"); // only const in constexpr
         return std::dynamic_pointer_cast<ConstantNode>(var->Value);
     }
@@ -135,7 +145,6 @@ My::SyntaxAnalyzer::ConstantNode::PConstantNode My::SyntaxAnalyzer::calculateCon
 }
 
 void My::SyntaxAnalyzer::requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, bool allow_left_int = true) {
-    //TODO allow char
     left = getBaseType(left); right = getBaseType(right);
     if (left == right)
         return;
@@ -149,7 +158,6 @@ void My::SyntaxAnalyzer::requireTypesCompatibility(TypeNode::PTypeNode left, Typ
 }
 
 void My::SyntaxAnalyzer::requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right) {
-    //TODO allow char
     if (left->MyTypeIdentifier != TypeNode::TypeIdentifier::Scalar)
         throw SyntaxErrorException("Can't convert");
     auto l = std::dynamic_pointer_cast<ScalarNode>(left);
@@ -174,6 +182,18 @@ void My::SyntaxAnalyzer::requireInteger(ConstantNode::PConstantNode left, Consta
     if (left->ScalarType != My::SyntaxAnalyzer::ScalarNode::ScalarType::Integer ||
         right->ScalarType != My::SyntaxAnalyzer::ScalarNode::ScalarType::Integer)
         throw My::SyntaxAnalyzer::SyntaxErrorException("Illegal expression");
+}
+
+void My::SyntaxAnalyzer::requireArgsCompatibility(Node::PNode f, Node::PNode n) {
+    //TODO More info
+    int i = 0;
+    for (; i < f->Children.size() && f->Children[i]->MyType == Node::Type::Variable; ++i) {
+        if (i == n->Children.size())
+            throw SyntaxErrorException("Function does not take");
+        requireTypesCompatibility(getType(f->Children[i]), getType(n->Children[i]), false);
+    }
+    if (i != n->Children.size())
+        throw SyntaxErrorException("Function does not take");
 }
 
 My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::getBaseType(TypeNode::PTypeNode type) {
@@ -215,8 +235,8 @@ std::string My::SyntaxAnalyzer::walk(const Node::PNode node, std::string prefix,
     if (node == nullptr)
         return std::string();
     std::string type = ""; 
-    if (node->MyType == Node::Type::Variable && std::dynamic_pointer_cast<VariableNode>(node)->IsConst)
-        type = "const ";
+    if (node->MyType == Node::Type::Variable)
+        type = VariableNode::VariableTypeNames[static_cast<int>(std::dynamic_pointer_cast<VariableNode>(node)->vType)];
     else
         type = Node::TypeNames[static_cast<int>(node->MyType)];
     std::string type_i = "";
@@ -279,15 +299,22 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseField(Node::PNode n, Ty
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFunctionCall(Node::PNode n) {
     requireNodeType(n, Node::Type::Function);
-    tokenizer.Next();
     auto args = ParseActualParameterList();
+    requireArgsCompatibility(n->Children[0], args);
     auto f = std::dynamic_pointer_cast<FunctionNode>(n);
-    auto r = Node::PNode(new OperationNode("()", f->ReturnType, f));
+    auto r = Node::PNode(new OperationNode("()", f->ReturnType, f, args));
     if (f->ReturnType->MyTypeIdentifier == TypeNode::TypeIdentifier::Array)
         return ParseArrayIndex(r, f->ReturnType);
     else if (f->ReturnType->MyTypeIdentifier == TypeNode::TypeIdentifier::Record)
         return ParseField(r, f->ReturnType);
     return r;
+}
+
+My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseProcedureCall(Node::PNode n) {
+    requireNodeType(n, Node::Type::Procedure);
+    auto args = ParseActualParameterList();
+    requireArgsCompatibility(n->Children[0], args);
+    return Node::PNode(new OperationNode("()", nullptr, n, args));
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseArrayIndex(Node::PNode n, TypeNode::PTypeNode type) {
@@ -310,17 +337,16 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFactor() {
     auto token = tokenizer.Current();
     if (simpleExpressionOperators(token->GetSubType())) {
         tokenizer.Next();
-        //deduce type
-        auto type = std::dynamic_pointer_cast<TypeNode>(declarations[0].Symbols[0]);
-        return Node::PNode(new OperationNode(token->GetValueString(), type, ParseFactor()));
+        auto f = ParseFactor();
+        return Node::PNode(new OperationNode(token->GetValueString(), getType(f), f));
     }
     switch (token->GetSubType()) {
     case Tokenizer::Token::SubTypes::Identifier:
     {
-        //TODO somehow check for type
         auto n = findDeclaration(token);
         switch (n->MyType) {
         case Node::Type::Function:
+            tokenizer.Next();
             return ParseFunctionCall(n);
         case Node::Type::Variable:
         {
@@ -361,9 +387,9 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFactor() {
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseProgram() {
     //Init base types
     declarations.push_back(Declaration());
-    declarations.back().Symbols["integer"] = Node::PNode(new ScalarNode("integer", ScalarNode::ScalarType::Integer));
-    declarations.back().Symbols["real"] = Node::PNode(new ScalarNode("real", ScalarNode::ScalarType::Real));
-    declarations.back().Symbols["char"] = Node::PNode(new ScalarNode("char", ScalarNode::ScalarType::Char));
+    declarations.back().Symbols["integer"] = integerNode;
+    declarations.back().Symbols["real"] = realNode;
+    declarations.back().Symbols["char"] = charNode;
 
     auto t = tokenizer.Current();
     require(t, Tokenizer::Token::SubTypes::Program);
@@ -477,7 +503,10 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseActualParameterList() {
     auto n = Node::PNode(new Node("p_list", Node::Type::Block));
     if (tokenizer.Current()->GetSubType() != Tokenizer::Token::SubTypes::OpenParenthesis)
         return n;
-    tokenizer.Next();
+    if (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::CloseParenthesis) {
+        tokenizer.Next();
+        return n;
+    }
     ParseExprressionList(n);
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::CloseParenthesis);
     tokenizer.Next();
@@ -535,56 +564,50 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFormalParameterList() {
     auto set = std::unordered_set<std::string>();
     bool end = false;
     while (t->GetSubType() != Tokenizer::Token::SubTypes::CloseParenthesis) {
-        Node::PNode c;
         bool last = false;
+        std::vector<std::string> ids;
         if (t->GetSubType() == Tokenizer::Token::SubTypes::Var) {
-            c = Node::PNode(new Node("var", Node::Type::Block));
             tokenizer.Next();
-            ParseIdentifierList(c, set);
+            ParseIdentifierList(ids, set);
             require(tokenizer.Current(), Tokenizer::Token::SubTypes::Colon);
             require(tokenizer.Next(), Tokenizer::Token::SubTypes::Identifier);
             auto type = findDeclaration(tokenizer.Current());
             requireNodeType(type, Node::Type::Type);
-            for (int i = 0; i < c->Children.size(); ++i) {
-                c->Children[i] = Node::PNode(new VariableNode(c->Children[i]->ToString(), std::dynamic_pointer_cast<TypeNode>(type), false));
-                declarations.back().Symbols[c->Children[i]->ToString()] = c->Children[i];
+            for (auto it : ids) {
+                n->push_back(Node::PNode(new VariableNode(it, std::dynamic_pointer_cast<TypeNode>(type), VariableNode::VariableType::Var)));
+                declarations.back().Symbols[it] = n->Children.back();
             }
             tokenizer.Next();
         }
         else {
-            bool is_const = false;
+            auto v_type = VariableNode::VariableType::Value;
             if (t->GetSubType() == Tokenizer::Token::SubTypes::Const) {
-                c = Node::PNode(new Node("const", Node::Type::Block));
-                is_const = true;
+                v_type = VariableNode::VariableType::Const;
                 tokenizer.Next();
             }
-            else {
+            else
                 require(t, Tokenizer::Token::SubTypes::Identifier);
-                c = Node::PNode(new Node("value", Node::Type::Block));
-            }
-            ParseIdentifierList(c, set);
+            ParseIdentifierList(ids, set);
             require(tokenizer.Current(), Tokenizer::Token::SubTypes::Colon);
             require(tokenizer.Next(), Tokenizer::Token::SubTypes::Identifier);
             //TODO rewrite
             auto type = findDeclaration(tokenizer.Current());
             requireNodeType(type, Node::Type::Type);
-            for (int i = 0; i < c->Children.size(); ++i) {
-                c->Children[i] = Node::PNode(new VariableNode(c->Children[i]->ToString(), std::dynamic_pointer_cast<TypeNode>(type), is_const));
-                declarations.back().Symbols[c->Children[i]->ToString()] = c->Children[i];
+            for (auto it : ids) {
+                n->push_back(Node::PNode(new VariableNode(it, std::dynamic_pointer_cast<TypeNode>(type), v_type)));
+                declarations.back().Symbols[it] = n->Children.back();
             }
             if (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::Equal) {
-                if (c->Children.size() > 1)
+                if (ids.size() > 1)
                     //TODO add more info
                     throw SyntaxErrorException("Only 1 variable can be initialized");
                 //TODO check type
                 tokenizer.Next();
                 //TODO check constexpr 
                 auto value = calculateConstExpr(ParseExpression());
-                auto var = std::dynamic_pointer_cast<VariableNode>(c->Children.back());
+                auto var = std::dynamic_pointer_cast<VariableNode>(n->Children.back());
                 requireTypesCompatibility(var->type, value);
                 var->SetValue(value);
-                c->push_back(var);
-                declarations.back().Symbols[var->ToString()] = var;
                 end = true;
                 last = true;
             }
@@ -592,7 +615,6 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFormalParameterList() {
         if (end && !last)
             //TODO more info
             throw SyntaxErrorException("Default parameter should be last");
-        n->push_back(c);
         if (tokenizer.Current()->GetSubType() == Tokenizer::Token::SubTypes::CloseParenthesis)
             break;
         require(tokenizer.Current(), Tokenizer::Token::SubTypes::Semicolon);
@@ -662,7 +684,7 @@ My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::ParseType(std::strin
                 if (it->ToString() == t->GetValueString())
                     throw DudlicateIdentifierException(t);
             tokenizer.Next();
-            n->push_back(Node::PNode(new VariableNode(t->GetValueString(), ParseType(), false)));
+            n->push_back(Node::PNode(new VariableNode(t->GetValueString(), ParseType(), VariableNode::VariableType::Value)));
             t = tokenizer.Current();
             if (t->GetSubType() != Tokenizer::Token::SubTypes::End) {
                 require(tokenizer.Current(), Tokenizer::Token::SubTypes::Semicolon);
@@ -696,7 +718,7 @@ void My::SyntaxAnalyzer::ParseVarDeclaration(Node::PNode p) {
         tokenizer.Next();
         auto type = ParseType();
         for (auto it : vars) {
-            auto var = Node::PNode(new VariableNode(it, type, false));
+            auto var = Node::PNode(new VariableNode(it, type, VariableNode::VariableType::Value));
             declarations.back().Symbols[it] = var;
             p->push_back(var);
         }
@@ -731,7 +753,7 @@ void My::SyntaxAnalyzer::ParseConstDeclaration(Node::PNode p) {
             tokenizer.Next();
             value = calculateConstExpr(ParseExpression());
         }
-        auto var = Node::PNode(new VariableNode(t->GetValueString(), type, true, value));
+        auto var = Node::PNode(new VariableNode(t->GetValueString(), type, VariableNode::VariableType::Const, value));
         declarations.back().Symbols[t->GetValueString()] = var;
         require(tokenizer.Current(), Tokenizer::Token::SubTypes::Semicolon);
         p->push_back(var);
@@ -762,7 +784,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseStatement() {
         auto d = findDeclaration(t);
         requireNodeType(d, Node::Type::Variable);
         auto var = std::dynamic_pointer_cast<VariableNode>(d);
-        if (var->IsConst)
+        if (var->vType == VariableNode::VariableType::Const)
             throw SyntaxErrorException("Can't read to const variable");
         n->push_back(var);
         while ((t = tokenizer.Next())->GetSubType() != Tokenizer::Token::SubTypes::CloseParenthesis) {
@@ -772,7 +794,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseStatement() {
             d = findDeclaration(t);
             requireNodeType(d, Node::Type::Variable);
             var = std::dynamic_pointer_cast<VariableNode>(d);
-            if (var->IsConst)
+            if (var->vType == VariableNode::VariableType::Const)
                 throw SyntaxErrorException("Can't read to const variable");
             n->push_back(var);
         }
@@ -811,28 +833,31 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseStatement() {
     case Tokenizer::Token::SubTypes::Identifier:
     {
         auto d = findDeclaration(t);
-        t = tokenizer.Next();
-        if (t->GetSubType() == Tokenizer::Token::SubTypes::Assign ||
-            t->GetSubType() == Tokenizer::Token::SubTypes::PlusAssign ||
-            t->GetSubType() == Tokenizer::Token::SubTypes::MinusAssign ||
-            t->GetSubType() == Tokenizer::Token::SubTypes::MultAssign ||
-            t->GetSubType() == Tokenizer::Token::SubTypes::DivideAssign) {
-            tokenizer.Next();
-            return Node::PNode(new OperationNode(t->GetValueString(), nullptr, d, ParseExpression()));
-        }
+        tokenizer.Next();
         if (d->MyType == Node::Type::Variable) {
             auto var = std::dynamic_pointer_cast<VariableNode>(d);
             if (var->type->MyTypeIdentifier == TypeNode::TypeIdentifier::Array)
-                return ParseArrayIndex(var, var->type);
+                d = ParseArrayIndex(var, var->type);
             else if (var->type->MyTypeIdentifier == TypeNode::TypeIdentifier::Record)
-                return ParseField(var, var->type);
-            return var;
+                d = ParseField(var, var->type);
+            t = tokenizer.Current();
+            if (t->GetSubType() == Tokenizer::Token::SubTypes::Assign ||
+                t->GetSubType() == Tokenizer::Token::SubTypes::PlusAssign ||
+                t->GetSubType() == Tokenizer::Token::SubTypes::MinusAssign ||
+                t->GetSubType() == Tokenizer::Token::SubTypes::MultAssign ||
+                t->GetSubType() == Tokenizer::Token::SubTypes::DivideAssign) {
+                tokenizer.Next();
+                auto e = ParseExpression();
+                deduceType(d, e, false);
+                return Node::PNode(new OperationNode(t->GetValueString(), nullptr, d, e));
+            }
+            return d;
         }
-        if (t->GetSubType() == Tokenizer::Token::SubTypes::Dot) {
-            requireNodeType(d, Node::Type::Variable);
-            return ParseField(d, std::dynamic_pointer_cast<VariableNode>(d)->type);
-        }
-        return nullptr;
+        if (d->MyType == Node::Type::Function)
+            return ParseFunctionCall(d);
+        if (d->MyType == Node::Type::Procedure)
+            return ParseProcedureCall(d);
+        requireNodeType(d, Node::Type::Variable);
     }
     default:
         break;
@@ -908,6 +933,51 @@ void My::SyntaxAnalyzer::Parse() {
 
 std::string My::SyntaxAnalyzer::ToString() {
     return walk(root, "", true);
+}
+
+My::SyntaxAnalyzer::ScalarNode::ScalarType My::SyntaxAnalyzer::getScalarType(Node::PNode n) {
+    if (n->MyType == Node::Type::Const)
+        return std::dynamic_pointer_cast<ConstantNode>(n)->ScalarType;
+    return std::dynamic_pointer_cast<ScalarNode>(n)->MyScalarType;
+}
+
+My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::getConstantType(ConstantNode::PConstantNode n) {
+    switch (n->ScalarType) {
+    case ScalarNode::ScalarType::Integer:
+        return integerNode;
+    case ScalarNode::ScalarType::Real:
+        return realNode;
+    case ScalarNode::ScalarType::Char:
+        return charNode;
+    default:
+        throw std::exception();
+    }
+}
+
+My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::deduceType(Node::PNode left, Node::PNode right, bool allow_left_int) {
+    auto lt = getBaseType(getType(left)), rt = getBaseType(getType(right));
+    requireTypesCompatibility(lt, rt, allow_left_int);
+    if (lt->MyTypeIdentifier == TypeNode::TypeIdentifier::Scalar &&
+        rt->MyTypeIdentifier == TypeNode::TypeIdentifier::Scalar) {
+        auto ls = std::dynamic_pointer_cast<ScalarNode>(lt), rs = std::dynamic_pointer_cast<ScalarNode>(rt);
+        if (ls->MyScalarType == ScalarNode::ScalarType::Real ||
+            rs->MyScalarType == ScalarNode::ScalarType::Real)
+            return realNode;
+        return ls;
+    }
+    if (lt == rt)
+        return lt;
+    throw SyntaxErrorException("Incompatible types");
+}
+
+My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::getType(Node::PNode n) {
+    if (n->MyType == Node::Type::Const)
+        return getConstantType(std::dynamic_pointer_cast<ConstantNode>(n));
+    if (n->MyType == Node::Type::Operation)
+        return std::dynamic_pointer_cast<OperationNode>(n)->ReturnType;
+    if (n->MyType == Node::Type::Variable)
+        return std::dynamic_pointer_cast<VariableNode>(n)->type;
+    return std::dynamic_pointer_cast<TypeNode>(n);
 }
 
 const std::string & My::SyntaxAnalyzer::Node::ToString() {

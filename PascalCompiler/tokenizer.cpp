@@ -24,7 +24,8 @@ const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokeni
     { "+=", My::Tokenizer::Token::SubTypes::PlusAssign },      { "-=", My::Tokenizer::Token::SubTypes::MinusAssign },     { "*=", My::Tokenizer::Token::SubTypes::MultAssign },        { "/=", My::Tokenizer::Token::SubTypes::DivideAssign },
     { "absolute", My::Tokenizer::Token::SubTypes::Absolute },  { "inline", My::Tokenizer::Token::SubTypes::Inline },      { "string", My::Tokenizer::Token::SubTypes::String },        { "unit", My::Tokenizer::Token::SubTypes::Unit },
     { "uses", My::Tokenizer::Token::SubTypes::Uses },          { "xor", My::Tokenizer::Token::SubTypes::Xor },            { "operator", My::Tokenizer::Token::SubTypes::Operator },    { ".", My::Tokenizer::Token::SubTypes::Dot },
-    { "or", My::Tokenizer::Token::SubTypes::Or },              { "write", My::Tokenizer::Token::SubTypes::Write },        { "read", My::Tokenizer::Token::SubTypes::Read }
+    { "or", My::Tokenizer::Token::SubTypes::Or },              { "write", My::Tokenizer::Token::SubTypes::Write },        { "read", My::Tokenizer::Token::SubTypes::Read },            { "break", My::Tokenizer::Token::SubTypes::Break },
+    { "continue", My::Tokenizer::Token::SubTypes::Continue }
 };
 
 const std::string My::Tokenizer::Token::TypesStrings[] = {
@@ -52,7 +53,8 @@ const std::string My::Tokenizer::Token::SubTypesStrings[] = {
     "Then",              "To",                "Type",               "Unit",
     "Until",             "Uses",              "Var",                "While",
     "With",              "Xor",               "Range",              "Operator",
-    "CharConst",         "EndOfFile",         "Write",              "Read"
+    "CharConst",         "EndOfFile",         "Write",              "Read",
+    "Break",             "Continue"
 };
 
 const std::unordered_set<std::string> My::Tokenizer::Token::CharOperators = { "shl", "shr", "xor", "mod", "div", "not", "or", "and" };

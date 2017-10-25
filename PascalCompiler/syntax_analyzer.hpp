@@ -70,16 +70,7 @@ namespace My {
 
         public:
 
-            enum class Type {
-                Variable,
-                Type,
-                Const,
-                TypedConst,
-                Operation,
-                Procedure,
-                Function,
-                Block
-            };
+            enum class Type { Variable, Type, Const, TypedConst, Operation, Procedure, Function, Empty };
 
             static const std::string TypeNames[];
 

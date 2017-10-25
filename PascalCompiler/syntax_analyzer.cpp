@@ -452,7 +452,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseProgram() {
     require(tokenizer.Next(), Tokenizer::Token::SubTypes::Semicolon);
     tokenizer.Next();
     declarations.push_back(Declaration());
-    auto n = Node::PNode(new Node(t->GetValueString(), Node::Type::Block, nullptr, ParseBlock()));
+    auto n = Node::PNode(new Node(t->GetValueString(), Node::Type::Empty, nullptr, ParseBlock()));
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::Dot);
     declarations.pop_back();
     declarations.pop_back();
@@ -462,12 +462,12 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseProgram() {
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseBlock() {
     auto d = ParseDeclarationPart();
-    auto n = Node::PNode(new Node("block", Node::Type::Block, nullptr, d, ParseCompoundStatement()));
+    auto n = Node::PNode(new Node("block", Node::Type::Empty, nullptr, d, ParseCompoundStatement()));
     return n;
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseDeclarationPart() {
-    auto n = Node::PNode(new Node("decl", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("decl", Node::Type::Empty, nullptr));
     while (true) {
         switch (tokenizer.Current()->GetSubType()) {
         case Tokenizer::Token::SubTypes::Type:
@@ -555,7 +555,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseTypedConst(TypeNode::PT
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseActualParameterList() {
-    auto n = Node::PNode(new Node("p_list", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("p_list", Node::Type::Empty, nullptr));
     if (tokenizer.Current()->GetSubType() != Tokenizer::Token::SubTypes::OpenParenthesis)
         return n;
     if (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::CloseParenthesis) {
@@ -614,7 +614,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFunction() {
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFormalParameterList() {
-    auto n = Node::PNode(new Node("p_list", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("p_list", Node::Type::Empty, nullptr));
     if (tokenizer.Current()->GetSubType() != Tokenizer::Token::SubTypes::OpenParenthesis)
         return n;
     auto t = tokenizer.Next();
@@ -678,7 +678,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFormalParameterList() {
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseCompoundStatement() {
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::Begin);
-    auto n = Node::PNode(new Node("statements", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("statements", Node::Type::Empty, nullptr));
     tokenizer.Next();
     ParseStatementList(n);
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::End);
@@ -821,6 +821,12 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseStatement() {
         return ParseForStatement();
     case Tokenizer::Token::SubTypes::Repeat:
         return ParseRepeatStatement();
+    case Tokenizer::Token::SubTypes::Break:
+        tokenizer.Next();
+        return Node::PNode(new Node("break", Node::Type::Empty , t));
+    case Tokenizer::Token::SubTypes::Continue:
+        tokenizer.Next();
+        return Node::PNode(new Node("continue", Node::Type::Empty, t));
     case Tokenizer::Token::SubTypes::Read:
     {
         auto n = Node::PNode(new OperationNode(t->GetValueString(), nullptr, nullptr));
@@ -915,7 +921,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseStatement() {
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseIfStatement() {
-    auto n = Node::PNode(new Node("if", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("if", Node::Type::Empty, nullptr));
     tokenizer.Next();
     n->push_back(ParseExpression());
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::Then);
@@ -929,7 +935,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseIfStatement() {
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseWhileStatement() {
-    auto n = Node::PNode(new Node("while", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("while", Node::Type::Empty, nullptr));
     tokenizer.Next();
     n->push_back(ParseExpression());
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::Do);
@@ -939,7 +945,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseWhileStatement() {
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseForStatement() {
-    auto n = Node::PNode(new Node("for", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("for", Node::Type::Empty, nullptr));
     auto t = tokenizer.Next();
     require(t, Tokenizer::Token::SubTypes::Identifier);
     auto d = findDeclaration(t);
@@ -953,7 +959,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseForStatement() {
     t = tokenizer.Current();
     if (t->GetSubType() != Tokenizer::Token::SubTypes::Downto)
         require(t, Tokenizer::Token::SubTypes::To);
-    n->push_back(Node::PNode(new Node(t->GetValueString(), Node::Type::Block, nullptr)));
+    n->push_back(Node::PNode(new Node(t->GetValueString(), Node::Type::Empty, nullptr)));
     tokenizer.Next();
     e = ParseExpression();
     requireTypesCompatibility(getType(d), getType(e), tokenizer.Current(), true, false);
@@ -965,7 +971,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseForStatement() {
 }
 
 My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseRepeatStatement() {
-    auto n = Node::PNode(new Node("repeat", Node::Type::Block, nullptr));
+    auto n = Node::PNode(new Node("repeat", Node::Type::Empty, nullptr));
     tokenizer.Next();
     ParseStatementList(n);
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::Until);

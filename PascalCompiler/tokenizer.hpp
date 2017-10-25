@@ -145,7 +145,8 @@ namespace My {
                 Then,              To,                Type,               Unit,         
                 Until,             Uses,              Var,                While,
                 With,              Xor,               Range,              Operator,
-                CharConst,         EndOfFile,         Write,              Read    
+                CharConst,         EndOfFile,         Write,              Read,
+                Break,             Continue
 			};
 
             static const std::string SubTypesStrings[];

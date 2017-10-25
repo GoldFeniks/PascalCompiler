@@ -1,0 +1,62 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─procedure p
+           │    │           ├─p_list
+           │    │           │      └─value a
+           │    │           │              └─type integer scalar
+           │    │           └─block
+           │    │                 ├─decl
+           │    │                 │    └─function f
+           │    │                 │               ├─p_list
+           │    │                 │               ├─type integer scalar
+           │    │                 │               └─block
+           │    │                 │                     ├─decl
+           │    │                 │                     └─statements
+           │    │                 │                                └─:=
+           │    │                 │                                   ├─value result
+           │    │                 │                                   │            └─type integer scalar
+           │    │                 │                                   └─10
+           │    │                 └─statements
+           │    │                            └─+=
+           │    │                               ├─value a
+           │    │                               │       └─type integer scalar
+           │    │                               └─()
+           │    │                                  ├─function f
+           │    │                                  │          ├─p_list
+           │    │                                  │          ├─type integer scalar
+           │    │                                  │          └─block
+           │    │                                  │                ├─decl
+           │    │                                  │                └─statements
+           │    │                                  │                           └─:=
+           │    │                                  │                              ├─value result
+           │    │                                  │                              │            └─type integer scalar
+           │    │                                  │                              └─10
+           │    │                                  ├─p_list
+           │    │                                  └─type integer scalar
+           │    └─function f
+           │               ├─p_list
+           │               │      ├─value a
+           │               │      │       └─type integer scalar
+           │               │      ├─value b
+           │               │      │       └─type integer scalar
+           │               │      └─value c
+           │               │              └─type integer scalar
+           │               ├─type real scalar
+           │               └─block
+           │                     ├─decl
+           │                     └─statements
+           │                                └─:=
+           │                                   ├─value result
+           │                                   │            └─type real scalar
+           │                                   └─/
+           │                                     ├─+
+           │                                     │ ├─value a
+           │                                     │ │       └─type integer scalar
+           │                                     │ ├─value b
+           │                                     │ │       └─type integer scalar
+           │                                     │ └─type integer scalar
+           │                                     ├─value c
+           │                                     │       └─type integer scalar
+           │                                     └─type real scalar
+           └─statements

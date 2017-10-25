@@ -1,0 +1,52 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─value a
+           │    │       └─type integer scalar
+           │    ├─value b
+           │    │       └─type integer scalar
+           │    ├─value c
+           │    │       └─type real scalar
+           │    ├─value d
+           │    │       └─type real scalar
+           │    ├─value e
+           │    │       └─type char scalar
+           │    └─value f
+           │            └─type char scalar
+           └─statements
+                      ├─:=
+                      │  ├─value a
+                      │  │       └─type integer scalar
+                      │  └─value b
+                      │          └─type integer scalar
+                      ├─:=
+                      │  ├─value b
+                      │  │       └─type integer scalar
+                      │  └─10
+                      ├─:=
+                      │  ├─value c
+                      │  │       └─type real scalar
+                      │  └─value a
+                      │          └─type integer scalar
+                      ├─:=
+                      │  ├─value c
+                      │  │       └─type real scalar
+                      │  └─value d
+                      │          └─type real scalar
+                      ├─:=
+                      │  ├─value c
+                      │  │       └─type real scalar
+                      │  └─10.1
+                      ├─:=
+                      │  ├─value d
+                      │  │       └─type real scalar
+                      │  └─10
+                      ├─:=
+                      │  ├─value e
+                      │  │       └─type char scalar
+                      │  └─value f
+                      │          └─type char scalar
+                      └─:=
+                         ├─value f
+                         │       └─type char scalar
+                         └─'c'

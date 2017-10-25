@@ -1,0 +1,29 @@
+└─test
+     └─block
+           ├─decl
+           │    └─value a
+           │            └─type integer scalar
+           └─statements
+                      └─if
+                         ├─<
+                         │ ├─10
+                         │ ├─15
+                         │ └─type integer scalar
+                         ├─statements
+                         │          ├─:=
+                         │          │  ├─value a
+                         │          │  │       └─type integer scalar
+                         │          │  └─10
+                         │          └─write
+                         │                ├─'Less'
+                         │                └─value a
+                         │                        └─type integer scalar
+                         └─statements
+                                    ├─:=
+                                    │  ├─value a
+                                    │  │       └─type integer scalar
+                                    │  └─15
+                                    └─write
+                                          ├─'Greater'
+                                          └─value a
+                                                  └─type integer scalar

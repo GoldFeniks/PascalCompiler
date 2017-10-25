@@ -1,0 +1,117 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─type rec record
+           │    │               └─value a
+           │    │                       └─type anonymous array
+           │    │                                            ├─1
+           │    │                                            ├─2
+           │    │                                            └─type integer scalar
+           │    ├─function f
+           │    │          ├─p_list
+           │    │          │      ├─value a
+           │    │          │      │       └─type real scalar
+           │    │          │      ├─value b
+           │    │          │      │       └─type real scalar
+           │    │          │      └─value c
+           │    │          │              └─type real scalar
+           │    │          ├─type rec record
+           │    │          │               └─value a
+           │    │          │                       └─type anonymous array
+           │    │          │                                            ├─1
+           │    │          │                                            ├─2
+           │    │          │                                            └─type integer scalar
+           │    │          └─block
+           │    │                ├─decl
+           │    │                └─statements
+           │    │                           └─:=
+           │    │                              ├─[]
+           │    │                              │  ├─.
+           │    │                              │  │ ├─value result
+           │    │                              │  │ │            └─type rec record
+           │    │                              │  │ │                            └─value a
+           │    │                              │  │ │                                    └─type anonymous array
+           │    │                              │  │ │                                                         ├─1
+           │    │                              │  │ │                                                         ├─2
+           │    │                              │  │ │                                                         └─type integer scalar
+           │    │                              │  │ ├─value a
+           │    │                              │  │ │       └─type anonymous array
+           │    │                              │  │ │                            ├─1
+           │    │                              │  │ │                            ├─2
+           │    │                              │  │ │                            └─type integer scalar
+           │    │                              │  │ └─type anonymous array
+           │    │                              │  │                      ├─1
+           │    │                              │  │                      ├─2
+           │    │                              │  │                      └─type integer scalar
+           │    │                              │  ├─1
+           │    │                              │  └─type integer scalar
+           │    │                              └─10
+           │    └─value a
+           │            └─type integer scalar
+           └─statements
+                      └─:=
+                         ├─value a
+                         │       └─type integer scalar
+                         └─[]
+                            ├─.
+                            │ ├─()
+                            │ │  ├─function f
+                            │ │  │          ├─p_list
+                            │ │  │          │      ├─value a
+                            │ │  │          │      │       └─type real scalar
+                            │ │  │          │      ├─value b
+                            │ │  │          │      │       └─type real scalar
+                            │ │  │          │      └─value c
+                            │ │  │          │              └─type real scalar
+                            │ │  │          ├─type rec record
+                            │ │  │          │               └─value a
+                            │ │  │          │                       └─type anonymous array
+                            │ │  │          │                                            ├─1
+                            │ │  │          │                                            ├─2
+                            │ │  │          │                                            └─type integer scalar
+                            │ │  │          └─block
+                            │ │  │                ├─decl
+                            │ │  │                └─statements
+                            │ │  │                           └─:=
+                            │ │  │                              ├─[]
+                            │ │  │                              │  ├─.
+                            │ │  │                              │  │ ├─value result
+                            │ │  │                              │  │ │            └─type rec record
+                            │ │  │                              │  │ │                            └─value a
+                            │ │  │                              │  │ │                                    └─type anonymous array
+                            │ │  │                              │  │ │                                                         ├─1
+                            │ │  │                              │  │ │                                                         ├─2
+                            │ │  │                              │  │ │                                                         └─type integer scalar
+                            │ │  │                              │  │ ├─value a
+                            │ │  │                              │  │ │       └─type anonymous array
+                            │ │  │                              │  │ │                            ├─1
+                            │ │  │                              │  │ │                            ├─2
+                            │ │  │                              │  │ │                            └─type integer scalar
+                            │ │  │                              │  │ └─type anonymous array
+                            │ │  │                              │  │                      ├─1
+                            │ │  │                              │  │                      ├─2
+                            │ │  │                              │  │                      └─type integer scalar
+                            │ │  │                              │  ├─1
+                            │ │  │                              │  └─type integer scalar
+                            │ │  │                              └─10
+                            │ │  ├─p_list
+                            │ │  │      ├─1.0
+                            │ │  │      ├─10.1
+                            │ │  │      └─3
+                            │ │  └─type rec record
+                            │ │                  └─value a
+                            │ │                          └─type anonymous array
+                            │ │                                               ├─1
+                            │ │                                               ├─2
+                            │ │                                               └─type integer scalar
+                            │ ├─value a
+                            │ │       └─type anonymous array
+                            │ │                            ├─1
+                            │ │                            ├─2
+                            │ │                            └─type integer scalar
+                            │ └─type anonymous array
+                            │                      ├─1
+                            │                      ├─2
+                            │                      └─type integer scalar
+                            ├─1
+                            └─type integer scalar

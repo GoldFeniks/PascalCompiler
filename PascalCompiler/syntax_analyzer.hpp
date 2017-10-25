@@ -239,7 +239,7 @@ namespace My {
 
         public:
 
-            StringNode(const Tokenizer::PToken t) : Node(t->GetValueString(), Type::Const, t) {};
+            StringNode(const Tokenizer::PToken t) : Node(t->GetString(), Type::Const, t) {};
 
         };//class StringNode
 
@@ -294,6 +294,30 @@ namespace My {
             IncompatibleTypesException(const TypeNode::PTypeNode left, const TypeNode::PTypeNode right, const My::Tokenizer::PToken token);
 
         };//class IncompatibleTypesException
+
+        class FunctionParameterException : public SyntaxErrorException {
+
+        public:
+
+            FunctionParameterException(const Tokenizer::PToken token, int c);
+
+        };// class FunctionParameterException
+
+        class IllegalExpressionException : public SyntaxErrorException {
+
+        public:
+
+            IllegalExpressionException(const Tokenizer::PToken token);
+
+        };// class IllegalExpressionException
+
+        class IllegalTypeException : public SyntaxErrorException {
+
+        public:
+
+            IllegalTypeException(const Tokenizer::PToken token);
+
+        };
 
         struct Declaration {
 
@@ -396,17 +420,17 @@ namespace My {
                 throw DudlicateIdentifierException(t);
         }
 
-        static ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
-        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, Tokenizer::PToken token, bool allow_left_int = false);
+        ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, Tokenizer::PToken token, bool assign, bool allow_left_int = false);
         static void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right, Tokenizer::PToken token);
         static void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right, Tokenizer::PToken token);
         static void requireInteger(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
-        static void requireArgsCompatibility(Node::PNode f, Node::PNode n);
+        void requireArgsCompatibility(Node::PNode f, Node::PNode n);
         static void requireType(TypeNode::PTypeNode type, TypeNode::TypeIdentifier id, Tokenizer::PToken token);
         static TypeNode::PTypeNode getBaseType(TypeNode::PTypeNode type);
 
         Node::PNode findDeclaration(const My::Tokenizer::PToken t);
-        static void requireNodeType(Node::PNode n, Node::Type type);
+        void requireNodeType(Node::PNode n, Node::Type type);
         void requireDeclaration(const My::Tokenizer::PToken t);
         static void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
 
@@ -437,6 +461,15 @@ namespace My {
                 type == Tokenizer::Token::SubTypes::Or;
         }
 
+        inline static bool isRelational(const Tokenizer::Token::SubTypes type) {
+            return type == Tokenizer::Token::SubTypes::Less ||
+                type == Tokenizer::Token::SubTypes::LessEqual ||
+                type == Tokenizer::Token::SubTypes::Equal ||
+                type == Tokenizer::Token::SubTypes::Greater ||
+                type == Tokenizer::Token::SubTypes::GreaterEqual ||
+                type == Tokenizer::Token::SubTypes::NotEqual;
+        }
+
         template<typename NNode, Node::PNode(SyntaxAnalyzer::*NParse)(void), bool(*Cond)(const Tokenizer::Token::SubTypes)>
         Node::PNode parse(Node::PNode e) {
             auto token = tokenizer.Current();
@@ -444,7 +477,9 @@ namespace My {
                 tokenizer.Next();
                 auto t = (this->*NParse)();
                 //if (e->Token->GetSubType() != token->GetSubType())
-                auto type = deduceType(e, t, token);
+
+                auto type = token->GetSubType() != Tokenizer::Token::SubTypes::Divide ?
+                    deduceType(e, t, token, isRelational(token->GetSubType())) : realNode;
                 e = Node::PNode(new NNode(token->GetStringValue(), type, token, e, t));
                 //else
                     //e->push_back(t);

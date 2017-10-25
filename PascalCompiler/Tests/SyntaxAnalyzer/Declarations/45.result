@@ -1,0 +1,10 @@
+└─test
+     └─block
+           ├─decl
+           │    └─value i
+           │            ├─type integer scalar
+           │            └─=
+           │              ├─'c'
+           │              ├─'c'
+           │              └─type integer scalar
+           └─statements

@@ -1,0 +1,24 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─value a
+           │    │       └─type real scalar
+           │    └─value b
+           │            └─type real scalar
+           └─statements
+                      └─for
+                          ├─value a
+                          │       └─type real scalar
+                          ├─10
+                          ├─to
+                          ├─100.0
+                          └─statements
+                                     ├─:=
+                                     │  ├─value a
+                                     │  │       └─type real scalar
+                                     │  └─10
+                                     └─:=
+                                        ├─value b
+                                        │       └─type real scalar
+                                        └─value a
+                                                └─type real scalar

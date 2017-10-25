@@ -11,8 +11,10 @@ args = parser.parse_args()
 
 r = re.compile('(?P<name>.+)\.pas')
 f = re.compile('(?P<name>[^.]+)$')
+c, w = 0, 0
 
 def test(d):
+    global c, w
     for i in listdir(d):
         name = r.match(i)
         if name:
@@ -22,15 +24,20 @@ def test(d):
             if a != b:
                 print('Test {}/{} failed'.format(d, i))
                 print(b, file=open(d + '/{}.result'.format(name.group('name')), 'w'), end='')
+                w += 1
             else:
                 print('Test {}/{} passed'.format(d, i))
+                c += 1
             f1.close()
             f2.close()
             continue
         name = f.match(i)
         if name:
+            print()
             test(d + '/' + name.group('name'))
 
 test(args.dir)
+
+print("{} tests passed. {} tests failed".format(c, w))
 
 os.remove('output.txt')

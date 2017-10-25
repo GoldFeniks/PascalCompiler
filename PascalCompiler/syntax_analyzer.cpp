@@ -171,7 +171,7 @@ My::SyntaxAnalyzer::ConstantNode::PConstantNode My::SyntaxAnalyzer::calculateCon
     {
         auto var = std::dynamic_pointer_cast<VariableNode>(n);
         if (var->vType != VariableNode::VariableType::Const || var->type != nullptr)
-            throw SyntaxErrorException("Illegal expression"); // only const in constexpr
+            throw IllegalExpressionException(tokenizer.Current());
         return std::dynamic_pointer_cast<ConstantNode>(var->Value);
     }
     case Node::Type::Operation:
@@ -195,16 +195,17 @@ My::SyntaxAnalyzer::ConstantNode::PConstantNode My::SyntaxAnalyzer::calculateCon
     throw std::exception();
 }
 
-void My::SyntaxAnalyzer::requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, My::Tokenizer::PToken token, bool allow_left_int) {
+void My::SyntaxAnalyzer::requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, My::Tokenizer::PToken token, bool assign, bool allow_left_int) {
     left = getBaseType(left); right = getBaseType(right);
-    if (left == right)
+    if (left == right && assign)
         return;
     if (left->MyTypeIdentifier != right->MyTypeIdentifier)
         throw IncompatibleTypesException(left, right, token);
     auto l = std::dynamic_pointer_cast<ScalarNode>(left);
     auto r = std::dynamic_pointer_cast<ScalarNode>(right);
-    if (l->MyScalarType == ScalarNode::ScalarType::Char && r->MyScalarType != ScalarNode::ScalarType::Char ||
-        l->MyScalarType != ScalarNode::ScalarType::Char && r->MyScalarType == ScalarNode::ScalarType::Char ||
+    if (!left || !right)
+        throw IncompatibleTypesException(left, right, token);
+    if (l->MyScalarType == ScalarNode::ScalarType::Char || r->MyScalarType == ScalarNode::ScalarType::Char ||
         !allow_left_int && l->MyScalarType == ScalarNode::ScalarType::Integer && r->MyScalarType == ScalarNode::ScalarType::Real)
         throw IncompatibleTypesException(left, right, token);
 }
@@ -232,15 +233,17 @@ void My::SyntaxAnalyzer::requireInteger(ConstantNode::PConstantNode left, Consta
 }
 
 void My::SyntaxAnalyzer::requireArgsCompatibility(Node::PNode f, Node::PNode n) {
-    //TODO More info
     int i = 0;
     for (; i < f->Children.size() && f->Children[i]->MyType == Node::Type::Variable; ++i) {
+        auto var = std::dynamic_pointer_cast<VariableNode>(f->Children[i]);
+        if (var->Value)
+            return;
         if (i == n->Children.size())
-            throw SyntaxErrorException("Function does not take");
-        requireTypesCompatibility(getType(f->Children[i]), getType(n->Children[i]), false);
+            throw FunctionParameterException(tokenizer.Current(), i);
+        requireTypesCompatibility(getType(f->Children[i]), var->type, tokenizer.Current(), true, false);
     }
     if (i != n->Children.size())
-        throw SyntaxErrorException("Function does not take");
+        throw FunctionParameterException(tokenizer.Current(), i);
 }
 
 void My::SyntaxAnalyzer::requireType(TypeNode::PTypeNode type, TypeNode::TypeIdentifier id, Tokenizer::PToken token) {
@@ -266,8 +269,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::findDeclaration(const My::To
 
 void My::SyntaxAnalyzer::requireNodeType(Node::PNode n, Node::Type type) {
     if (n->MyType != type)
-        //TODO MORE INFO
-        throw SyntaxErrorException("Illegal type");
+        throw IllegalTypeException(tokenizer.Current());
 }
 
 void My::SyntaxAnalyzer::requireDeclaration(const My::Tokenizer::PToken t) {
@@ -411,7 +413,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFactor() {
             return var;
         }
         default:
-            throw SyntaxAnalyzer("Incopatible type");
+            requireNodeType(n, Node::Type::Variable);
         }
     }
     case Tokenizer::Token::SubTypes::IntegerConst:
@@ -521,7 +523,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseTypedConst(TypeNode::PT
             i <= end; ++i) {
             tokenizer.Next();
             auto c = ParseTypedConst(a->type);
-            requireTypesCompatibility(a->type, getType(c), tokenizer.Current());
+            requireTypesCompatibility(a->type, getType(c), tokenizer.Current(), true, false);
             n->push_back(c);
             if (i == end)
                 require(tokenizer.Current(), Tokenizer::Token::SubTypes::CloseParenthesis);
@@ -540,7 +542,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseTypedConst(TypeNode::PT
             throw IllegalInitializationOrderException(t);
         tokenizer.Next();
         auto c = ParseTypedConst(it->type);
-        requireTypesCompatibility(it->type, getType(c), tokenizer.Current());
+        requireTypesCompatibility(it->type, getType(c), tokenizer.Current(), true, false);
         n->push_back(c);
         if (i + 1 == type->Children.size() && tokenizer.Current()->GetSubType() != Tokenizer::Token::SubTypes::Semicolon)
             break;
@@ -594,6 +596,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFunction() {
     require(t, Tokenizer::Token::SubTypes::Identifier);
     requireUnique(t, declarations.back().Symbols);
     declarations.push_back(Declaration());
+    declarations.back().Symbols["result"] = nullptr;
     tokenizer.Next();
     auto pl = ParseFormalParameterList();
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::Colon);
@@ -603,6 +606,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFunction() {
     tokenizer.Next();
     auto type = findDeclaration(rt);
     requireNodeType(type, Node::Type::Type);
+    declarations.back().Symbols["result"] = Node::PNode(new VariableNode("result", std::dynamic_pointer_cast<TypeNode>(type), VariableNode::VariableType::Value, rt));
     auto n = Node::PNode(new FunctionNode(t->GetValueString(), pl, std::dynamic_pointer_cast<TypeNode>(type), ParseBlock(), nullptr));
     declarations.pop_back();
     declarations.back().Symbols[n->ToString()] = n;
@@ -662,7 +666,6 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseFormalParameterList() {
             }
         }
         if (end && !last)
-            //TODO more info
             throw SyntaxErrorException("Default parameter should be last");
         if (tokenizer.Current()->GetSubType() == Tokenizer::Token::SubTypes::CloseParenthesis)
             break;
@@ -770,7 +773,7 @@ void My::SyntaxAnalyzer::ParseVarDeclaration(Node::PNode p) {
                 throw InitializationOverloadException(t);
             tokenizer.Next();
             auto c = ParseTypedConst(type);
-            requireTypesCompatibility(type, getType(c), t, false);
+            requireTypesCompatibility(type, getType(c), t, true, false);
             std::dynamic_pointer_cast<VariableNode>(p->Children.back())->SetValue(c);
         }
         require(tokenizer.Current(), Tokenizer::Token::SubTypes::Semicolon);
@@ -795,6 +798,7 @@ void My::SyntaxAnalyzer::ParseConstDeclaration(Node::PNode p) {
             require(tokenizer.Current(), Tokenizer::Token::SubTypes::Equal);
             tokenizer.Next();
             value = calculateConstExpr(ParseExpression());
+            type = getType(value);
         }
         auto var = Node::PNode(new VariableNode(t->GetValueString(), type, VariableNode::VariableType::Const, nullptr, value));
         declarations.back().Symbols[t->GetValueString()] = var;
@@ -891,7 +895,9 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseStatement() {
                 t->GetSubType() == Tokenizer::Token::SubTypes::DivideAssign) {
                 tokenizer.Next();
                 auto e = ParseExpression();
-                deduceType(d, e, false);
+                if (var->vType == VariableNode::VariableType::Const)
+                    throw SyntaxErrorException("Can't assign to const variable");
+                requireTypesCompatibility(getType(d), getType(e), t, true, false);;
                 return Node::PNode(new OperationNode(t->GetValueString(), nullptr, t, d, e));
             }
             return d;
@@ -942,7 +948,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseForStatement() {
     require(tokenizer.Next(), Tokenizer::Token::SubTypes::Assign);
     tokenizer.Next();
     auto e = ParseExpression();
-    requireTypesCompatibility(getType(d), getType(e), false);
+    requireTypesCompatibility(getType(d), getType(e), tokenizer.Current(), true, false);
     n->push_back(e);
     t = tokenizer.Current();
     if (t->GetSubType() != Tokenizer::Token::SubTypes::Downto)
@@ -950,7 +956,7 @@ My::SyntaxAnalyzer::Node::PNode My::SyntaxAnalyzer::ParseForStatement() {
     n->push_back(Node::PNode(new Node(t->GetValueString(), Node::Type::Block, nullptr)));
     tokenizer.Next();
     e = ParseExpression();
-    requireTypesCompatibility(getType(d), getType(e), false);
+    requireTypesCompatibility(getType(d), getType(e), tokenizer.Current(), true, false);
     n->push_back(e);
     require(tokenizer.Current(), Tokenizer::Token::SubTypes::Do);
     tokenizer.Next();
@@ -999,9 +1005,11 @@ My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::getConstantType(Cons
     }
 }
 
-My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::deduceType(Node::PNode left, Node::PNode right, Tokenizer::PToken token, bool allow_left_int) {
+My::SyntaxAnalyzer::TypeNode::PTypeNode My::SyntaxAnalyzer::deduceType(Node::PNode left, Node::PNode right, Tokenizer::PToken token, bool is_relational) {
     auto lt = getBaseType(getType(left)), rt = getBaseType(getType(right));
-    requireTypesCompatibility(lt, rt, token, allow_left_int);
+    requireTypesCompatibility(lt, rt, token, is_relational, true);
+    if (is_relational)
+        return integerNode;
     if (lt->MyTypeIdentifier == TypeNode::TypeIdentifier::Scalar &&
         rt->MyTypeIdentifier == TypeNode::TypeIdentifier::Scalar) {
         auto ls = std::dynamic_pointer_cast<ScalarNode>(lt), rs = std::dynamic_pointer_cast<ScalarNode>(rt);
@@ -1058,4 +1066,19 @@ My::SyntaxAnalyzer::InitializationOverloadException::InitializationOverloadExcep
 My::SyntaxAnalyzer::DeclarationNotFoundException::DeclarationNotFoundException(Tokenizer::PToken token) {
     message = std::string(boost::str(boost::format("(%1%, %2%) Syntax Error: \"%3%\" declaration not found") % token->GetPosition().first %
         token->GetPosition().second % token->GetValueString()));
+}
+
+My::SyntaxAnalyzer::FunctionParameterException::FunctionParameterException(const Tokenizer::PToken token, int c) {
+    message = std::string(boost::str(boost::format("(%1%, %2%) Syntax Error: function doesn't take %3% argument(s)") % token->GetPosition().first %
+        token->GetPosition().second % c));
+}
+
+My::SyntaxAnalyzer::IllegalExpressionException::IllegalExpressionException(const Tokenizer::PToken token) {
+    message = std::string(boost::str(boost::format("(%1%, %2%) Syntax Error: illegal expresion") % token->GetPosition().first %
+        token->GetPosition().second));
+}
+
+My::SyntaxAnalyzer::IllegalTypeException::IllegalTypeException(const Tokenizer::PToken token) {
+    message = std::string(boost::str(boost::format("(%1%, %2%) Syntax Error: illegal type") % token->GetPosition().first %
+        token->GetPosition().second));
 }

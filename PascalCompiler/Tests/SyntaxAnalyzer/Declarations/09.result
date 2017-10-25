@@ -2,6 +2,7 @@
      └─block
            ├─decl
            │    ├─const a
+           │    │       ├─type integer scalar
            │    │       └─20
            │    ├─const b
            │    │       ├─type real scalar

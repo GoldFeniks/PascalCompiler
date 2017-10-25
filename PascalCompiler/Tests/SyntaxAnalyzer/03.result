@@ -1,0 +1,140 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─type int alias
+           │    │              └─type integer scalar
+           │    ├─type rec record
+           │    │               └─value a
+           │    │                       └─type int alias
+           │    │                                      └─type integer scalar
+           │    ├─type arr array
+           │    │              ├─1
+           │    │              ├─10
+           │    │              └─type rec record
+           │    │                              └─value a
+           │    │                                      └─type int alias
+           │    │                                                     └─type integer scalar
+           │    ├─const c
+           │    │       ├─type integer scalar
+           │    │       └─10
+           │    ├─const cr
+           │    │        ├─type rec record
+           │    │        │               └─value a
+           │    │        │                       └─type int alias
+           │    │        │                                      └─type integer scalar
+           │    │        └─typed_const
+           │    │                    └─10
+           │    ├─value a
+           │    │       ├─type integer scalar
+           │    │       └─0
+           │    ├─value b
+           │    │       ├─type real scalar
+           │    │       └─1
+           │    ├─value e
+           │    │       └─type char scalar
+           │    ├─value d
+           │    │       └─type char scalar
+           │    ├─value r
+           │    │       └─type rec record
+           │    │                       └─value a
+           │    │                               └─type int alias
+           │    │                                              └─type integer scalar
+           │    └─value ar
+           │             └─type arr array
+           │                            ├─1
+           │                            ├─10
+           │                            └─type rec record
+           │                                            └─value a
+           │                                                    └─type int alias
+           │                                                                   └─type integer scalar
+           └─statements
+                      ├─read
+                      │    ├─value e
+                      │    │       └─type char scalar
+                      │    └─value d
+                      │            └─type char scalar
+                      ├─while
+                      │     ├─<>
+                      │     │  ├─value b
+                      │     │  │       ├─type real scalar
+                      │     │  │       └─1
+                      │     │  ├─10
+                      │     │  └─type integer scalar
+                      │     └─statements
+                      │                ├─for
+                      │                │   ├─value a
+                      │                │   │       ├─type integer scalar
+                      │                │   │       └─0
+                      │                │   ├─0
+                      │                │   ├─downto
+                      │                │   ├─10
+                      │                │   └─repeat
+                      │                │          ├─read
+                      │                │          │    └─value e
+                      │                │          │            └─type char scalar
+                      │                │          ├─if
+                      │                │          │  ├─=
+                      │                │          │  │ ├─value e
+                      │                │          │  │ │       └─type char scalar
+                      │                │          │  │ ├─'r'
+                      │                │          │  │ └─type integer scalar
+                      │                │          │  ├─write
+                      │                │          │  │     └─value d
+                      │                │          │  │             └─type char scalar
+                      │                │          │  └─statements
+                      │                │          │             ├─read
+                      │                │          │             │    └─value d
+                      │                │          │             │            └─type char scalar
+                      │                │          │             ├─write
+                      │                │          │             │     └─const c
+                      │                │          │             │             ├─type integer scalar
+                      │                │          │             │             └─10
+                      │                │          │             └─:=
+                      │                │          │                ├─value e
+                      │                │          │                │       └─type char scalar
+                      │                │          │                └─value d
+                      │                │          │                        └─type char scalar
+                      │                │          └─<>
+                      │                │             ├─value e
+                      │                │             │       └─type char scalar
+                      │                │             ├─'e'
+                      │                │             └─type integer scalar
+                      │                ├─:=
+                      │                │  ├─.
+                      │                │  │ ├─value r
+                      │                │  │ │       └─type rec record
+                      │                │  │ │                       └─value a
+                      │                │  │ │                               └─type int alias
+                      │                │  │ │                                              └─type integer scalar
+                      │                │  │ ├─value a
+                      │                │  │ │       └─type int alias
+                      │                │  │ │                      └─type integer scalar
+                      │                │  │ └─type int alias
+                      │                │  │                └─type integer scalar
+                      │                │  └─value a
+                      │                │          ├─type integer scalar
+                      │                │          └─0
+                      │                ├─:=
+                      │                │  ├─[]
+                      │                │  │  ├─value ar
+                      │                │  │  │        └─type arr array
+                      │                │  │  │                       ├─1
+                      │                │  │  │                       ├─10
+                      │                │  │  │                       └─type rec record
+                      │                │  │  │                                       └─value a
+                      │                │  │  │                                               └─type int alias
+                      │                │  │  │                                                              └─type integer scalar
+                      │                │  │  ├─10
+                      │                │  │  └─type rec record
+                      │                │  │                  └─value a
+                      │                │  │                          └─type int alias
+                      │                │  │                                         └─type integer scalar
+                      │                │  └─value r
+                      │                │          └─type rec record
+                      │                │                          └─value a
+                      │                │                                  └─type int alias
+                      │                │                                                 └─type integer scalar
+                      │                └─write
+                      │                      └─'I''m doing stuffs'
+                      └─write
+                            └─'END'

@@ -1,0 +1,30 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─value a
+           │    │       └─type real scalar
+           │    ├─value b
+           │    │       └─type real scalar
+           │    └─value c
+           │            └─type integer scalar
+           └─statements
+                      └─repeat
+                             ├─:=
+                             │  ├─value a
+                             │  │       └─type real scalar
+                             │  └─+
+                             │    ├─value b
+                             │    │       └─type real scalar
+                             │    ├─value c
+                             │    │       └─type integer scalar
+                             │    └─type real scalar
+                             ├─+=
+                             │  ├─value c
+                             │  │       └─type integer scalar
+                             │  └─1
+                             └─<
+                               ├─value c
+                               │       └─type integer scalar
+                               ├─value a
+                               │       └─type real scalar
+                               └─type integer scalar

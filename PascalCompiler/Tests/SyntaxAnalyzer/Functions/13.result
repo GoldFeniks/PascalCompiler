@@ -1,0 +1,66 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─function f
+           │    │          ├─p_list
+           │    │          │      ├─value a
+           │    │          │      │       └─type real scalar
+           │    │          │      ├─value b
+           │    │          │      │       └─type real scalar
+           │    │          │      └─value c
+           │    │          │              └─type real scalar
+           │    │          ├─type real scalar
+           │    │          └─block
+           │    │                ├─decl
+           │    │                └─statements
+           │    │                           └─:=
+           │    │                              ├─value result
+           │    │                              │            └─type real scalar
+           │    │                              └─/
+           │    │                                ├─+
+           │    │                                │ ├─value a
+           │    │                                │ │       └─type real scalar
+           │    │                                │ ├─value b
+           │    │                                │ │       └─type real scalar
+           │    │                                │ └─type real scalar
+           │    │                                ├─value c
+           │    │                                │       └─type real scalar
+           │    │                                └─type real scalar
+           │    └─value r
+           │            └─type real scalar
+           └─statements
+                      └─:=
+                         ├─value r
+                         │       └─type real scalar
+                         └─()
+                            ├─function f
+                            │          ├─p_list
+                            │          │      ├─value a
+                            │          │      │       └─type real scalar
+                            │          │      ├─value b
+                            │          │      │       └─type real scalar
+                            │          │      └─value c
+                            │          │              └─type real scalar
+                            │          ├─type real scalar
+                            │          └─block
+                            │                ├─decl
+                            │                └─statements
+                            │                           └─:=
+                            │                              ├─value result
+                            │                              │            └─type real scalar
+                            │                              └─/
+                            │                                ├─+
+                            │                                │ ├─value a
+                            │                                │ │       └─type real scalar
+                            │                                │ ├─value b
+                            │                                │ │       └─type real scalar
+                            │                                │ └─type real scalar
+                            │                                ├─value c
+                            │                                │       └─type real scalar
+                            │                                └─type real scalar
+                            ├─p_list
+                            │      ├─1.0
+                            │      ├─value r
+                            │      │       └─type real scalar
+                            │      └─3
+                            └─type real scalar

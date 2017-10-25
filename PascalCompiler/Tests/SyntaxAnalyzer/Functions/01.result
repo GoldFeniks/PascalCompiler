@@ -1,0 +1,15 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─procedure p
+           │    │           ├─p_list
+           │    │           └─block
+           │    │                 ├─decl
+           │    │                 └─statements
+           │    └─function f
+           │               ├─p_list
+           │               ├─type integer scalar
+           │               └─block
+           │                     ├─decl
+           │                     └─statements
+           └─statements

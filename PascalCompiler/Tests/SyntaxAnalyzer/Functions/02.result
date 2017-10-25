@@ -1,0 +1,39 @@
+└─test
+     └─block
+           ├─decl
+           │    ├─procedure p
+           │    │           ├─p_list
+           │    │           │      ├─value a
+           │    │           │      │       └─type integer scalar
+           │    │           │      ├─const b
+           │    │           │      │       └─type real scalar
+           │    │           │      ├─const c
+           │    │           │      │       └─type real scalar
+           │    │           │      ├─var d
+           │    │           │      │     └─type char scalar
+           │    │           │      ├─var e
+           │    │           │      │     └─type char scalar
+           │    │           │      └─var f
+           │    │           │            └─type char scalar
+           │    │           └─block
+           │    │                 ├─decl
+           │    │                 └─statements
+           │    └─function f
+           │               ├─p_list
+           │               │      ├─value a
+           │               │      │       └─type integer scalar
+           │               │      ├─value b
+           │               │      │       └─type integer scalar
+           │               │      ├─value c
+           │               │      │       └─type integer scalar
+           │               │      ├─const d
+           │               │      │       └─type real scalar
+           │               │      ├─const e
+           │               │      │       └─type real scalar
+           │               │      └─var f
+           │               │            └─type char scalar
+           │               ├─type integer scalar
+           │               └─block
+           │                     ├─decl
+           │                     └─statements
+           └─statements

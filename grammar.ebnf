@@ -101,7 +101,9 @@ statement = [
 
 simple_statement = 
     assignment_statement
-    | procedure_statement;
+    | procedure_statement
+    | read
+    | write;
 
 assignment_statement = ":=" | "+=" | "-=" | "*=" | "/=", expression;
 
@@ -109,7 +111,7 @@ procedure_statement = procedure_identifier, [ actual_parameter_list ];
 
 actual_parameter_list = "(", [ expression_list ], ")";
 
-indexed_variable = array_identifier, "[", expression_list, "]";
+indexed_variable = factor, "[", expression, "]", { "[", expression, "]" };
 
 expression_list = expression, { ",", expression };
 
@@ -200,11 +202,18 @@ expression = simple_expression, { "<" | ">" | "<=" | ">=" | "=" | "<>", simple_e
 
 simple_expression = term, { "+" | "-", term };
 
-term = factor, { "*" | "/" | "div" | "mod", factor };
+term = factor, { "*" | "/" | "div" | "mod" | "and" | "or" | "shr" | "shl", factor };
 
 factor = 
     "(", expression, ")"
     | procedure_statement
     | constant
     | sign, factor
-    | indexed_variable;
+    | indexed_variable
+    | field_access;
+    
+read = "read", "(", identifier_list, ")";
+
+write = "write", "(", expressions_list, ")";
+
+field_access = factor, ".", identifier, { ".", identifier };

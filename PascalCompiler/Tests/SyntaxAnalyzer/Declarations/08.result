@@ -5,12 +5,12 @@
            │                  ├─value a
            │                  │       └─type integer scalar
            │                  ├─value b
-           │                  │       └─type anonymous array
-           │                  │                            ├─1
-           │                  │                            ├─10
-           │                  │                            └─type real scalar
+           │                  │       └─type * array
+           │                  │                    ├─1
+           │                  │                    ├─10
+           │                  │                    └─type real scalar
            │                  └─value c
-           │                          └─type anonymous record
-           │                                                └─value c
-           │                                                        └─type char scalar
+           │                          └─type * record
+           │                                        └─value c
+           │                                                └─type char scalar
            └─statements

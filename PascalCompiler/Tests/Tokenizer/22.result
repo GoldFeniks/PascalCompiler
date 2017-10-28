@@ -1,4 +1,4 @@
 (1,1)     Identifier          Identifier                    b                             b                             
-(1,2)     Operator            PlusAssign                    +=                            +=                            
-(1,4)     Operator            Minus                         -                             -                             
+(1,2)     Operation           PlusAssign                    +=                            +=                            
+(1,4)     Operation           Minus                         -                             -                             
 (1,5)     Identifier          Identifier                    a                             a                             

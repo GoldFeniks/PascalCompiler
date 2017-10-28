@@ -1,7 +1,7 @@
-(1,1)     Operator            Minus                         -                             -                             
-(2,1)     Operator            Plus                          +                             +                             
-(3,1)     Operator            Mult                          *                             *                             
-(4,1)     Operator            Divide                        /                             /                             
+(1,1)     Operation           Minus                         -                             -                             
+(2,1)     Operation           Plus                          +                             +                             
+(3,1)     Operation           Mult                          *                             *                             
+(4,1)     Operation           Divide                        /                             /                             
 (5,1)     Integer             IntegerConst                  5                             5                             
-(5,3)     Operator            Div                           div                           div                           
+(5,3)     Operation           Div                           div                           div                           
 (5,7)     Integer             IntegerConst                  2                             2                             

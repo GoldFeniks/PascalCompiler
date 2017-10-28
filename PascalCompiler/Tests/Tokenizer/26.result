@@ -1,2 +1,2 @@
-(1,1)     Float               FloatConst                    123.400000                    123.4                         
+(1,1)     Real                RealConst                     123.400000                    123.4                         
 (1,6)     Identifier          Identifier                    f                             f                             

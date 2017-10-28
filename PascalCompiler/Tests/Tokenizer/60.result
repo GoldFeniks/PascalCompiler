@@ -1,6 +1,6 @@
 (1,1)     ReservedWord        Type                          type                          type                          
-(2,4)     Identifier          Identifier                    TPoint                        TPoint                        
-(2,11)    Operator            Equal                         =                             =                             
+(2,4)     Identifier          Identifier                    tpoint                        TPoint                        
+(2,11)    Operation           Equal                         =                             =                             
 (2,13)    ReservedWord        Record                        record                        record                        
 (3,7)     Identifier          Identifier                    x                             x                             
 (3,8)     Separator           Comma                         ,                             ,                             
@@ -11,8 +11,8 @@
 (4,4)     ReservedWord        End                           end                           end                           
 (4,7)     Separator           Semicolon                     ;                             ;                             
 (6,1)     ReservedWord        Const                         const                         const                         
-(7,4)     Identifier          Identifier                    THE_END                       THE_END                       
-(7,12)    Operator            Equal                         =                             =                             
+(7,4)     Identifier          Identifier                    the_end                       THE_END                       
+(7,12)    Operation           Equal                         =                             =                             
 (7,14)    Identifier          Identifier                    false                         false                         
 (7,19)    Separator           Semicolon                     ;                             ;                             
 (8,1)     ReservedWord        Var                           var                           var                           
@@ -21,10 +21,10 @@
 (9,7)     Identifier          Identifier                    integer                       integer                       
 (9,14)    Separator           Semicolon                     ;                             ;                             
 (10,1)    ReservedWord        Label                         label                         label                         
-(10,7)    Identifier          Identifier                    LOH                           LOH                           
+(10,7)    Identifier          Identifier                    loh                           LOH                           
 (10,10)   Separator           Colon                         :                             :                             
 (12,4)    ReservedWord        Function                      function                      function                      
-(12,13)   Identifier          Identifier                    isEmptyStr                    isEmptyStr                    
+(12,13)   Identifier          Identifier                    isemptystr                    isEmptyStr                    
 (12,23)   Separator           OpenParenthesis               (                             (                             
 (12,24)   Identifier          Identifier                    a                             a                             
 (12,25)   Separator           Colon                         :                             :                             
@@ -35,13 +35,13 @@
 (14,7)    Identifier          Identifier                    exit                          exit                          
 (14,11)   Separator           Semicolon                     ;                             ;                             
 (15,7)    Identifier          Identifier                    result                        result                        
-(15,14)   Operator            Assign                        :=                            :=                            
+(15,14)   Operation           Assign                        :=                            :=                            
 (15,17)   Identifier          Identifier                    a                             a                             
-(15,19)   Operator            Equal                         =                             =                             
-(15,21)   EndOfFile           EndOfFile                                                   ''                            
+(15,19)   Operation           Equal                         =                             =                             
+(15,21)   EndOfFile           end_of_file                                                 ''                            
 (15,23)   Separator           Semicolon                     ;                             ;                             
 (16,7)    ReservedWord        Goto                          goto                          goto                          
-(16,12)   Identifier          Identifier                    LOH                           LOH                           
+(16,12)   Identifier          Identifier                    loh                           LOH                           
 (16,15)   Separator           Semicolon                     ;                             ;                             
 (17,4)    ReservedWord        End                           end                           end                           
 (17,7)    Separator           Semicolon                     ;                             ;                             

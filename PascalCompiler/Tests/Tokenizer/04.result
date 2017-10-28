@@ -4,11 +4,11 @@
 (2,1)     ReservedWord        Var                           var                           var                           
 (3,5)     Identifier          Identifier                    a                             a                             
 (3,6)     Separator           Colon                         :                             :                             
-(3,8)     Identifier          Identifier                    String                        String                        
+(3,8)     ReservedWord        String                        string                        String                        
 (3,14)    Separator           Semicolon                     ;                             ;                             
 (4,1)     ReservedWord        Begin                         begin                         begin                         
 (5,5)     Identifier          Identifier                    a                             a                             
-(5,7)     Operator            Assign                        :=                            :=                            
+(5,7)     Operation           Assign                        :=                            :=                            
 (5,10)    String              StringConst                   string                        'string'                      
 (5,18)    Separator           Semicolon                     ;                             ;                             
 (6,5)     Identifier          Identifier                    writeln                       writeln                       
@@ -17,4 +17,4 @@
 (6,14)    Separator           CloseParenthesis              )                             )                             
 (6,15)    Separator           Semicolon                     ;                             ;                             
 (7,1)     ReservedWord        End                           end                           end                           
-(7,4)     Operator            Dot                           .                             .                             
+(7,4)     Operation           Dot                           .                             .                             

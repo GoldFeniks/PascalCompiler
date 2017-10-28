@@ -1,5 +1,5 @@
-(1,1)     Operator            Divide                        /                             /                             
-(1,3)     Operator            Divide                        /                             /                             
+(1,1)     Operation           Divide                        /                             /                             
+(1,3)     Operation           Divide                        /                             /                             
 (1,4)     Identifier          Identifier                    abcd                          abcd                          
 (3,1)     Separator           OpenParenthesis               (                             (                             
 (3,6)     Separator           CloseParenthesis              )                             )                             

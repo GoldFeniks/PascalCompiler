@@ -2,18 +2,18 @@
      └─block
            ├─decl
            │    └─const a
-           │            ├─type anonymous record
-           │            │                     ├─value a
-           │            │                     │       └─type integer scalar
-           │            │                     ├─value b
-           │            │                     │       └─type anonymous array
-           │            │                     │                            ├─1
-           │            │                     │                            ├─10
-           │            │                     │                            └─type real scalar
-           │            │                     └─value c
-           │            │                             └─type anonymous record
-           │            │                                                   └─value c
-           │            │                                                           └─type char scalar
+           │            ├─type * record
+           │            │             ├─value a
+           │            │             │       └─type integer scalar
+           │            │             ├─value b
+           │            │             │       └─type * array
+           │            │             │                    ├─1
+           │            │             │                    ├─10
+           │            │             │                    └─type real scalar
+           │            │             └─value c
+           │            │                     └─type * record
+           │            │                                   └─value c
+           │            │                                           └─type char scalar
            │            └─typed_const
            │                        ├─10
            │                        ├─typed_const

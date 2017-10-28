@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <exception>
 
-namespace My {
+namespace pascal_compiler {
 
     class SyntaxAnalyzer {
 
@@ -30,7 +30,7 @@ namespace My {
 
         public:
 
-            ExpectedException(const My::Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+            ExpectedException(const pascal_compiler::tokenizer::token_p token, pascal_compiler::tokenizer::token::sub_types type);
 
         };// class ExpectedException
 
@@ -38,7 +38,7 @@ namespace My {
 
         public:
 
-            DudlicateIdentifierException(const My::Tokenizer::PToken token);
+            DudlicateIdentifierException(const pascal_compiler::tokenizer::token_p token);
 
         };// class DublicateIdentifierException
 
@@ -46,7 +46,7 @@ namespace My {
 
         public:
 
-            IllegalInitializationOrderException(Tokenizer::PToken token);
+            IllegalInitializationOrderException(tokenizer::token_p token);
 
         };// class IllegalInitializationOrderException
 
@@ -54,7 +54,7 @@ namespace My {
 
         public:
 
-            InitializationOverloadException(Tokenizer::PToken token);
+            InitializationOverloadException(tokenizer::token_p token);
 
         };// class InitializationOverloadException
 
@@ -62,7 +62,7 @@ namespace My {
 
         public:
 
-            DeclarationNotFoundException(Tokenizer::PToken token);
+            DeclarationNotFoundException(tokenizer::token_p token);
 
         };// class DeclarationNotFoundException
 
@@ -77,11 +77,11 @@ namespace My {
             typedef std::shared_ptr<Node> PNode;
 
             template<typename... C>
-            Node(const std::string name, Type type, Tokenizer::PToken token, C... children) : name(name), MyType(type), Token(token) {
+            Node(const std::string name, Type type, tokenizer::token_p token, C... children) : name(name), MyType(type), Token(token) {
                 push_back(children...);
             };
 
-            Node(const std::string message, Type type, Tokenizer::PToken token) : name(message), MyType(type), Token(token) {};
+            Node(const std::string message, Type type, tokenizer::token_p token) : name(message), MyType(type), Token(token) {};
 
             template<typename... C>
             void push_back(PNode node, C... children) {
@@ -102,7 +102,7 @@ namespace My {
             }
 
             std::vector<PNode> Children;
-            Tokenizer::PToken Token;
+            tokenizer::token_p Token;
             Type MyType;
 
         private:
@@ -126,7 +126,7 @@ namespace My {
         protected:
 
             template<typename... C>
-            TypeNode(std::string name, TypeIdentifier identifier, Tokenizer::PToken token, C... children) : Node(name, Type::Type, token, children...), MyTypeIdentifier(identifier) {};
+            TypeNode(std::string name, TypeIdentifier identifier, tokenizer::token_p token, C... children) : Node(name, Type::Type, token, children...), MyTypeIdentifier(identifier) {};
 
         };//class TypeNode
 
@@ -134,7 +134,7 @@ namespace My {
 
         public:
 
-            TypeAliasNode(std::string name, Node::PNode node, Tokenizer::PToken token) : TypeNode(name, TypeIdentifier::Alias, token, node) {};
+            TypeAliasNode(std::string name, Node::PNode node, tokenizer::token_p token) : TypeNode(name, TypeIdentifier::Alias, token, node) {};
 
         };
 
@@ -144,7 +144,7 @@ namespace My {
 
             enum class ScalarType { Integer, Real, Char };
 
-            ScalarNode(std::string name, ScalarType scalar_type, Tokenizer::PToken token, Node::PNode node = nullptr) : 
+            ScalarNode(std::string name, ScalarType scalar_type, tokenizer::token_p token, Node::PNode node = nullptr) : 
                 TypeNode(name, TypeIdentifier::Scalar, token, node), MyScalarType(scalar_type) {};
 
             ScalarType MyScalarType;
@@ -155,7 +155,7 @@ namespace My {
 
         public:
 
-            ArrayNode(std::string name, PNode from, PNode to, PTypeNode node, Tokenizer::PToken token) :
+            ArrayNode(std::string name, PNode from, PNode to, PTypeNode node, tokenizer::token_p token) :
                 TypeNode(name, TypeIdentifier::Array, token, from, to, node), type(node) {};
 
             PTypeNode type;
@@ -167,7 +167,7 @@ namespace My {
         public:
 
             template<typename... C>
-            RecordNode(std::string name, Tokenizer::PToken token, C... children) : TypeNode(name, TypeIdentifier::Record, token, children...) {};
+            RecordNode(std::string name, tokenizer::token_p token, C... children) : TypeNode(name, TypeIdentifier::Record, token, children...) {};
 
         };//class RecordNode
 
@@ -177,7 +177,7 @@ namespace My {
 
             typedef std::shared_ptr<ConstantNode> PConstantNode;
 
-            ConstantNode(std::string name, Tokenizer::Token::Value value, ScalarNode::ScalarType scalar_type, Tokenizer::PToken token) : Node(name, Type::Const, token),
+            ConstantNode(std::string name, tokenizer::token::value value, ScalarNode::ScalarType scalar_type, tokenizer::token_p token) : Node(name, Type::Const, token),
                 value(value), ScalarType(scalar_type) {};
 
             ScalarNode::ScalarType ScalarType;
@@ -198,7 +198,7 @@ namespace My {
 
         private:
 
-            Tokenizer::Token::Value value;
+            tokenizer::token::value value;
 
         };//class ConstantNode
 
@@ -208,7 +208,7 @@ namespace My {
 
             enum class VariableType { Value, Const, Var };
 
-            VariableNode(std::string name, TypeNode::PTypeNode type, VariableType v_type, Tokenizer::PToken token, Node::PNode value = nullptr) :
+            VariableNode(std::string name, TypeNode::PTypeNode type, VariableType v_type, tokenizer::token_p token, Node::PNode value = nullptr) :
                 Node(name, Type::Variable, token, type), vType(v_type), type(type) {
                 SetValue(value);
             };
@@ -230,7 +230,7 @@ namespace My {
 
         public:
 
-            StringNode(const Tokenizer::PToken t) : Node(t->GetString(), Type::Const, t) {};
+            StringNode(const tokenizer::token_p t) : Node(t->get_string(), Type::Const, t) {};
 
         };//class StringNode
 
@@ -239,7 +239,7 @@ namespace My {
         public:
 
             template<typename... C>
-            TypedConstantNode(Tokenizer::PToken token, TypeNode::PTypeNode type, C... children) : Node("typed_const", Type::TypedConst, token, children...), type(type) {};
+            TypedConstantNode(tokenizer::token_p token, TypeNode::PTypeNode type, C... children) : Node("typed_const", Type::TypedConst, token, children...), type(type) {};
 
             TypeNode::PTypeNode type;
 
@@ -250,7 +250,7 @@ namespace My {
         public:
 
             template<typename... C>
-            OperationNode(std::string name, TypeNode::PTypeNode return_type, Tokenizer::PToken token, C... children) : 
+            OperationNode(std::string name, TypeNode::PTypeNode return_type, tokenizer::token_p token, C... children) : 
                 Node(name, Type::Operation, token, children..., return_type), ReturnType(return_type) {};
 
             TypeNode::PTypeNode ReturnType;
@@ -261,7 +261,7 @@ namespace My {
 
         public:
 
-            ProcedureNode(std::string name, PNode args, PNode block, Tokenizer::PToken token) : Node(name, Type::Procedure, token, args, block) {};
+            ProcedureNode(std::string name, PNode args, PNode block, tokenizer::token_p token) : Node(name, Type::Procedure, token, args, block) {};
 
         };//class ProcedureNode
 
@@ -269,7 +269,7 @@ namespace My {
 
         public:
 
-            FunctionNode(std::string name, PNode args, TypeNode::PTypeNode return_type, PNode block, Tokenizer::PToken token) :
+            FunctionNode(std::string name, PNode args, TypeNode::PTypeNode return_type, PNode block, tokenizer::token_p token) :
                 Node(name, Type::Function, token, args, return_type, block), ReturnType(return_type), Args(args) {};
 
             TypeNode::PTypeNode ReturnType;
@@ -282,7 +282,7 @@ namespace My {
 
         public:
 
-            IncompatibleTypesException(const TypeNode::PTypeNode left, const TypeNode::PTypeNode right, const My::Tokenizer::PToken token);
+            IncompatibleTypesException(const TypeNode::PTypeNode left, const TypeNode::PTypeNode right, const pascal_compiler::tokenizer::token_p token);
 
         };//class IncompatibleTypesException
 
@@ -290,7 +290,7 @@ namespace My {
 
         public:
 
-            FunctionParameterException(const Tokenizer::PToken token, int c);
+            FunctionParameterException(const tokenizer::token_p token, int c);
 
         };// class FunctionParameterException
 
@@ -298,7 +298,7 @@ namespace My {
 
         public:
 
-            IllegalExpressionException(const Tokenizer::PToken token);
+            IllegalExpressionException(const tokenizer::token_p token);
 
         };// class IllegalExpressionException
 
@@ -306,7 +306,7 @@ namespace My {
 
         public:
 
-            IllegalTypeException(const Tokenizer::PToken token);
+            IllegalTypeException(const tokenizer::token_p token);
 
         };
 
@@ -316,12 +316,12 @@ namespace My {
 
         };//struct Declaration
 
-        SyntaxAnalyzer(Tokenizer&& tokenizer) : tokenizer(std::move(tokenizer)) {};
-        SyntaxAnalyzer(const std::string file) : tokenizer(Tokenizer(file)) {};
-        SyntaxAnalyzer(std::ifstream&& file) : tokenizer(std::move(file)) {};
+        SyntaxAnalyzer(tokenizer&& tokenizer) : tokenizer_(std::move(tokenizer)) {};
+        SyntaxAnalyzer(const std::string file) : tokenizer_(tokenizer(file)) {};
+        SyntaxAnalyzer(std::ifstream&& file) : tokenizer_(std::move(file)) {};
 
         SyntaxAnalyzer(const SyntaxAnalyzer&) = delete;
-        SyntaxAnalyzer(SyntaxAnalyzer&& other) : tokenizer(std::move(other.tokenizer)) { std::swap(root, other.root); };
+        SyntaxAnalyzer(SyntaxAnalyzer&& other) : tokenizer_(std::move(other.tokenizer_)) { std::swap(root, other.root); };
 
         SyntaxAnalyzer& operator=(const SyntaxAnalyzer&) = delete;
         SyntaxAnalyzer& operator=(SyntaxAnalyzer&& other);
@@ -357,17 +357,17 @@ namespace My {
 
         template<typename C, typename T, typename... Args>
         void ParseIdentifierList(C& p, T& set, Args... args) {
-            auto t = tokenizer.Current();
-            require(t, Tokenizer::Token::SubTypes::Identifier);
+            auto t = tokenizer_.current();
+            require(t, tokenizer::token::sub_types::identifier);
             requireUnique(t, set);
-            set.emplace(t->GetValueString(), args...);
-            p.push_back(t->GetValueString());
-            while (tokenizer.Next()->GetSubType() == Tokenizer::Token::SubTypes::Comma) {
-                t = tokenizer.Next();
-                require(t, Tokenizer::Token::SubTypes::Identifier);
+            set.emplace(t->get_value_string(), args...);
+            p.push_back(t->get_value_string());
+            while (tokenizer_.next()->get_sub_type() == tokenizer::token::sub_types::comma) {
+                t = tokenizer_.next();
+                require(t, tokenizer::token::sub_types::identifier);
                 requireUnique(t, set);
-                set.emplace(t->GetValueString(), args...);
-                p.push_back(t->GetValueString());
+                set.emplace(t->get_value_string(), args...);
+                p.push_back(t->get_value_string());
             }
         };
 
@@ -376,7 +376,7 @@ namespace My {
 
     private:
 
-        Tokenizer tokenizer;
+        tokenizer tokenizer_;
         Node::PNode root = nullptr;
         std::vector<Declaration> declarations;
 
@@ -384,7 +384,7 @@ namespace My {
         
         static ScalarNode::ScalarType getScalarType(Node::PNode n);
         static TypeNode::PTypeNode getConstantType(ConstantNode::PConstantNode n);
-        static TypeNode::PTypeNode deduceType(Node::PNode left, Node::PNode right, Tokenizer::PToken token, bool allow_left_int = true);
+        static TypeNode::PTypeNode deduceType(Node::PNode left, Node::PNode right, tokenizer::token_p token, bool allow_left_int = true);
         static TypeNode::PTypeNode getType(Node::PNode n);
 
         typedef std::unordered_map<std::string, std::function<ConstantNode::PConstantNode(ConstantNode::PConstantNode, ConstantNode::PConstantNode)>> binaryOpMap_t;
@@ -398,102 +398,102 @@ namespace My {
             if (left->ScalarType == ScalarNode::ScalarType::Integer && right->ScalarType == ScalarNode::ScalarType::Integer && !real_only) {
                 F<long long> f;
                 long long result = f(left->GetValue<long long>(), right->GetValue<long long>());
-                return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Integer, nullptr));
+                return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), tokenizer::token::value(result), ScalarNode::ScalarType::Integer, nullptr));
             }
             F<double> f;
             double result = f(left->GetValue<double>(), right->GetValue<double>());
-            return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), Tokenizer::Token::Value(result), ScalarNode::ScalarType::Real, nullptr));
+            return ConstantNode::PConstantNode(new ConstantNode(std::to_string(result), tokenizer::token::value(result), ScalarNode::ScalarType::Real, nullptr));
         }
 
         template<typename T>
-        void requireUnique(const Tokenizer::PToken t, T& set) {
-            if (set.count(t->GetValueString()) > 0)
+        void requireUnique(const tokenizer::token_p t, T& set) {
+            if (set.count(t->get_value_string()) > 0)
                 throw DudlicateIdentifierException(t);
         }
 
         ConstantNode::PConstantNode calculateConstExpr(Node::PNode n);
-        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, Tokenizer::PToken token, bool assign, bool allow_left_int = false);
-        static void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right, Tokenizer::PToken token);
-        static void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right, Tokenizer::PToken token);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, TypeNode::PTypeNode right, tokenizer::token_p token, bool assign, bool allow_left_int = false);
+        static void requireTypesCompatibility(TypeNode::PTypeNode left, ConstantNode::PConstantNode right, tokenizer::token_p token);
+        static void requireTypesCompatibility(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right, tokenizer::token_p token);
         static void requireInteger(ConstantNode::PConstantNode left, ConstantNode::PConstantNode right);
         void requireArgsCompatibility(Node::PNode f, Node::PNode n);
-        static void requireType(TypeNode::PTypeNode type, TypeNode::TypeIdentifier id, Tokenizer::PToken token);
+        static void requireType(TypeNode::PTypeNode type, TypeNode::TypeIdentifier id, tokenizer::token_p token);
         static TypeNode::PTypeNode getBaseType(TypeNode::PTypeNode type);
 
-        Node::PNode findDeclaration(const My::Tokenizer::PToken t);
+        Node::PNode findDeclaration(const pascal_compiler::tokenizer::token_p t);
         void requireNodeType(Node::PNode n, Node::Type type);
-        void requireDeclaration(const My::Tokenizer::PToken t);
-        static void require(const Tokenizer::PToken token, My::Tokenizer::Token::SubTypes type);
+        void requireDeclaration(const pascal_compiler::tokenizer::token_p t);
+        static void require(const tokenizer::token_p token, pascal_compiler::tokenizer::token::sub_types type);
 
         static std::string walk(const Node::PNode node, std::string prefix, bool last);
 
-        inline static bool simpleExpressionOperators(const Tokenizer::Token::SubTypes type) {
-            return type == Tokenizer::Token::SubTypes::Plus ||
-                type == Tokenizer::Token::SubTypes::Minus;
+        inline static bool simpleExpressionOperators(const tokenizer::token::sub_types type) {
+            return type == tokenizer::token::sub_types::plus ||
+                type == tokenizer::token::sub_types::minus;
         }
 
-        inline static bool termOperators(const Tokenizer::Token::SubTypes type) {
-            return type == Tokenizer::Token::SubTypes::Divide ||
-                type == Tokenizer::Token::SubTypes::Mult ||
-                type == Tokenizer::Token::SubTypes::Mod ||
-                type == Tokenizer::Token::SubTypes::Div ||
-                type == Tokenizer::Token::SubTypes::ShiftLeft ||
-                type == Tokenizer::Token::SubTypes::ShiftRight;
+        inline static bool termOperators(const tokenizer::token::sub_types type) {
+            return type == tokenizer::token::sub_types::divide ||
+                type == tokenizer::token::sub_types::mult ||
+                type == tokenizer::token::sub_types::mod ||
+                type == tokenizer::token::sub_types::div ||
+                type == tokenizer::token::sub_types::shift_left ||
+                type == tokenizer::token::sub_types::shift_right;
         }
         
-        inline static bool expressionOperators(const Tokenizer::Token::SubTypes type) {
-            return type == Tokenizer::Token::SubTypes::Less ||
-                type == Tokenizer::Token::SubTypes::LessEqual ||
-                type == Tokenizer::Token::SubTypes::Equal ||
-                type == Tokenizer::Token::SubTypes::Greater ||
-                type == Tokenizer::Token::SubTypes::GreaterEqual ||
-                type == Tokenizer::Token::SubTypes::NotEqual ||
-                type == Tokenizer::Token::SubTypes::And ||
-                type == Tokenizer::Token::SubTypes::Or;
+        inline static bool expressionOperators(const tokenizer::token::sub_types type) {
+            return type == tokenizer::token::sub_types::less ||
+                type == tokenizer::token::sub_types::less_equal ||
+                type == tokenizer::token::sub_types::equal ||
+                type == tokenizer::token::sub_types::greater ||
+                type == tokenizer::token::sub_types::greater_equal ||
+                type == tokenizer::token::sub_types::not_equal ||
+                type == tokenizer::token::sub_types::and ||
+                type == tokenizer::token::sub_types::or;
         }
 
-        inline static bool isRelational(const Tokenizer::Token::SubTypes type) {
-            return type == Tokenizer::Token::SubTypes::Less ||
-                type == Tokenizer::Token::SubTypes::LessEqual ||
-                type == Tokenizer::Token::SubTypes::Equal ||
-                type == Tokenizer::Token::SubTypes::Greater ||
-                type == Tokenizer::Token::SubTypes::GreaterEqual ||
-                type == Tokenizer::Token::SubTypes::NotEqual;
+        inline static bool isRelational(const tokenizer::token::sub_types type) {
+            return type == tokenizer::token::sub_types::less ||
+                type == tokenizer::token::sub_types::less_equal ||
+                type == tokenizer::token::sub_types::equal ||
+                type == tokenizer::token::sub_types::greater ||
+                type == tokenizer::token::sub_types::greater_equal ||
+                type == tokenizer::token::sub_types::not_equal;
         }
 
-        template<typename NNode, Node::PNode(SyntaxAnalyzer::*NParse)(void), bool(*Cond)(const Tokenizer::Token::SubTypes)>
+        template<typename NNode, Node::PNode(SyntaxAnalyzer::*NParse)(void), bool(*Cond)(const tokenizer::token::sub_types)>
         Node::PNode parse(Node::PNode e) {
-            auto token = tokenizer.Current();
-            while (Cond(token->GetSubType())) {
-                tokenizer.Next();
+            auto token = tokenizer_.current();
+            while (Cond(token->get_sub_type())) {
+                tokenizer_.next();
                 auto t = (this->*NParse)();
                 //if (e->Token->GetSubType() != token->GetSubType())
 
-                auto type = token->GetSubType() != Tokenizer::Token::SubTypes::Divide ?
-                    deduceType(e, t, token, isRelational(token->GetSubType())) : realNode;
-                e = Node::PNode(new NNode(token->GetStringValue(), type, token, e, t));
+                auto type = token->get_sub_type() != tokenizer::token::sub_types::divide ?
+                    deduceType(e, t, token, isRelational(token->get_sub_type())) : realNode;
+                e = Node::PNode(new NNode(token->get_string_value(), type, token, e, t));
                 //else
                     //e->push_back(t);
-                token = tokenizer.Current();
+                token = tokenizer_.current();
             }
             return e;
         }
 
-        inline bool IsDeclaration(const Tokenizer::PToken token) {
-            auto t = token->GetSubType();
-            return t == Tokenizer::Token::SubTypes::Type ||
-                t == Tokenizer::Token::SubTypes::Var ||
-                t == Tokenizer::Token::SubTypes::Const;
+        inline bool IsDeclaration(const tokenizer::token_p token) {
+            auto t = token->get_sub_type();
+            return t == tokenizer::token::sub_types::type ||
+                t == tokenizer::token::sub_types::var ||
+                t == tokenizer::token::sub_types::const_op;
         }
 
-        inline bool CurrentTokenSubType(const Tokenizer::Token::SubTypes type) {
-            return tokenizer.Current()->GetSubType() == type;
+        inline bool CurrentTokenSubType(const tokenizer::token::sub_types type) {
+            return tokenizer_.current()->get_sub_type() == type;
         }
 
-        inline bool CurrentTokenType(const Tokenizer::Token::Types type) {
-            return tokenizer.Current()->GetType() == type;
+        inline bool CurrentTokenType(const tokenizer::token::types type) {
+            return tokenizer_.current()->get_type() == type;
         }
 
     };//class SyntaxAnalyzer
 
-}// namespace My
+}// namespace pascal_compiler

@@ -28,13 +28,13 @@
 (7,36)    Separator           Semicolon                     ;                             ;                             
 (8,4)     ReservedWord        Begin                         begin                         begin                         
 (9,7)     Identifier          Identifier                    result                        result                        
-(9,14)    Operator            Assign                        :=                            :=                            
+(9,14)    Operation           Assign                        :=                            :=                            
 (9,17)    Identifier          Identifier                    a                             a                             
-(9,19)    Operator            Plus                          +                             +                             
+(9,19)    Operation           Plus                          +                             +                             
 (9,21)    Identifier          Identifier                    b                             b                             
 (9,22)    Separator           Semicolon                     ;                             ;                             
 (10,4)    ReservedWord        End                           end                           end                           
 (10,7)    Separator           Semicolon                     ;                             ;                             
 (29,1)    ReservedWord        Begin                         begin                         begin                         
 (42,1)    ReservedWord        End                           end                           end                           
-(42,4)    Operator            Dot                           .                             .                             
+(42,4)    Operation           Dot                           .                             .                             

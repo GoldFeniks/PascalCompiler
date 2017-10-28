@@ -27,33 +27,33 @@
            │    ├─type arr2 array
            │    │               ├─1
            │    │               ├─10
-           │    │               └─type anonymous array
-           │    │                                    ├─1
-           │    │                                    ├─10
-           │    │                                    └─type rec record
-           │    │                                                    ├─value a
-           │    │                                                    │       └─type integer scalar
-           │    │                                                    └─value b
-           │    │                                                            └─type arr array
-           │    │                                                                           ├─1
-           │    │                                                                           ├─10
-           │    │                                                                           └─type integer scalar
+           │    │               └─type * array
+           │    │                            ├─1
+           │    │                            ├─10
+           │    │                            └─type rec record
+           │    │                                            ├─value a
+           │    │                                            │       └─type integer scalar
+           │    │                                            └─value b
+           │    │                                                    └─type arr array
+           │    │                                                                   ├─1
+           │    │                                                                   ├─10
+           │    │                                                                   └─type integer scalar
            │    ├─type rec1 record
            │    │                └─value a
            │    │                        └─type arr2 array
            │    │                                        ├─1
            │    │                                        ├─10
-           │    │                                        └─type anonymous array
-           │    │                                                             ├─1
-           │    │                                                             ├─10
-           │    │                                                             └─type rec record
-           │    │                                                                             ├─value a
-           │    │                                                                             │       └─type integer scalar
-           │    │                                                                             └─value b
-           │    │                                                                                     └─type arr array
-           │    │                                                                                                    ├─1
-           │    │                                                                                                    ├─10
-           │    │                                                                                                    └─type integer scalar
+           │    │                                        └─type * array
+           │    │                                                     ├─1
+           │    │                                                     ├─10
+           │    │                                                     └─type rec record
+           │    │                                                                     ├─value a
+           │    │                                                                     │       └─type integer scalar
+           │    │                                                                     └─value b
+           │    │                                                                             └─type arr array
+           │    │                                                                                            ├─1
+           │    │                                                                                            ├─10
+           │    │                                                                                            └─type integer scalar
            │    ├─value a
            │    │       └─type arr array
            │    │                      ├─1
@@ -84,34 +84,34 @@
            │    │       └─type arr2 array
            │    │                       ├─1
            │    │                       ├─10
-           │    │                       └─type anonymous array
-           │    │                                            ├─1
-           │    │                                            ├─10
-           │    │                                            └─type rec record
-           │    │                                                            ├─value a
-           │    │                                                            │       └─type integer scalar
-           │    │                                                            └─value b
-           │    │                                                                    └─type arr array
-           │    │                                                                                   ├─1
-           │    │                                                                                   ├─10
-           │    │                                                                                   └─type integer scalar
+           │    │                       └─type * array
+           │    │                                    ├─1
+           │    │                                    ├─10
+           │    │                                    └─type rec record
+           │    │                                                    ├─value a
+           │    │                                                    │       └─type integer scalar
+           │    │                                                    └─value b
+           │    │                                                            └─type arr array
+           │    │                                                                           ├─1
+           │    │                                                                           ├─10
+           │    │                                                                           └─type integer scalar
            │    └─value f
            │            └─type rec1 record
            │                             └─value a
            │                                     └─type arr2 array
            │                                                     ├─1
            │                                                     ├─10
-           │                                                     └─type anonymous array
-           │                                                                          ├─1
-           │                                                                          ├─10
-           │                                                                          └─type rec record
-           │                                                                                          ├─value a
-           │                                                                                          │       └─type integer scalar
-           │                                                                                          └─value b
-           │                                                                                                  └─type arr array
-           │                                                                                                                 ├─1
-           │                                                                                                                 ├─10
-           │                                                                                                                 └─type integer scalar
+           │                                                     └─type * array
+           │                                                                  ├─1
+           │                                                                  ├─10
+           │                                                                  └─type rec record
+           │                                                                                  ├─value a
+           │                                                                                  │       └─type integer scalar
+           │                                                                                  └─value b
+           │                                                                                          └─type arr array
+           │                                                                                                         ├─1
+           │                                                                                                         ├─10
+           │                                                                                                         └─type integer scalar
            └─statements
                       ├─:=
                       │  ├─.
@@ -255,29 +255,29 @@
                       │  │  │  │       └─type arr2 array
                       │  │  │  │                       ├─1
                       │  │  │  │                       ├─10
-                      │  │  │  │                       └─type anonymous array
-                      │  │  │  │                                            ├─1
-                      │  │  │  │                                            ├─10
-                      │  │  │  │                                            └─type rec record
-                      │  │  │  │                                                            ├─value a
-                      │  │  │  │                                                            │       └─type integer scalar
-                      │  │  │  │                                                            └─value b
-                      │  │  │  │                                                                    └─type arr array
-                      │  │  │  │                                                                                   ├─1
-                      │  │  │  │                                                                                   ├─10
-                      │  │  │  │                                                                                   └─type integer scalar
+                      │  │  │  │                       └─type * array
+                      │  │  │  │                                    ├─1
+                      │  │  │  │                                    ├─10
+                      │  │  │  │                                    └─type rec record
+                      │  │  │  │                                                    ├─value a
+                      │  │  │  │                                                    │       └─type integer scalar
+                      │  │  │  │                                                    └─value b
+                      │  │  │  │                                                            └─type arr array
+                      │  │  │  │                                                                           ├─1
+                      │  │  │  │                                                                           ├─10
+                      │  │  │  │                                                                           └─type integer scalar
                       │  │  │  ├─1
-                      │  │  │  └─type anonymous array
-                      │  │  │                       ├─1
-                      │  │  │                       ├─10
-                      │  │  │                       └─type rec record
-                      │  │  │                                       ├─value a
-                      │  │  │                                       │       └─type integer scalar
-                      │  │  │                                       └─value b
-                      │  │  │                                               └─type arr array
-                      │  │  │                                                              ├─1
-                      │  │  │                                                              ├─10
-                      │  │  │                                                              └─type integer scalar
+                      │  │  │  └─type * array
+                      │  │  │               ├─1
+                      │  │  │               ├─10
+                      │  │  │               └─type rec record
+                      │  │  │                               ├─value a
+                      │  │  │                               │       └─type integer scalar
+                      │  │  │                               └─value b
+                      │  │  │                                       └─type arr array
+                      │  │  │                                                      ├─1
+                      │  │  │                                                      ├─10
+                      │  │  │                                                      └─type integer scalar
                       │  │  ├─2
                       │  │  └─type rec record
                       │  │                  ├─value a
@@ -304,29 +304,29 @@
                       │  │ │  │  │       └─type arr2 array
                       │  │ │  │  │                       ├─1
                       │  │ │  │  │                       ├─10
-                      │  │ │  │  │                       └─type anonymous array
-                      │  │ │  │  │                                            ├─1
-                      │  │ │  │  │                                            ├─10
-                      │  │ │  │  │                                            └─type rec record
-                      │  │ │  │  │                                                            ├─value a
-                      │  │ │  │  │                                                            │       └─type integer scalar
-                      │  │ │  │  │                                                            └─value b
-                      │  │ │  │  │                                                                    └─type arr array
-                      │  │ │  │  │                                                                                   ├─1
-                      │  │ │  │  │                                                                                   ├─10
-                      │  │ │  │  │                                                                                   └─type integer scalar
+                      │  │ │  │  │                       └─type * array
+                      │  │ │  │  │                                    ├─1
+                      │  │ │  │  │                                    ├─10
+                      │  │ │  │  │                                    └─type rec record
+                      │  │ │  │  │                                                    ├─value a
+                      │  │ │  │  │                                                    │       └─type integer scalar
+                      │  │ │  │  │                                                    └─value b
+                      │  │ │  │  │                                                            └─type arr array
+                      │  │ │  │  │                                                                           ├─1
+                      │  │ │  │  │                                                                           ├─10
+                      │  │ │  │  │                                                                           └─type integer scalar
                       │  │ │  │  ├─2
-                      │  │ │  │  └─type anonymous array
-                      │  │ │  │                       ├─1
-                      │  │ │  │                       ├─10
-                      │  │ │  │                       └─type rec record
-                      │  │ │  │                                       ├─value a
-                      │  │ │  │                                       │       └─type integer scalar
-                      │  │ │  │                                       └─value b
-                      │  │ │  │                                               └─type arr array
-                      │  │ │  │                                                              ├─1
-                      │  │ │  │                                                              ├─10
-                      │  │ │  │                                                              └─type integer scalar
+                      │  │ │  │  └─type * array
+                      │  │ │  │               ├─1
+                      │  │ │  │               ├─10
+                      │  │ │  │               └─type rec record
+                      │  │ │  │                               ├─value a
+                      │  │ │  │                               │       └─type integer scalar
+                      │  │ │  │                               └─value b
+                      │  │ │  │                                       └─type arr array
+                      │  │ │  │                                                      ├─1
+                      │  │ │  │                                                      ├─10
+                      │  │ │  │                                                      └─type integer scalar
                       │  │ │  ├─4
                       │  │ │  └─type rec record
                       │  │ │                  ├─value a
@@ -377,29 +377,29 @@
                       │    │  │  │       └─type arr2 array
                       │    │  │  │                       ├─1
                       │    │  │  │                       ├─10
-                      │    │  │  │                       └─type anonymous array
-                      │    │  │  │                                            ├─1
-                      │    │  │  │                                            ├─10
-                      │    │  │  │                                            └─type rec record
-                      │    │  │  │                                                            ├─value a
-                      │    │  │  │                                                            │       └─type integer scalar
-                      │    │  │  │                                                            └─value b
-                      │    │  │  │                                                                    └─type arr array
-                      │    │  │  │                                                                                   ├─1
-                      │    │  │  │                                                                                   ├─10
-                      │    │  │  │                                                                                   └─type integer scalar
+                      │    │  │  │                       └─type * array
+                      │    │  │  │                                    ├─1
+                      │    │  │  │                                    ├─10
+                      │    │  │  │                                    └─type rec record
+                      │    │  │  │                                                    ├─value a
+                      │    │  │  │                                                    │       └─type integer scalar
+                      │    │  │  │                                                    └─value b
+                      │    │  │  │                                                            └─type arr array
+                      │    │  │  │                                                                           ├─1
+                      │    │  │  │                                                                           ├─10
+                      │    │  │  │                                                                           └─type integer scalar
                       │    │  │  ├─2
-                      │    │  │  └─type anonymous array
-                      │    │  │                       ├─1
-                      │    │  │                       ├─10
-                      │    │  │                       └─type rec record
-                      │    │  │                                       ├─value a
-                      │    │  │                                       │       └─type integer scalar
-                      │    │  │                                       └─value b
-                      │    │  │                                               └─type arr array
-                      │    │  │                                                              ├─1
-                      │    │  │                                                              ├─10
-                      │    │  │                                                              └─type integer scalar
+                      │    │  │  └─type * array
+                      │    │  │               ├─1
+                      │    │  │               ├─10
+                      │    │  │               └─type rec record
+                      │    │  │                               ├─value a
+                      │    │  │                               │       └─type integer scalar
+                      │    │  │                               └─value b
+                      │    │  │                                       └─type arr array
+                      │    │  │                                                      ├─1
+                      │    │  │                                                      ├─10
+                      │    │  │                                                      └─type integer scalar
                       │    │  ├─4
                       │    │  └─type rec record
                       │    │                  ├─value a
@@ -428,58 +428,58 @@
                          │  │  │ │                                └─type arr2 array
                          │  │  │ │                                                ├─1
                          │  │  │ │                                                ├─10
-                         │  │  │ │                                                └─type anonymous array
-                         │  │  │ │                                                                     ├─1
-                         │  │  │ │                                                                     ├─10
-                         │  │  │ │                                                                     └─type rec record
-                         │  │  │ │                                                                                     ├─value a
-                         │  │  │ │                                                                                     │       └─type integer scalar
-                         │  │  │ │                                                                                     └─value b
-                         │  │  │ │                                                                                             └─type arr array
-                         │  │  │ │                                                                                                            ├─1
-                         │  │  │ │                                                                                                            ├─10
-                         │  │  │ │                                                                                                            └─type integer scalar
+                         │  │  │ │                                                └─type * array
+                         │  │  │ │                                                             ├─1
+                         │  │  │ │                                                             ├─10
+                         │  │  │ │                                                             └─type rec record
+                         │  │  │ │                                                                             ├─value a
+                         │  │  │ │                                                                             │       └─type integer scalar
+                         │  │  │ │                                                                             └─value b
+                         │  │  │ │                                                                                     └─type arr array
+                         │  │  │ │                                                                                                    ├─1
+                         │  │  │ │                                                                                                    ├─10
+                         │  │  │ │                                                                                                    └─type integer scalar
                          │  │  │ ├─value a
                          │  │  │ │       └─type arr2 array
                          │  │  │ │                       ├─1
                          │  │  │ │                       ├─10
-                         │  │  │ │                       └─type anonymous array
-                         │  │  │ │                                            ├─1
-                         │  │  │ │                                            ├─10
-                         │  │  │ │                                            └─type rec record
-                         │  │  │ │                                                            ├─value a
-                         │  │  │ │                                                            │       └─type integer scalar
-                         │  │  │ │                                                            └─value b
-                         │  │  │ │                                                                    └─type arr array
-                         │  │  │ │                                                                                   ├─1
-                         │  │  │ │                                                                                   ├─10
-                         │  │  │ │                                                                                   └─type integer scalar
+                         │  │  │ │                       └─type * array
+                         │  │  │ │                                    ├─1
+                         │  │  │ │                                    ├─10
+                         │  │  │ │                                    └─type rec record
+                         │  │  │ │                                                    ├─value a
+                         │  │  │ │                                                    │       └─type integer scalar
+                         │  │  │ │                                                    └─value b
+                         │  │  │ │                                                            └─type arr array
+                         │  │  │ │                                                                           ├─1
+                         │  │  │ │                                                                           ├─10
+                         │  │  │ │                                                                           └─type integer scalar
                          │  │  │ └─type arr2 array
                          │  │  │                 ├─1
                          │  │  │                 ├─10
-                         │  │  │                 └─type anonymous array
-                         │  │  │                                      ├─1
-                         │  │  │                                      ├─10
-                         │  │  │                                      └─type rec record
-                         │  │  │                                                      ├─value a
-                         │  │  │                                                      │       └─type integer scalar
-                         │  │  │                                                      └─value b
-                         │  │  │                                                              └─type arr array
-                         │  │  │                                                                             ├─1
-                         │  │  │                                                                             ├─10
-                         │  │  │                                                                             └─type integer scalar
+                         │  │  │                 └─type * array
+                         │  │  │                              ├─1
+                         │  │  │                              ├─10
+                         │  │  │                              └─type rec record
+                         │  │  │                                              ├─value a
+                         │  │  │                                              │       └─type integer scalar
+                         │  │  │                                              └─value b
+                         │  │  │                                                      └─type arr array
+                         │  │  │                                                                     ├─1
+                         │  │  │                                                                     ├─10
+                         │  │  │                                                                     └─type integer scalar
                          │  │  ├─2
-                         │  │  └─type anonymous array
-                         │  │                       ├─1
-                         │  │                       ├─10
-                         │  │                       └─type rec record
-                         │  │                                       ├─value a
-                         │  │                                       │       └─type integer scalar
-                         │  │                                       └─value b
-                         │  │                                               └─type arr array
-                         │  │                                                              ├─1
-                         │  │                                                              ├─10
-                         │  │                                                              └─type integer scalar
+                         │  │  └─type * array
+                         │  │               ├─1
+                         │  │               ├─10
+                         │  │               └─type rec record
+                         │  │                               ├─value a
+                         │  │                               │       └─type integer scalar
+                         │  │                               └─value b
+                         │  │                                       └─type arr array
+                         │  │                                                      ├─1
+                         │  │                                                      ├─10
+                         │  │                                                      └─type integer scalar
                          │  ├─10
                          │  └─type rec record
                          │                  ├─value a

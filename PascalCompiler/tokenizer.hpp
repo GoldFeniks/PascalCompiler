@@ -9,256 +9,255 @@
 #include <memory>
 #include "boost/format.hpp"
 
-namespace My {
+namespace pascal_compiler {
 
-    class Tokenizer {
+    class tokenizer {
 
     public:
 
-        class TokenizerException : public std::exception {
+        class tokenizer_exception : public std::exception {
 
         public:
 
-            virtual const char* what() const override;
+            const char* what() const override;
 
         protected:
 
-            TokenizerException(const std::pair<int, int>& position) : position(position) {};
+            explicit tokenizer_exception(const std::pair<int, int>& position) : position_(position) {};
 
-            const std::pair<int, int> position;
-            char* message = nullptr;
+            const std::pair<int, int> position_;
+            char* message_ = nullptr;
 
         };
 
-        class TokenizerSymbolException : public TokenizerException {
+        class tokenizer_symbol_exception : public tokenizer_exception {
 
         protected:
 
-            TokenizerSymbolException(const char symbol, const std::pair<int, int>& position, const char* format) :
-                TokenizerException(position), symbol(symbol) { initMessage(format); };
+            tokenizer_symbol_exception(const char symbol, const std::pair<int, int>& position, const char* format) :
+                tokenizer_exception(position), symbol_(symbol) { init_message(format); };
 
-            const char* initMessage(const char* format);
+            const char* init_message(const char* format);
 
-            const char symbol;
+            const char symbol_;
 
         };//class TokenizerException
 
-        class UnknownSymbolException : public TokenizerSymbolException {
+        class unknown_symbol_exception : public tokenizer_symbol_exception {
 
         public:
 
-            UnknownSymbolException(const char symbol, const std::pair<int, int> position) : 
-                TokenizerSymbolException(symbol, position, "Unknown symbol \"%1%\" at (%2%, %3%)") {};
+            unknown_symbol_exception(const char symbol, const std::pair<int, int> position) : 
+                tokenizer_symbol_exception(symbol, position, "Unknown symbol \"%1%\" at (%2%, %3%)") {};
 
         };//class UnknownSymbolException
 
-        class UnexpectedSymbolException : public TokenizerSymbolException {
+        class unexpected_symbol_exception : public tokenizer_symbol_exception {
 
         public:
 
-            UnexpectedSymbolException(const char symbol, const std::pair<int, int> position) :
-                TokenizerSymbolException(symbol, position, "Unexpected symbol \"%1%\" at (%2%, %3%)") {};
+            unexpected_symbol_exception(const char symbol, const std::pair<int, int> position) :
+                tokenizer_symbol_exception(symbol, position, "Unexpected symbol \"%1%\" at (%2%, %3%)") {};
         
         };//class UnexpectedSymbolException
 
-        class EOLWhileParsingStringException : public TokenizerSymbolException {
+        class eol_while_parsing_string_exception : public tokenizer_symbol_exception {
 
         public:
 
-            EOLWhileParsingStringException(const char symbol, const std::pair<int, int> position) :
-                TokenizerSymbolException(symbol, position, "End of line reached at (%2%, %3%) while pasing string") {};
+            eol_while_parsing_string_exception(const char symbol, const std::pair<int, int> position) :
+                tokenizer_symbol_exception(symbol, position, "End of line reached at (%2%, %3%) while pasing string") {};
                     
         };//class EOLWhileParsingStringException
 
-        class ScaleFactorExpectedException : public TokenizerSymbolException {
+        class scale_factor_expected_exception : public tokenizer_symbol_exception {
 
         public:
 
-            ScaleFactorExpectedException(const char symbol, const std::pair<int, int> position) :
-                TokenizerSymbolException(symbol, position, "Scale factor expected at (%2%, %3%)") {};
+            scale_factor_expected_exception(const char symbol, const std::pair<int, int> position) :
+                tokenizer_symbol_exception(symbol, position, "Scale factor expected at (%2%, %3%)") {};
         
         };//class ScaleFactorExpectedException
 
-        class UnexpectedEndOfFileException : public TokenizerSymbolException {
+        class unexpected_end_of_file_exception : public tokenizer_symbol_exception {
         
         public:
 
-            UnexpectedEndOfFileException(const char symbol, const std::pair<int, int> position) :
-                TokenizerSymbolException(symbol, position, "Unexpected end of file at (%2%, %3%)") {};
+            unexpected_end_of_file_exception(const char symbol, const std::pair<int, int> position) :
+                tokenizer_symbol_exception(symbol, position, "Unexpected end of file at (%2%, %3%)") {};
 
         };//class UnexpectedEndOfFileException
 
-        class NumberExpectedException : public TokenizerSymbolException {
+        class number_expected_exception : public tokenizer_symbol_exception {
 
         public:
 
-            NumberExpectedException(const char symbol, const std::pair<int, int> position) :
-                TokenizerSymbolException(symbol, position, "Number expected at (%2%, %3%)") {};
+            number_expected_exception(const char symbol, const std::pair<int, int> position) :
+                tokenizer_symbol_exception(symbol, position, "Number expected at (%2%, %3%)") {};
             
         };//class NumberExpectedException
 
-        class FractionalPartExpectedException : public TokenizerSymbolException {
+        class fractional_part_expected_exception : public tokenizer_symbol_exception {
 
         public:
 
-            FractionalPartExpectedException(const char symbol, const std::pair<int, int> position) :
-                TokenizerSymbolException(symbol, position, "fractional part expected at (%2%, %3%)") {};
+            fractional_part_expected_exception(const char symbol, const std::pair<int, int> position) :
+                tokenizer_symbol_exception(symbol, position, "fractional part expected at (%2%, %3%)") {};
 
         };//class FractionalPartExpectedException
 
-        class OverflowException : public TokenizerException {
+        class overflow_exception : public tokenizer_exception {
 
         public:
 
-            OverflowException(const std::string& string, const std::pair<int, int>& position, const char* type);
+            overflow_exception(const std::string& string, const std::pair<int, int>& position, const char* type);
 
         };
 
-		class Token {
+		class token {
 
 		public:
 
-			enum class Types : unsigned int {
-				Identifier, Integer, Float, Char, String, Operator, Separator, ReservedWord, EndOfFile
+			enum class types : unsigned int {
+				identifier, integer, real, symbol, string, operation, separator, reserved_word, end_of_file
 			};
 
-            static const std::string TypesStrings[];
+            static const std::string types_strings[];
 
-			enum class SubTypes : unsigned int {
+			enum class sub_types : unsigned int {
 
-				Identifier,        IntegerConst,      FloatConst,         StringConst,
-                Plus,              Minus,             Mult,               Divide,
-                Equal,             Less,              Greater,            OpenBracket,
-                CloseBracket,      Dot,               Comma,              OpenParenthesis,
-                CloseParenthesis,  Colon,             Semicolon,          Pointer,
-                ShiftLeft,         ShiftRight,        Power,              NotEqual,
-                SymmetricDiff,     LessEqual,         GreaterEqual,       Assign,
-                PlusAssign,        MinusAssign,       MultAssign,         DivideAssign,
-                Absolute,          And,               Array,              Asm,
-                Begin,             Case,              Const,              Div,
-                Do,                Downto,            Else,               End,        
-                File,              For,               Function,           Goto,
-                If,                In,                Inline,             Label,
-                Mod,               Nil,               Not,                Of,
-                Or,                Packed,            Procedure,          Program,
-                Record,            Repeat,            Set,                String,
-                Then,              To,                Type,               Unit,         
-                Until,             Uses,              Var,                While,
-                With,              Xor,               Range,              Operator,
-                CharConst,         EndOfFile,         Write,              Read,
-                Break,             Continue
+				identifier,        integer_const,     real_const,         string_const,
+                plus,              minus,             mult,               divide,
+                equal,             less,              greater,            open_bracket,
+                close_bracket,     dot,               comma,              open_parenthesis,
+                close_parenthesis, colon,             semicolon,          pointer,
+                shift_left,        shift_right,       power,              not_equal,
+                symmetric_diff,    less_equal,        greater_equal,      assign,
+                plus_assign,       minus_assign,      mult_assign,        divide_assign,
+                absolute,          and,               array,              asm_op,
+                begin,             case_op,           const_op,           div,
+                do_op,             downto,            else_op,            end,        
+                file,              for_op,            function,           goto_op,
+                if_op,             in,                inline_op,          label,
+                mod,               nil,               not,                of,
+                or,                packed,            procedure,          program,
+                record,            repeat,            set,                string,
+                then,              to,                type,               unit,         
+                until,             uses,              var,                while_op,
+                with,              xor,               range,              operator_op,
+                char_const,        end_of_file,       write,              read,
+                break_op,          continue_op
 			};
 
-            static const std::string SubTypesStrings[];
-			static const std::unordered_map<std::string, SubTypes> TokenSubTypes;
-            static const std::unordered_set<std::string> CharOperators;
+            static const std::string sub_types_strings[];
+			static const std::unordered_map<std::string, sub_types> token_sub_types;
+            static const std::unordered_set<std::string> char_operators;
 			
-			Token() = delete;
-			Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state, std::string rawString);
-			Token(const Token& other);
-			Token(Token&& other);
+			token() = delete;
+			token(std::pair<int, int> position, const std::string& string, finite_automata::states state, const std::string& raw_string);
+			token(const token& other);
+			token(token&& other) noexcept;
 
-			Token& operator=(const Token& other);
-			Token& operator=(Token&& other);
+			token& operator=(const token& other);
+			token& operator=(token&& other) noexcept;
 
-			bool operator==(const Token& other);
-			bool operator!=(const Token& other);
+			bool operator==(const token& other) const;
+			bool operator!=(const token& other) const;
 
-			~Token();
+			~token();
 
-			const std::pair<int, int>& GetPosition() const;
-			const SubTypes GetSubType() const;
-			const Types GetType() const;
-			const std::string& GetString() const;
-			const char* GetStringValue() const;
-			const long long GetLongLongValue() const;
-			const long double GetLongDoubleValue() const;
-            std::string GetValueString() const;
-            const std::string ToString() const;
+			const std::pair<int, int>& get_position() const;
+		    sub_types get_sub_type() const;
+		    types get_type() const;
+			const std::string& get_string() const;
+			const char* get_string_value() const;
+		    long long get_long_long_value() const;
+		    long double get_long_double_value() const;
+            std::string get_value_string() const;
+		    std::string to_string() const;
 
             template<typename T>
-            T GetValue() const;
+            T get_value() const;
 
-            union Value {
+            union value {
 
-                char* String;
-                long long LongLong;
-                double Double;
+                char* string;
+                long long long_long;
+                double real;
 
-                operator char*() const { return String; }
-                operator long long() const { return LongLong; }
-                operator double() const { return Double; }
-                operator char() const { return String[0]; }
+                explicit operator char*() const { return string; }
+                explicit operator long long() const { return long_long; }
+                explicit operator double() const { return real; }
+                explicit operator char() const { return string[0]; }
 
-                Value(char* String) : String(String) {};
-                Value(long long LongLong) : LongLong(LongLong) {};
-                Value(double Double) : Double(Double) {};
-                Value(bool b) : LongLong(b ? 0 : 1) {};
-                Value() {};
+                explicit value(const long long long_long) : long_long(long_long) {};
+                explicit value(const double real) : real(real) {};
+                explicit value(const bool b) : long_long(b ? 0 : 1) {};
+                value() {};
 
             };
 
-            Value GetValue() const {
-                return myValue;
+            value get_value() const {
+                return value_;
             };
 
 			private:
 
-				std::pair<int, int> myPosition;
-				SubTypes mySubType;
-				Types myType;
-                std::string myString;
+				std::pair<int, int> position_;
+				sub_types sub_type_;
+				types type_;
+                std::string string_;
 
                 friend class CnstantNode;
 
-				Value myValue;
+				value value_;
 
-				bool stringUsed = false;
-				void saveString(std::string& string);
-				void saveString(const char* string);
+				bool string_used_ = false;
+				void save_string(const std::string& string);
+				void save_string(const char* string);
                 static std::string escape(std::string string);
 
-                friend class Tokenizer;
+                friend class tokenizer;
 
 		};//class Token
 
-        typedef std::shared_ptr<Token> PToken;
+        typedef std::shared_ptr<token> token_p;
 
-		Tokenizer() = delete;
-		Tokenizer(const std::string file);
-		Tokenizer(std::ifstream&& file);
-        Tokenizer(const Tokenizer&) = delete;
-        Tokenizer(Tokenizer&& other);
+		tokenizer() = delete;
+        explicit tokenizer(const std::string file);
+        explicit tokenizer(std::ifstream&& file);
+        tokenizer(const tokenizer&) = delete;
+        tokenizer(tokenizer&& other) noexcept;
 
-        Tokenizer& operator=(const Tokenizer&) = delete;
-        Tokenizer& operator=(Tokenizer&& other);
+        tokenizer& operator=(const tokenizer&) = delete;
+        tokenizer& operator=(tokenizer&& other) noexcept;
 
-		const PToken Next();
-		const PToken Current() const; 
-		const PToken First();
-		bool IsEnd() const;
-        const PToken GetEndToken() const;
-        void Back(const int i);
+        token_p next();
+        token_p current() const;
+        token_p first();
+		bool is_end() const;
+        token_p get_end_token() const;
+        void back(const int i);
 
 	private:
 
 		friend struct iterator;
 
-        PToken endToken = PToken(new Token({ 1, 1 }, "", FiniteAutomata::States::End, ""));
-		int currentIndex = -1;
-		std::vector<PToken> tokens;
-		std::ifstream file;
-		FiniteAutomata::States state = FiniteAutomata::States::TokenEnd;
-		int row = 1, column = 1;
+        token_p end_token_ = std::make_shared<token>(std::make_pair(1, 1), "", finite_automata::states::end, "");
+		int current_index_ = -1;
+		std::vector<token_p> tokens_;
+		std::ifstream file_;
+		finite_automata::states state_ = finite_automata::states::token_end;
+		int row_ = 1, column_ = 1;
 
-        int codeToChar(My::FiniteAutomata::States state, const char* charCode);
-        void tryThrowException(My::FiniteAutomata::States state, char c) const;
+        int code_to_char(pascal_compiler::finite_automata::states state, const char* char_code);
+        void try_throw_exception(pascal_compiler::finite_automata::states state, char c) const;
 
 	};//class Tokenizer
 
     template<typename T>
-    T Tokenizer::Token::GetValue() const {
-        return T(myValue);
+    T tokenizer::token::get_value() const {
+        return T(value_);
     }
 
-}//namespace My
+}//namespace pascal_compiler

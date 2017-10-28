@@ -2,27 +2,27 @@
      └─block
            ├─decl
            │    ├─value a
-           │    │       └─type anonymous array
-           │    │                            ├─1
-           │    │                            ├─10
-           │    │                            └─type integer scalar
+           │    │       └─type * array
+           │    │                    ├─1
+           │    │                    ├─10
+           │    │                    └─type integer scalar
            │    ├─value b
-           │    │       └─type anonymous array
-           │    │                            ├─1
-           │    │                            ├─10
-           │    │                            └─type anonymous array
-           │    │                                                 ├─1
-           │    │                                                 ├─10
-           │    │                                                 └─type real scalar
+           │    │       └─type * array
+           │    │                    ├─1
+           │    │                    ├─10
+           │    │                    └─type * array
+           │    │                                 ├─1
+           │    │                                 ├─10
+           │    │                                 └─type real scalar
            │    └─value c
-           │            └─type anonymous array
-           │                                 ├─1
-           │                                 ├─10
-           │                                 └─type anonymous array
-           │                                                      ├─1
-           │                                                      ├─10
-           │                                                      └─type anonymous array
-           │                                                                           ├─10
-           │                                                                           ├─1
-           │                                                                           └─type char scalar
+           │            └─type * array
+           │                         ├─1
+           │                         ├─10
+           │                         └─type * array
+           │                                      ├─1
+           │                                      ├─10
+           │                                      └─type * array
+           │                                                   ├─10
+           │                                                   ├─1
+           │                                                   └─type char scalar
            └─statements

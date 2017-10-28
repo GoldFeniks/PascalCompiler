@@ -13,7 +13,7 @@ declaration_part = {
 
 type_declaration_part = "type", type_declaration, { type_declaration };
              
-constant_declaration_part = "const", typed_constant_declaration | constant_declaration, { 
+constant_declaration_part = "const", (typed_constant_declaration | constant_declaration), { 
                                                                                             typed_constant_declaration
                                                                                             | constant_declaration
                                                                                         };
@@ -82,7 +82,7 @@ value_parameter =
     identifier, ":", type_identifier, "=", expression
     | identifier_list, ":", type_identifier;
 
-variable_parameter = "var", identifier_list, type_identifier;
+variable_parameter = "var", identifier_list, ":", type_identifier;
 
 const_parameter = "const", 
     identifier, ":", type_identifier, "=", expression
@@ -103,9 +103,11 @@ simple_statement =
     assignment_statement
     | procedure_statement
     | read
-    | write;
+    | write
+    | continue
+    | break;
 
-assignment_statement = ":=" | "+=" | "-=" | "*=" | "/=", expression;
+assignment_statement = (identifier | indexed_variable | field_ascess), (":=" | "+=" | "-=" | "*=" | "/="), expression;
 
 procedure_statement = procedure_identifier, [ actual_parameter_list ];
 
@@ -118,8 +120,7 @@ expression_list = expression, { ",", expression };
 statement_list = statement, { ";", statement };
 
 structured_statement = 
-    compound_statement
-    | if_statement
+    if_statement
     | repetitive_statement;
 
 if_statement = "if", expression, "then", statement, [ "else", statement ];
@@ -129,11 +130,11 @@ repetitive_statement =
     | repeat_statement
     | while_statement;
 
-for_statement = "for", variable_identifier, ":=", expression, "to" | "downto", expression, "do", statement;
+for_statement = "for", variable_identifier, ":=", expression, ("to" | "downto"), expression, "do", (statement | compound_statement);
 
 repeat_statement = "repeat", statement_list, "until", expression;
 
-while_statement = "while", expression, "do", statement;
+while_statement = "while", expression, "do", (statement | compound_statement);
 
 identifier = [ "&" ], letter, { letter | digit };
 
@@ -152,9 +153,9 @@ identifier_list = identifier, { ",", identifier };
 
 range = expression, "..", expression;
 
-constant = ( [ sign ], variable_identifier | unsigned_number ) | char_constant;
+constant = ( [ sign ], ( variable_identifier | unsigned_number ) ) | char_constant;
 
-char_constant = "'", letter, "'" | "#", unsigned_integer;
+char_constant = "'", letter, ( "'" | "#" ), unsigned_integer;
 
 sign = "+" | "-";
 
@@ -164,7 +165,7 @@ unsigned_number =
 
 unsigned_real = digit_sequence, [ ".", digit_sequence ], [ scale_factor ];
 
-scale_factor = "E" | "e", [ sign ], digit_sequence;
+scale_factor = ( "E" | "e" ), [ sign ], digit_sequence;
 
 unsigned_integer = 
     digit_sequence
@@ -182,7 +183,7 @@ octal_digit_sequence = octal_digit, { octal_digit };
 
 octal_digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7";
 
-bin_digit_sequence = "0" | "1", { "0" | "1" };
+bin_digit_sequence = ( "0" | "1" ), { "0" | "1" };
 
 variable_identifier = identifier;
 
@@ -198,11 +199,11 @@ record_constant = "(", field_constant, { ";", field_constant }, ")";
 
 field_constant = [ identifier, ":", typed_constant ];
 
-expression = simple_expression, { "<" | ">" | "<=" | ">=" | "=" | "<>", simple_expression };
+expression = simple_expression, { ( "<" | ">" | "<=" | ">=" | "=" | "<>" ), simple_expression };
 
-simple_expression = term, { "+" | "-", term };
+simple_expression = term, { ( "+" | "-" ), term };
 
-term = factor, { "*" | "/" | "div" | "mod" | "and" | "or" | "shr" | "shl", factor };
+term = factor, { ( "*" | "/" | "div" | "mod" | "and" | "or" | "shr" | "shl" ), factor };
 
 factor = 
     "(", expression, ")"

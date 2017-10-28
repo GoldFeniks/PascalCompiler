@@ -13,7 +13,7 @@
 (4,29)    Separator           Semicolon                     ;                             ;                             
 (6,7)     ReservedWord        For                           for                           for                           
 (6,11)    Identifier          Identifier                    i                             i                             
-(6,13)    Operator            Assign                        :=                            :=                            
+(6,13)    Operation           Assign                        :=                            :=                            
 (6,16)    Integer             IntegerConst                  0                             0                             
 (6,18)    ReservedWord        To                            to                            to                            
 (6,21)    Integer             IntegerConst                  10                            10                            

@@ -1,40 +1,42 @@
 #include "tokenizer.hpp"
 #include <cstdio>
 #include <iostream>
-#include "boost\format.hpp"
+#include "boost/format.hpp"
 #include <regex>
 
-const std::unordered_map<std::string, My::Tokenizer::Token::SubTypes> My::Tokenizer::Token::TokenSubTypes = {
-	{ "and",  My::Tokenizer::Token::SubTypes::And },           { "array", My::Tokenizer::Token::SubTypes::Array },        { "begin", My::Tokenizer::Token::SubTypes::Begin },          { "case", My::Tokenizer::Token::SubTypes::Case },
-	{ "const", My::Tokenizer::Token::SubTypes::Const },        { "div", My::Tokenizer::Token::SubTypes::Div },            { "do", My::Tokenizer::Token::SubTypes::Do },                { "downto", My::Tokenizer::Token::SubTypes::Downto },
-	{ "else", My::Tokenizer::Token::SubTypes::Else },          { "end", My::Tokenizer::Token::SubTypes::End },            { "file", My::Tokenizer::Token::SubTypes::File },            { "for", My::Tokenizer::Token::SubTypes::For },
-	{ "function", My::Tokenizer::Token::SubTypes::Function },  { "goto", My::Tokenizer::Token::SubTypes::Goto },          { "if", My::Tokenizer::Token::SubTypes::If },                { "in", My::Tokenizer::Token::SubTypes::In },
-	{ "label", My::Tokenizer::Token::SubTypes::Label },        { "mod", My::Tokenizer::Token::SubTypes::Mod },            { "nil", My::Tokenizer::Token::SubTypes::Nil },              { "not", My::Tokenizer::Token::SubTypes::Not },
-	{ "of", My::Tokenizer::Token::SubTypes::Of },              { "packed", My::Tokenizer::Token::SubTypes::Packed },      { "procedure", My::Tokenizer::Token::SubTypes::Procedure },  { "program", My::Tokenizer::Token::SubTypes::Program },
-	{ "record", My::Tokenizer::Token::SubTypes::Record },      { "repeat", My::Tokenizer::Token::SubTypes::Repeat },      { "set", My::Tokenizer::Token::SubTypes::Set },              { "then", My::Tokenizer::Token::SubTypes::Then },
-	{ "to", My::Tokenizer::Token::SubTypes::To },              { "type", My::Tokenizer::Token::SubTypes::Type },          { "until", My::Tokenizer::Token::SubTypes::Until },          { "var", My::Tokenizer::Token::SubTypes::Var },
-	{ "while", My::Tokenizer::Token::SubTypes::While },        { "with", My::Tokenizer::Token::SubTypes::With },          { "+", My::Tokenizer::Token::SubTypes::Plus },               { "-", My::Tokenizer::Token::SubTypes::Minus },
-	{ "*", My::Tokenizer::Token::SubTypes::Mult },             { "/", My::Tokenizer::Token::SubTypes::Divide },           { "=", My::Tokenizer::Token::SubTypes::Equal },              { "<", My::Tokenizer::Token::SubTypes::Less },
-	{ ">", My::Tokenizer::Token::SubTypes::Greater },          { "@", My::Tokenizer::Token::SubTypes::Pointer },          { "^", My::Tokenizer::Token::SubTypes::Pointer },            { "<>", My::Tokenizer::Token::SubTypes::NotEqual },
-	{ "<=", My::Tokenizer::Token::SubTypes::LessEqual },       { ">=", My::Tokenizer::Token::SubTypes::GreaterEqual },    { ":=", My::Tokenizer::Token::SubTypes::Assign },            { "..", My::Tokenizer::Token::SubTypes::Range },
-	{ "[", My::Tokenizer::Token::SubTypes::OpenBracket },      { "]", My::Tokenizer::Token::SubTypes::CloseBracket },     { ",", My::Tokenizer::Token::SubTypes::Comma },              { ":", My::Tokenizer::Token::SubTypes::Colon },
-	{ ";", My::Tokenizer::Token::SubTypes::Semicolon },        { "(", My::Tokenizer::Token::SubTypes::OpenParenthesis },  { ")", My::Tokenizer::Token::SubTypes::CloseParenthesis },   { "(.", My::Tokenizer::Token::SubTypes::OpenBracket },
-    { ".)", My::Tokenizer::Token::SubTypes::CloseBracket },    { "asm", My::Tokenizer::Token::SubTypes::Asm },            { "<<", My::Tokenizer::Token::SubTypes::ShiftLeft },         { ">>", My::Tokenizer::Token::SubTypes::ShiftRight },
-    { "shl", My::Tokenizer::Token::SubTypes::ShiftLeft },      { "shr", My::Tokenizer::Token::SubTypes::ShiftRight },     { "**", My::Tokenizer::Token::SubTypes::Power },             { "><", My::Tokenizer::Token::SubTypes::SymmetricDiff },
-    { "+=", My::Tokenizer::Token::SubTypes::PlusAssign },      { "-=", My::Tokenizer::Token::SubTypes::MinusAssign },     { "*=", My::Tokenizer::Token::SubTypes::MultAssign },        { "/=", My::Tokenizer::Token::SubTypes::DivideAssign },
-    { "absolute", My::Tokenizer::Token::SubTypes::Absolute },  { "inline", My::Tokenizer::Token::SubTypes::Inline },      { "string", My::Tokenizer::Token::SubTypes::String },        { "unit", My::Tokenizer::Token::SubTypes::Unit },
-    { "uses", My::Tokenizer::Token::SubTypes::Uses },          { "xor", My::Tokenizer::Token::SubTypes::Xor },            { "operator", My::Tokenizer::Token::SubTypes::Operator },    { ".", My::Tokenizer::Token::SubTypes::Dot },
-    { "or", My::Tokenizer::Token::SubTypes::Or },              { "write", My::Tokenizer::Token::SubTypes::Write },        { "read", My::Tokenizer::Token::SubTypes::Read },            { "break", My::Tokenizer::Token::SubTypes::Break },
-    { "continue", My::Tokenizer::Token::SubTypes::Continue }
+using namespace pascal_compiler;
+
+const std::unordered_map<std::string, tokenizer::token::sub_types> tokenizer::token::token_sub_types = {
+	{ "and",  sub_types::and },           { "array", sub_types::array },        { "begin", sub_types::begin },          { "case", sub_types::case_op },
+	{ "const", sub_types::const_op },        { "div", sub_types::div },            { "do", sub_types::do_op },                { "downto", sub_types::downto },
+	{ "else", sub_types::else_op },          { "end", sub_types::end },            { "file", sub_types::file },            { "for", sub_types::for_op },
+	{ "function", sub_types::function },  { "goto", sub_types::goto_op },          { "if", sub_types::if_op },                { "in", sub_types::in },
+	{ "label", sub_types::label },        { "mod", sub_types::mod },            { "nil", sub_types::nil },              { "not", sub_types::not },
+	{ "of", sub_types::of },              { "packed", sub_types::packed },      { "procedure", sub_types::procedure },  { "program", sub_types::program },
+	{ "record", sub_types::record },      { "repeat", sub_types::repeat },      { "set", sub_types::set },              { "then", sub_types::then },
+	{ "to", sub_types::to },              { "type", sub_types::type },          { "until", sub_types::until },          { "var", sub_types::var },
+	{ "while", sub_types::while_op },        { "with", sub_types::with },          { "+", sub_types::plus },               { "-", sub_types::minus },
+	{ "*", sub_types::mult },             { "/", sub_types::divide },           { "=", sub_types::equal },              { "<", sub_types::less },
+	{ ">", sub_types::greater },          { "@", sub_types::pointer },          { "^", sub_types::pointer },            { "<>", sub_types::not_equal },
+	{ "<=", sub_types::less_equal },       { ">=", sub_types::greater_equal },    { ":=", sub_types::assign },            { "..", sub_types::range },
+	{ "[", sub_types::open_bracket },      { "]", sub_types::close_bracket },     { ",", sub_types::comma },              { ":", sub_types::colon },
+	{ ";", sub_types::semicolon },        { "(", sub_types::open_parenthesis },  { ")", sub_types::close_parenthesis },   { "(.", sub_types::open_bracket },
+    { ".)", sub_types::close_bracket },    { "asm", sub_types::asm_op },            { "<<", sub_types::shift_left },         { ">>", sub_types::shift_right },
+    { "shl", sub_types::shift_left },      { "shr", sub_types::shift_right },     { "**", sub_types::power },             { "><", sub_types::symmetric_diff },
+    { "+=", sub_types::plus_assign },      { "-=", sub_types::minus_assign },     { "*=", sub_types::mult_assign },        { "/=", sub_types::divide_assign },
+    { "absolute", sub_types::absolute },  { "inline", sub_types::inline_op },      { "string", sub_types::string },        { "unit", sub_types::unit },
+    { "uses", sub_types::uses },          { "xor", sub_types::xor },            { "operator", sub_types::operator_op },    { ".", sub_types::dot },
+    { "or", sub_types::or },              { "write", sub_types::write },        { "read", sub_types::read },            { "break", sub_types::break_op },
+    { "continue", sub_types::continue_op }
 };
 
-const std::string My::Tokenizer::Token::TypesStrings[] = {
-    "Identifier", "Integer", "Float", "Char", "String", "Operator", "Separator", "ReservedWord", "EndOfFile"
+const std::string tokenizer::token::types_strings[] = {
+    "Identifier", "Integer", "Real", "Symbol", "String", "Operation", "Separator", "ReservedWord", "EndOfFile"
 };
 
-const std::string My::Tokenizer::Token::SubTypesStrings[] = {
+const std::string tokenizer::token::sub_types_strings[] = {
 
-    "Identifier",        "IntegerConst",      "FloatConst",         "StringConst",
+    "Identifier",        "IntegerConst",     "RealConst",          "StringConst",
     "Plus",              "Minus",             "Mult",               "Divide",
     "Equal",             "Less",              "Greater",            "OpenBracket",
     "CloseBracket",      "Dot",               "Comma",              "OpenParenthesis",
@@ -46,437 +48,433 @@ const std::string My::Tokenizer::Token::SubTypesStrings[] = {
     "Begin",             "Case",              "Const",              "Div",
     "Do",                "Downto",            "Else",               "End",
     "File",              "For",               "Function",           "Goto",
-    "If",                "In",                "Inline",             "Label",
+    "If",                "In",                "inline_op",             "Label",
     "Mod",               "Nil",               "Not",                "Of",
     "Or",                "Packed",            "Procedure",          "Program",
     "Record",            "Repeat",            "Set",                "String",
     "Then",              "To",                "Type",               "Unit",
     "Until",             "Uses",              "Var",                "While",
-    "With",              "Xor",               "Range",              "Operator",
-    "CharConst",         "EndOfFile",         "Write",              "Read",
+    "With",              "Xor",               "Range",              "operation",
+    "CharConst",         "end_of_file",         "Write",              "Read",
     "Break",             "Continue"
 };
 
-const std::unordered_set<std::string> My::Tokenizer::Token::CharOperators = { "shl", "shr", "xor", "mod", "div", "not", "or", "and" };
+const std::unordered_set<std::string> tokenizer::token::char_operators = { "shl", "shr", "xor", "mod", "div", "not", "or", "and" };
 
-My::Tokenizer::Tokenizer(const std::string file) {
-	this->file = std::ifstream(file);
-	this->file >> std::noskipws;
+tokenizer::tokenizer(const std::string file) {
+	this->file_ = std::ifstream(file);
+	this->file_ >> std::noskipws;
 }
 
-My::Tokenizer::Tokenizer(std::ifstream&& file) {
-	this->file = std::move(file);
-	this->file >> std::noskipws;
+tokenizer::tokenizer(std::ifstream&& file) {
+	this->file_ = move(file);
+	this->file_ >> std::noskipws;
 }
 
-My::Tokenizer::Tokenizer(Tokenizer&& other) {
+tokenizer::tokenizer(tokenizer&& other) noexcept {
     *this = std::move(other);
 }
 
-My::Tokenizer& My::Tokenizer::operator=(Tokenizer&& other) {
-    std::swap(currentIndex, other.currentIndex);
-    std::swap(tokens, other.tokens);
-    std::swap(file, other.file);
-    std::swap(state, other.state);
-    std::swap(row, other.row);
-    std::swap(column, other.column);
+tokenizer& tokenizer::operator=(tokenizer&& other) noexcept {
+    std::swap(current_index_, other.current_index_);
+    swap(tokens_, other.tokens_);
+    swap(file_, other.file_);
+    std::swap(state_, other.state_);
+    std::swap(row_, other.row_);
+    std::swap(column_, other.column_);
     return *this;
 }
 
-const My::Tokenizer::PToken My::Tokenizer::Next() {
-	if (currentIndex + 1 < tokens.size())
-		return tokens[++currentIndex];
-    if (IsEnd()) {
-        currentIndex = tokens.size();
-        endToken->myPosition = std::make_pair(row, column);
-        return endToken;
+tokenizer::token_p tokenizer::next() {
+	if (current_index_ + 1 < tokens_.size())
+		return tokens_[++current_index_];
+    if (is_end()) {
+        current_index_ = tokens_.size();
+        end_token_->position_ = std::make_pair(row_, column_);
+        return end_token_;
     }
 	char c;
 	std::string s = "";
-    std::string rawString = "";
-    std::string charCode = "";
-	FiniteAutomata::States cstate = state;
-	while (!file.eof() && (file >> c)) {
-        state = My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][c < 0 ? 129 : tolower(c)];
-        switch (state) {
-        case My::FiniteAutomata::States::StringEnd:
-            rawString += c;
-        case My::FiniteAutomata::States::Whitespace:
-        case My::FiniteAutomata::States::Comment:
-        case My::FiniteAutomata::States::CommentMultiline:
-        case My::FiniteAutomata::States::Asterisk:
-            ++column;
+    std::string raw_string = "";
+    std::string char_code = "";
+    auto cstate = state_;
+	while (!file_.eof() && (file_ >> c)) {
+        state_ = finite_automata::finite_automata[static_cast<unsigned int>(state_)][c < 0 ? 129 : tolower(c)];
+        switch (state_) {
+        case finite_automata::states::string_end:
+            raw_string += c;
+        case finite_automata::states::whitespace:
+        case finite_automata::states::comment:
+        case finite_automata::states::comment_multiline:
+        case finite_automata::states::asterisk:
+            ++column_;
             continue;
-        case My::FiniteAutomata::States::CommentNewLine:
-        case My::FiniteAutomata::States::NewLine:
-            ++row;
-            column = 1;
+        case finite_automata::states::comment_new_line:
+        case finite_automata::states::new_line:
+            ++row_;
+            column_ = 1;
             continue;
-        case My::FiniteAutomata::States::ReturnInt:
-            file.putback(c);
-            file.putback(s.back());
+        case finite_automata::states::return_int:
+            file_.putback(c);
+            file_.putback(s.back());
             s.pop_back();
-            rawString.pop_back();
-            cstate = My::FiniteAutomata::States::Decimal;
+            raw_string.pop_back();
+            cstate = finite_automata::states::decimal;
             goto tokenEnd;
-        case My::FiniteAutomata::States::BeginMultilineComment:
-        case My::FiniteAutomata::States::BeginComment:
+        case finite_automata::states::begin_multiline_comment:
+        case finite_automata::states::begin_comment:
             s.pop_back();
-            rawString.pop_back();
-            cstate = My::FiniteAutomata::States::TokenEnd;
+            raw_string.pop_back();
+            cstate = finite_automata::states::token_end;
             continue;
-        case My::FiniteAutomata::States::DecimalCharCode:
-        case My::FiniteAutomata::States::BinCharCode:
-        case My::FiniteAutomata::States::HexCharCode:
-        case My::FiniteAutomata::States::OctCharCode:
-            cstate = state;
-            rawString += c;
-            charCode += c;
-            ++column;
+        case finite_automata::states::decimal_char_code:
+        case finite_automata::states::bin_char_code:
+        case finite_automata::states::hex_char_code:
+        case finite_automata::states::oct_char_code:
+            cstate = state_;
+            raw_string += c;
+            char_code += c;
+            ++column_;
             continue;
-        case My::FiniteAutomata::States::Char:
-        case My::FiniteAutomata::States::StringStart:
-            if (charCode.length()) {
-                s += codeToChar(cstate, charCode.c_str());
-                charCode = "";
+        case finite_automata::states::char_s:
+        case finite_automata::states::string_start:
+            if (char_code.length()) {
+                s += code_to_char(cstate, char_code.c_str());
+                char_code = "";
             }
-            ++column;
-            rawString += c;
+            ++column_;
+            raw_string += c;
             continue;
-        case My::FiniteAutomata::States::TokenEnd:
-            if (charCode.length()) {
-                s += codeToChar(cstate, charCode.c_str());
-                charCode = "";
+        case finite_automata::states::token_end:
+            if (char_code.length()) {
+                s += code_to_char(cstate, char_code.c_str());
+                char_code = "";
             }
-            file.putback(c);
-        case My::FiniteAutomata::States::End:
+            file_.putback(c);
+        case finite_automata::states::end:
             goto tokenEnd;
         default:
-            tryThrowException(state, c);
+            try_throw_exception(state_, c);
             break;
         }
-        cstate = state;
-        ++column;
+        cstate = state_;
+        ++column_;
 		s += tolower(c);
-        rawString += c;
+        raw_string += c;
 	}
-    if (file.eof()) {
-        tryThrowException(My::FiniteAutomata::FiniteAutomata[static_cast<unsigned int>(state)][128], c);
-        if (cstate == FiniteAutomata::States::End || cstate == FiniteAutomata::States::TokenEnd) {
-            currentIndex = tokens.size();
-            endToken->myPosition = std::make_pair(row, column);
-            return endToken;
+    if (file_.eof()) {
+        try_throw_exception(finite_automata::finite_automata[static_cast<unsigned int>(state_)][128], c);
+        if (cstate == finite_automata::states::end || cstate == finite_automata::states::token_end) {
+            current_index_ = tokens_.size();
+            end_token_->position_ = std::make_pair(row_, column_);
+            return end_token_;
         }
     }
 tokenEnd:
-    if (charCode.length())
-        s += codeToChar(cstate, charCode.c_str());
-	tokens.push_back(PToken(new Token(std::make_pair(row, column - rawString.length()), s, cstate, rawString)));
-	++currentIndex;
-	return tokens.back();
+    if (char_code.length())
+        s += code_to_char(cstate, char_code.c_str());
+	tokens_.push_back(std::make_shared<token>(std::make_pair(row_, column_ - raw_string.length()), s, cstate, raw_string));
+	++current_index_;
+	return tokens_.back();
 }
 
-bool My::Tokenizer::IsEnd() const {
-	return file.eof();
+bool tokenizer::is_end() const {
+	return file_.eof();
 }
 
-const My::Tokenizer::PToken My::Tokenizer::GetEndToken() const {
-    return endToken;
+tokenizer::token_p tokenizer::get_end_token() const {
+    return end_token_;
 }
 
-void My::Tokenizer::Back(const int i = 1) {
-    currentIndex -= i;
+void tokenizer::back(const int i = 1) {
+    current_index_ -= i;
 }
 
-int My::Tokenizer::codeToChar(My::FiniteAutomata::States state, const char* charCode) {
+int tokenizer::code_to_char(const finite_automata::states state, const char* char_code) {
     try {
         switch (state) {
-        case My::FiniteAutomata::States::DecimalCharCode:
-            return std::stoi(charCode, NULL, 10);
-            break;
-        case My::FiniteAutomata::States::BinCharCode:
-            return std::stoi(charCode + 1, NULL, 2);
-            break;
-        case My::FiniteAutomata::States::HexCharCode:
-            return std::stoi(charCode + 1, NULL, 16);
-            break;
-        case My::FiniteAutomata::States::OctCharCode:
-            return std::stoi(charCode + 1, NULL, 8);
-            break;
+        case finite_automata::states::decimal_char_code:
+            return std::stoi(char_code, nullptr, 10);
+        case finite_automata::states::bin_char_code:
+            return std::stoi(char_code + 1, nullptr, 2);
+        case finite_automata::states::hex_char_code:
+            return std::stoi(char_code + 1, nullptr, 16);
+        case finite_automata::states::oct_char_code:
+            return std::stoi(char_code + 1, nullptr, 8);
         default:
             throw std::exception();
         }
     }
-    catch (std::out_of_range e) {
-        throw OverflowException(charCode, std::make_pair(row, column), "Integer");
+    catch (std::out_of_range) {
+        throw overflow_exception(char_code, std::make_pair(row_, column_), "Integer");
     }
 }
 
-void My::Tokenizer::tryThrowException(My::FiniteAutomata::States state, char c) const {
+void tokenizer::try_throw_exception(const finite_automata::states state, const char c) const {
     switch (state) {
-    case My::FiniteAutomata::States::UnknownSymbol:
-        throw UnknownSymbolException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::States::UnexpectedSymbol:
-        throw UnexpectedSymbolException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::States::EOLWhileParsingString:
-        throw EOLWhileParsingStringException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::States::ScaleFactorExpected:
-        throw ScaleFactorExpectedException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::States::UnexpectedEndOfFile:
-        throw UnexpectedEndOfFileException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::States::NumberExpected:
-        throw NumberExpectedException(c, std::make_pair(row, column));
-    case My::FiniteAutomata::States::FractionalPartExpected:
-        throw FractionalPartExpectedException(c, std::make_pair(row, column));
+    case finite_automata::states::unknown_symbol:
+        throw unknown_symbol_exception(c, std::make_pair(row_, column_));
+    case finite_automata::states::unexpected_symbol:
+        throw unexpected_symbol_exception(c, std::make_pair(row_, column_));
+    case finite_automata::states::eol_while_parsing_string:
+        throw eol_while_parsing_string_exception(c, std::make_pair(row_, column_));
+    case finite_automata::states::scale_factor_expected:
+        throw scale_factor_expected_exception(c, std::make_pair(row_, column_));
+    case finite_automata::states::unexpected_end_of_file:
+        throw unexpected_end_of_file_exception(c, std::make_pair(row_, column_));
+    case finite_automata::states::number_expected:
+        throw number_expected_exception(c, std::make_pair(row_, column_));
+    case finite_automata::states::fractional_part_expected:
+        throw fractional_part_expected_exception(c, std::make_pair(row_, column_));
     default:
         return;
     }
 }
 
-std::string My::Tokenizer::Token::escape(std::string string) {
-    string = std::regex_replace(string, std::regex("(\\n)"), "\\n");
-    string = std::regex_replace(string, std::regex("(\\r)"), "\\r");
-    string = std::regex_replace(string, std::regex("(\\t)"), "\\t");
+std::string tokenizer::token::escape(std::string string) {
+    string = regex_replace(string, std::regex("(\\n)"), "\\n");
+    string = regex_replace(string, std::regex("(\\r)"), "\\r");
+    string = regex_replace(string, std::regex("(\\t)"), "\\t");
     return string;
 }
 
-const My::Tokenizer::PToken My::Tokenizer::Current() const {
-    if (currentIndex >= tokens.size())
-        return endToken;
-	return tokens[currentIndex];
+tokenizer::token_p tokenizer::current() const {
+    if (current_index_ >= tokens_.size())
+        return end_token_;
+	return tokens_[current_index_];
 }
 
-const My::Tokenizer::PToken My::Tokenizer::First() {
-	if (currentIndex >= tokens.size())
-		return endToken;
-	currentIndex = 0;
-	return Current();
+tokenizer::token_p tokenizer::first() {
+	if (current_index_ >= tokens_.size())
+		return end_token_;
+	current_index_ = 0;
+	return current();
 }
 
-My::Tokenizer::Token& My::Tokenizer::Token::operator=(const Token& other) {
-	myPosition = other.myPosition;
-	myType = other.myType;
-    mySubType = other.mySubType;
-	myString = other.myString;
-	if (other.stringUsed)
-		saveString(other.myValue.String);
+tokenizer::token& tokenizer::token::operator=(const token& other) {
+	position_ = other.position_;
+	type_ = other.type_;
+    sub_type_ = other.sub_type_;
+	string_ = other.string_;
+	if (other.string_used_)
+		save_string(other.value_.string);
 	else
-		myValue = other.myValue;
-	stringUsed = other.stringUsed;
+		value_ = other.value_;
+	string_used_ = other.string_used_;
 	return *this;
 }
 
-My::Tokenizer::Token& My::Tokenizer::Token::operator=(Token&& other) {
-	std::swap(myPosition, other.myPosition);
-	std::swap(myType, other.myType);
-    std::swap(mySubType, other.mySubType);
-	std::swap(myString, other.myString);
-	std::swap(myValue, other.myValue);
-	std::swap(stringUsed, other.stringUsed);
+tokenizer::token& tokenizer::token::operator=(token&& other) noexcept {
+	swap(position_, other.position_);
+	std::swap(type_, other.type_);
+    std::swap(sub_type_, other.sub_type_);
+	swap(string_, other.string_);
+	std::swap(value_, other.value_);
+	std::swap(string_used_, other.string_used_);
 	return *this;
 }
 
-bool My::Tokenizer::Token::operator==(const Token& other) {
-	return myType == other.myType && mySubType == other.mySubType && myString == other.myString && myPosition == other.myPosition;
+bool tokenizer::token::operator==(const token& other) const {
+	return type_ == other.type_ && sub_type_ == other.sub_type_ && string_ == other.string_ && position_ == other.position_;
 }
 
-bool My::Tokenizer::Token::operator!=(const Token& other) {
+bool tokenizer::token::operator!=(const token& other) const {
 	return !(*this == other);
 }
 
-My::Tokenizer::Token::~Token() {
-	if (stringUsed)
-		delete myValue.String;
+tokenizer::token::~token() {
+	if (string_used_)
+		delete value_.string;
 }
 
-const std::pair<int, int>& My::Tokenizer::Token::GetPosition() const {
-	return myPosition;
+const std::pair<int, int>& tokenizer::token::get_position() const {
+	return position_;
 }
 
-const My::Tokenizer::Token::SubTypes My::Tokenizer::Token::GetSubType() const {
-	return mySubType;
+tokenizer::token::sub_types tokenizer::token::get_sub_type() const {
+	return sub_type_;
 }
 
-const My::Tokenizer::Token::Types My::Tokenizer::Token::GetType() const {
-	return myType;
+tokenizer::token::types tokenizer::token::get_type() const {
+	return type_;
 }
 
-const std::string& My::Tokenizer::Token::GetString() const {
-	return myString;
+const std::string& tokenizer::token::get_string() const {
+	return string_;
 }
 
-const char* My::Tokenizer::Token::GetStringValue() const {
-	return myValue.String;
+const char* tokenizer::token::get_string_value() const {
+	return value_.string;
 }
 
-const long long My::Tokenizer::Token::GetLongLongValue() const {
-	return myValue.LongLong;
+long long tokenizer::token::get_long_long_value() const {
+	return value_.long_long;
 }
 
-const long double My::Tokenizer::Token::GetLongDoubleValue() const {
-	return myValue.Double;
+long double tokenizer::token::get_long_double_value() const {
+	return value_.real;
 }
 
-std::string My::Tokenizer::Token::GetValueString() const {
-    switch (myType) {
-    case Types::Integer:
-        return std::string(std::to_string(myValue.LongLong));
-    case Types::Float:
-        return std::string(std::to_string(myValue.Double));
+std::string tokenizer::token::get_value_string() const {
+    switch (type_) {
+    case types::integer:
+        return std::string(std::to_string(value_.long_long));
+    case types::real:
+        return std::string(std::to_string(value_.real));
     default:
-        return std::string(stringUsed ? escape(myValue.String) : "");
+        return std::string(string_used_ ? escape(value_.string) : "");
     }
 }
 
-const std::string My::Tokenizer::Token::ToString() const {
-    return boost::str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|") %
-        myPosition.first % myPosition.second % TypesStrings[static_cast<unsigned int>(myType)] %
-        SubTypesStrings[static_cast<unsigned int>(mySubType)] % GetValueString() % myString
+std::string tokenizer::token::to_string() const {
+    return str(boost::format("(%1%,%2%)%|10t|%|3$-20|%|4$-30|%|5$-30|%|6$-30|") %
+        position_.first % position_.second % types_strings[static_cast<unsigned int>(type_)] %
+        sub_types_strings[static_cast<unsigned int>(sub_type_)] % get_value_string() % string_
     );
 }
 
-void My::Tokenizer::Token::saveString(std::string& string) {
-	if (stringUsed)
-		delete myValue.String;
-	myValue.String = new char[string.length() + 1];
-	std::memcpy(myValue.String, string.c_str(), string.length() + 1);
-	stringUsed = true;
+void tokenizer::token::save_string(const std::string& string) {
+	if (string_used_)
+		delete value_.string;
+	value_.string = new char[string.length() + 1];
+	memcpy(value_.string, string.c_str(), string.length() + 1);
+	string_used_ = true;
 }
 
-void My::Tokenizer::Token::saveString(const char* string) {
-	if (stringUsed)
-		delete myValue.String;
-	int size = std::strlen(string);
-	myValue.String = new char[size + 1];
-	std::memcpy(myValue.String, string, size + 1);
-	stringUsed = true;
+void tokenizer::token::save_string(const char* string) {
+	if (string_used_)
+		delete value_.string;
+    const int size = strlen(string);
+	value_.string = new char[size + 1];
+	memcpy(value_.string, string, size + 1);
+	string_used_ = true;
 }
 
-My::Tokenizer::Token::Token(std::pair<int, int> position, std::string string, FiniteAutomata::States state, std::string rawString) {
-	myPosition = position;
-	myString = rawString;
-	std::unordered_map<std::string, SubTypes>::const_iterator it;
-    std::unordered_set<std::string>::const_iterator sit;
+tokenizer::token::token(const std::pair<int, int> position, const std::string& string, const finite_automata::states state, const std::string& raw_string) {
+	position_ = position;
+	string_ = raw_string;
     try {
         switch (state) {
-        case My::FiniteAutomata::States::Identifier:
-            it = TokenSubTypes.find(string);
-            if (it != TokenSubTypes.end()) {
-                mySubType = it->second;
-                sit = CharOperators.find(string);
-                if (sit != CharOperators.end())
-                    myType = Types::Operator;
+        case finite_automata::states::identifier:
+        {
+            const auto it = token_sub_types.find(string);
+            if (it != token_sub_types.end()) {
+                sub_type_ = it->second;
+                const auto sit = char_operators.find(string);
+                if (sit != char_operators.end())
+                    type_ = types::operation;
                 else
-                    myType = Types::ReservedWord;
+                    type_ = types::reserved_word;
             }
             else {
-                mySubType = SubTypes::Identifier;
-                myType = Types::Identifier;
+                sub_type_ = sub_types::identifier;
+                type_ = types::identifier;
             }
-            saveString(string);
+            save_string(string);
             break;
-        case My::FiniteAutomata::States::ReturnInt:
-        case My::FiniteAutomata::States::Decimal:
-            myValue.LongLong = std::stoull(string.c_str(), NULL, 10);
-            myType = Types::Integer;
-            mySubType = SubTypes::IntegerConst;
+        }
+        case finite_automata::states::return_int:
+        case finite_automata::states::decimal:
+            value_.long_long = std::stoull(string.c_str(), nullptr, 10);
+            type_ = types::integer;
+            sub_type_ = sub_types::integer_const;
             break;
-        case My::FiniteAutomata::States::Hex:
-            myValue.LongLong = std::stoull(string.c_str() + 1, NULL, 16);
-            myType = Types::Integer;
-            mySubType = SubTypes::IntegerConst;
+        case finite_automata::states::hex:
+            value_.long_long = std::stoull(string.c_str() + 1, nullptr, 16);
+            type_ = types::integer;
+            sub_type_ = sub_types::integer_const;
             break;
-        case My::FiniteAutomata::States::Oct:
-            myValue.LongLong = std::stoull(string.c_str() + 1, NULL, 8);
-            myType = Types::Integer;
-            mySubType = SubTypes::IntegerConst;
+        case finite_automata::states::oct:
+            value_.long_long = std::stoull(string.c_str() + 1, nullptr, 8);
+            type_ = types::integer;
+            sub_type_ = sub_types::integer_const;
             break;
-        case My::FiniteAutomata::States::Bin:
-            myValue.LongLong = std::stoull(string.c_str() + 1, NULL, 2);
-            myType = Types::Integer;
-            mySubType = SubTypes::IntegerConst;
+        case finite_automata::states::bin:
+            value_.long_long = std::stoull(string.c_str() + 1, nullptr, 2);
+            type_ = types::integer;
+            sub_type_ = sub_types::integer_const;
             break;
-        case My::FiniteAutomata::States::FloatEnd:
-        case My::FiniteAutomata::States::Float:
-            myType = Types::Float;
-            mySubType = SubTypes::FloatConst;
-            myValue.Double = std::stold(string.c_str(), NULL);
+        case finite_automata::states::float_end:
+        case finite_automata::states::real:
+            type_ = types::real;
+            sub_type_ = sub_types::real_const;
+            value_.real = std::stold(string.c_str(), nullptr);
             break;
-        case My::FiniteAutomata::States::StringEnd:
-        case My::FiniteAutomata::States::String:
-        case My::FiniteAutomata::States::DecimalCharCode:
-        case My::FiniteAutomata::States::HexCharCode:
-        case My::FiniteAutomata::States::OctCharCode:
-        case My::FiniteAutomata::States::BinCharCode:
+        case finite_automata::states::string_end:
+        case finite_automata::states::string:
+        case finite_automata::states::decimal_char_code:
+        case finite_automata::states::hex_char_code:
+        case finite_automata::states::oct_char_code:
+        case finite_automata::states::bin_char_code:
             if (string.length() > 1) {
-                myType = Types::String;
-                mySubType = SubTypes::StringConst;
+                type_ = types::string;
+                sub_type_ = sub_types::string_const;
             }
             else {
-                myType = Types::Char;
-                mySubType = SubTypes::CharConst;
+                type_ = types::symbol;
+                sub_type_ = sub_types::char_const;
             }
-            saveString(string);
+            save_string(string);
             break;
-        case My::FiniteAutomata::States::Separator:
-        case My::FiniteAutomata::States::Parenthesis:
-        case My::FiniteAutomata::States::Colon:
-            mySubType = TokenSubTypes.find(string)->second;
-            myType = Types::Separator;
-            saveString(string);
+        case finite_automata::states::separator:
+        case finite_automata::states::parenthesis:
+        case finite_automata::states::colon:
+            sub_type_ = token_sub_types.find(string)->second;
+            type_ = types::separator;
+            save_string(string);
             break;
-        case My::FiniteAutomata::States::Slash:
-        case My::FiniteAutomata::States::OperatorLess:
-        case My::FiniteAutomata::States::OperatorGreater:
-        case My::FiniteAutomata::States::OperatorPlus:
-        case My::FiniteAutomata::States::OperatorMult:
-        case My::FiniteAutomata::States::OperatorDot:
-        case My::FiniteAutomata::States::Operator:
-            mySubType = TokenSubTypes.find(string)->second;
-            myType = Types::Operator;
-            saveString(string);
+        case finite_automata::states::slash:
+        case finite_automata::states::operator_less:
+        case finite_automata::states::operator_greater:
+        case finite_automata::states::operator_plus:
+        case finite_automata::states::operator_mult:
+        case finite_automata::states::operator_dot:
+        case finite_automata::states::operation:
+            sub_type_ = token_sub_types.find(string)->second;
+            type_ = types::operation;
+            save_string(string);
             break;
-        case My::FiniteAutomata::States::End:
-        case My::FiniteAutomata::States::TokenEnd:
-            myType = Types::EndOfFile;
-            mySubType = SubTypes::EndOfFile;
+        case finite_automata::states::end:
+        case finite_automata::states::token_end:
+            type_ = types::end_of_file;
+            sub_type_ = sub_types::end_of_file;
             break;
         default:
             throw std::exception();
         }
     }
-    catch (std::out_of_range e) {
-        throw Tokenizer::OverflowException(rawString, position, 
-            state == My::FiniteAutomata::States::Float || state == My::FiniteAutomata::States::FloatEnd ? "Double" : "Integer");
+    catch (std::out_of_range) {
+        throw overflow_exception(raw_string, position, 
+            state == finite_automata::states::real || state == finite_automata::states::float_end ? "Real" : "Integer");
     }
 }
 
-My::Tokenizer::Token::Token(const Token& other) {
+tokenizer::token::token(const token& other) {
 	*this = other;
 }
 
-My::Tokenizer::Token::Token(Token&& other) {
+tokenizer::token::token(token&& other) noexcept {
 	*this = std::move(other);
 }
 
 
-const char* My::Tokenizer::TokenizerException::what() const {
-    return message;
+const char* tokenizer::tokenizer_exception::what() const {
+    return message_;
 }
 
-const char* My::Tokenizer::TokenizerSymbolException::initMessage(const char* format) {
-    if (message)
-        return message;
-    auto bMessage = boost::str(boost::format(format) % symbol % position.first % position.second);
-    const int size = std::strlen(bMessage.c_str()) + 1;
-    message = new char[size];
-    std::memcpy(message, bMessage.c_str(), size);
-    return message;
+const char* tokenizer::tokenizer_symbol_exception::init_message(const char* format) {
+    if (message_)
+        return message_;
+    auto b_message = str(boost::format(format) % symbol_ % position_.first % position_.second);
+    const int size = strlen(b_message.c_str()) + 1;
+    message_ = new char[size];
+    memcpy(message_, b_message.c_str(), size);
+    return message_;
 }
 
-My::Tokenizer::OverflowException::OverflowException(const std::string& string, const std::pair<int, int>& position, const char* type) : TokenizerException(position) {
-    auto bm = boost::str(boost::format("%1% overflow \"%2%\" at (%3%, %4%)") % type % string % position.first  % position.second);
-    const int size = std::strlen(bm.c_str()) + 1;
-    message = new char[size];
-    std::memcpy(message, bm.c_str(), size);
+tokenizer::overflow_exception::overflow_exception(const std::string& string, const std::pair<int, int>& position, const char* type) : tokenizer_exception(position) {
+    auto bm = str(boost::format("%1% overflow \"%2%\" at (%3%, %4%)") % type % string % position.first  % position.second);
+    const int size = strlen(bm.c_str()) + 1;
+    message_ = new char[size];
+    memcpy(message_, bm.c_str(), size);
 }

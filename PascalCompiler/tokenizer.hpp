@@ -208,8 +208,6 @@ namespace pascal_compiler {
 				types type_;
                 std::string string_;
 
-                friend class CnstantNode;
-
 				value value_;
 
 				bool string_used_ = false;

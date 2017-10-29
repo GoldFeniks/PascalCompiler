@@ -18,14 +18,14 @@ void tokenizer_output(const std::string in_file, const std::string out_file) {
 
 void syntax_analyzer_output(const std::string in_file, const std::string out_file) {
     std::ofstream out(out_file);
-    pascal_compiler::SyntaxAnalyzer syntax_analyzer(in_file);
+    /*pascal_compiler::SyntaxAnalyzer syntax_analyzer(in_file);
     try {
         syntax_analyzer.Parse();
         out << syntax_analyzer.ToString();
     }
     catch (pascal_compiler::SyntaxAnalyzer::SyntaxErrorException e) {
         out << e.what();
-    }
+    }*/
 }
 
 int main(const int argc, char* argv[]) {

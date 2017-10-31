@@ -14,7 +14,8 @@ constant_node_p operations::calculate(const tokenizer::token::sub_types type,
                                                          const constant_node_p& left, const constant_node_p& right) {
     const auto left_type = left->type()->category(), right_type = right->type()->category();
     if (left_type != type::type_category::integer && left_type != type::type_category::real &&
-        right_type != type::type_category::integer && right_type != type::type_category::real)
+        right_type != type::type_category::integer && right_type != type::type_category::real &&
+        type != tokenizer::token::sub_types::equal && type != tokenizer::token::sub_types::not_equal)
         throw unsupported_operands_types(left, right, type);
     return binary_operations.at(type)(left, right);
 }
@@ -27,12 +28,18 @@ constant_node_p operations::calculate(const tokenizer::token::sub_types type,
     return unary_operations.at(type)(left);
 }
 
-const type_p& operations::get_type_for_operands(type_p left, type_p right) {
-    left = left->base_type();
-    right = right->base_type();
+type_p operations::get_type_for_operands(type_p left, type_p right, const tokenizer::token::sub_types op) {
+    left = base_type(left);
+    right = base_type(right);
+    if (!left->is_scalar() || !right->is_scalar())
+        throw unsupported_operands_types(left, right, op);
     if (left->category() == type::type_category::integer && right->category() == type::type_category::real ||
-        left->category() == type::type_category::real && right->category() == type::type_category::integer)
-        return real;
+        left->category() == type::type_category::real && right->category() == type::type_category::integer ||
+        op == tokenizer::token::sub_types::divide)
+        return real();
+    if (left->category() == right->category() && 
+        (op == tokenizer::token::sub_types::equal || op == tokenizer::token::sub_types::not_equal))
+        return left;
     if (left->category() == type::type_category::symbol || right->category() == type::type_category::symbol ||
         left->category() != right->category())
         throw incompatible_types(left, right);

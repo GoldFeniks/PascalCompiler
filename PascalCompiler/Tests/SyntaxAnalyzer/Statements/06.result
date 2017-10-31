@@ -1,24 +1,21 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─value a
-           │    │       └─type integer scalar
-           │    └─value b
-           │            └─type integer scalar
-           └─statements
-                      └─for
-                          ├─value a
-                          │       └─type integer scalar
-                          ├─10
-                          ├─to
-                          ├─100
-                          └─statements
-                                     ├─:=
-                                     │  ├─value a
-                                     │  │       └─type integer scalar
-                                     │  └─10
-                                     └─:=
-                                        ├─value b
-                                        │       └─type integer scalar
-                                        └─value a
-                                                └─type integer scalar
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: integer
+        b: integer
+
+    └─statements
+               └─for
+                   ├─a
+                   ├─10
+                   ├─to
+                   ├─100
+                   └─statements
+                              ├─:=
+                              │  ├─a
+                              │  └─10
+                              └─:=
+                                 ├─b
+                                 └─a

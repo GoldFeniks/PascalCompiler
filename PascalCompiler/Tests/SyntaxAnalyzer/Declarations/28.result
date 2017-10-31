@@ -1,1 +1,1 @@
-(8, 16) Syntax Error: Incompatible types "integer", "real"
+(8, 9) Syntax error: Incompatible types "integer", "real"

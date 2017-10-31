@@ -1,29 +1,24 @@
-└─test
-     └─block
-           ├─decl
-           │    └─value a
-           │            └─type integer scalar
-           └─statements
-                      └─if
-                         ├─<
-                         │ ├─10
-                         │ ├─15
-                         │ └─type integer scalar
-                         ├─statements
-                         │          ├─:=
-                         │          │  ├─value a
-                         │          │  │       └─type integer scalar
-                         │          │  └─10
-                         │          └─write
-                         │                ├─'Less'
-                         │                └─value a
-                         │                        └─type integer scalar
-                         └─statements
-                                    ├─:=
-                                    │  ├─value a
-                                    │  │       └─type integer scalar
-                                    │  └─15
-                                    └─write
-                                          ├─'Greater'
-                                          └─value a
-                                                  └─type integer scalar
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: integer
+
+    └─statements
+               └─if
+                  ├─1
+                  ├─statements
+                  │          ├─:=
+                  │          │  ├─a
+                  │          │  └─10
+                  │          └─write
+                  │                ├─less
+                  │                └─a
+                  └─statements
+                             ├─:=
+                             │  ├─a
+                             │  └─15
+                             └─write
+                                   ├─greater
+                                   └─a

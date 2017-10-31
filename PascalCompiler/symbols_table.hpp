@@ -22,6 +22,7 @@ namespace pascal_compiler {
         namespace tree {
 
             class tree_node;
+
             typedef std::shared_ptr<tree_node> tree_node_p;
 
         }//namespace tree
@@ -57,6 +58,7 @@ namespace pascal_compiler {
                 size_t size() const;
                 const table_t& table() const;
                 const vector_t& vector() const;
+                std::string to_string(const std::string& prefix = "") const;
 
             private:
 

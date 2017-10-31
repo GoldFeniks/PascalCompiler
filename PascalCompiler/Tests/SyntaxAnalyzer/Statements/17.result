@@ -1,500 +1,98 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─type arr array
-           │    │              ├─1
-           │    │              ├─10
-           │    │              └─type integer scalar
-           │    ├─type rec record
-           │    │               ├─value a
-           │    │               │       └─type integer scalar
-           │    │               └─value b
-           │    │                       └─type arr array
-           │    │                                      ├─1
-           │    │                                      ├─10
-           │    │                                      └─type integer scalar
-           │    ├─type arr1 array
-           │    │               ├─1
-           │    │               ├─10
-           │    │               └─type rec record
-           │    │                               ├─value a
-           │    │                               │       └─type integer scalar
-           │    │                               └─value b
-           │    │                                       └─type arr array
-           │    │                                                      ├─1
-           │    │                                                      ├─10
-           │    │                                                      └─type integer scalar
-           │    ├─type arr2 array
-           │    │               ├─1
-           │    │               ├─10
-           │    │               └─type * array
-           │    │                            ├─1
-           │    │                            ├─10
-           │    │                            └─type rec record
-           │    │                                            ├─value a
-           │    │                                            │       └─type integer scalar
-           │    │                                            └─value b
-           │    │                                                    └─type arr array
-           │    │                                                                   ├─1
-           │    │                                                                   ├─10
-           │    │                                                                   └─type integer scalar
-           │    ├─type rec1 record
-           │    │                └─value a
-           │    │                        └─type arr2 array
-           │    │                                        ├─1
-           │    │                                        ├─10
-           │    │                                        └─type * array
-           │    │                                                     ├─1
-           │    │                                                     ├─10
-           │    │                                                     └─type rec record
-           │    │                                                                     ├─value a
-           │    │                                                                     │       └─type integer scalar
-           │    │                                                                     └─value b
-           │    │                                                                             └─type arr array
-           │    │                                                                                            ├─1
-           │    │                                                                                            ├─10
-           │    │                                                                                            └─type integer scalar
-           │    ├─value a
-           │    │       └─type arr array
-           │    │                      ├─1
-           │    │                      ├─10
-           │    │                      └─type integer scalar
-           │    ├─value b
-           │    │       └─type rec record
-           │    │                       ├─value a
-           │    │                       │       └─type integer scalar
-           │    │                       └─value b
-           │    │                               └─type arr array
-           │    │                                              ├─1
-           │    │                                              ├─10
-           │    │                                              └─type integer scalar
-           │    ├─value c
-           │    │       └─type arr1 array
-           │    │                       ├─1
-           │    │                       ├─10
-           │    │                       └─type rec record
-           │    │                                       ├─value a
-           │    │                                       │       └─type integer scalar
-           │    │                                       └─value b
-           │    │                                               └─type arr array
-           │    │                                                              ├─1
-           │    │                                                              ├─10
-           │    │                                                              └─type integer scalar
-           │    ├─value d
-           │    │       └─type arr2 array
-           │    │                       ├─1
-           │    │                       ├─10
-           │    │                       └─type * array
-           │    │                                    ├─1
-           │    │                                    ├─10
-           │    │                                    └─type rec record
-           │    │                                                    ├─value a
-           │    │                                                    │       └─type integer scalar
-           │    │                                                    └─value b
-           │    │                                                            └─type arr array
-           │    │                                                                           ├─1
-           │    │                                                                           ├─10
-           │    │                                                                           └─type integer scalar
-           │    └─value f
-           │            └─type rec1 record
-           │                             └─value a
-           │                                     └─type arr2 array
-           │                                                     ├─1
-           │                                                     ├─10
-           │                                                     └─type * array
-           │                                                                  ├─1
-           │                                                                  ├─10
-           │                                                                  └─type rec record
-           │                                                                                  ├─value a
-           │                                                                                  │       └─type integer scalar
-           │                                                                                  └─value b
-           │                                                                                          └─type arr array
-           │                                                                                                         ├─1
-           │                                                                                                         ├─10
-           │                                                                                                         └─type integer scalar
-           └─statements
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─value b
-                      │  │ │       └─type rec record
-                      │  │ │                       ├─value a
-                      │  │ │                       │       └─type integer scalar
-                      │  │ │                       └─value b
-                      │  │ │                               └─type arr array
-                      │  │ │                                              ├─1
-                      │  │ │                                              ├─10
-                      │  │ │                                              └─type integer scalar
-                      │  │ ├─value a
-                      │  │ │       └─type integer scalar
-                      │  │ └─type integer scalar
-                      │  └─10
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─value b
-                      │  │ │       └─type rec record
-                      │  │ │                       ├─value a
-                      │  │ │                       │       └─type integer scalar
-                      │  │ │                       └─value b
-                      │  │ │                               └─type arr array
-                      │  │ │                                              ├─1
-                      │  │ │                                              ├─10
-                      │  │ │                                              └─type integer scalar
-                      │  │ ├─value b
-                      │  │ │       └─type arr array
-                      │  │ │                      ├─1
-                      │  │ │                      ├─10
-                      │  │ │                      └─type integer scalar
-                      │  │ └─type arr array
-                      │  │                ├─1
-                      │  │                ├─10
-                      │  │                └─type integer scalar
-                      │  └─value a
-                      │          └─type arr array
-                      │                         ├─1
-                      │                         ├─10
-                      │                         └─type integer scalar
-                      ├─:=
-                      │  ├─value a
-                      │  │       └─type arr array
-                      │  │                      ├─1
-                      │  │                      ├─10
-                      │  │                      └─type integer scalar
-                      │  └─.
-                      │    ├─value b
-                      │    │       └─type rec record
-                      │    │                       ├─value a
-                      │    │                       │       └─type integer scalar
-                      │    │                       └─value b
-                      │    │                               └─type arr array
-                      │    │                                              ├─1
-                      │    │                                              ├─10
-                      │    │                                              └─type integer scalar
-                      │    ├─value b
-                      │    │       └─type arr array
-                      │    │                      ├─1
-                      │    │                      ├─10
-                      │    │                      └─type integer scalar
-                      │    └─type arr array
-                      │                   ├─1
-                      │                   ├─10
-                      │                   └─type integer scalar
-                      ├─:=
-                      │  ├─[]
-                      │  │  ├─value c
-                      │  │  │       └─type arr1 array
-                      │  │  │                       ├─1
-                      │  │  │                       ├─10
-                      │  │  │                       └─type rec record
-                      │  │  │                                       ├─value a
-                      │  │  │                                       │       └─type integer scalar
-                      │  │  │                                       └─value b
-                      │  │  │                                               └─type arr array
-                      │  │  │                                                              ├─1
-                      │  │  │                                                              ├─10
-                      │  │  │                                                              └─type integer scalar
-                      │  │  ├─1
-                      │  │  └─type rec record
-                      │  │                  ├─value a
-                      │  │                  │       └─type integer scalar
-                      │  │                  └─value b
-                      │  │                          └─type arr array
-                      │  │                                         ├─1
-                      │  │                                         ├─10
-                      │  │                                         └─type integer scalar
-                      │  └─value b
-                      │          └─type rec record
-                      │                          ├─value a
-                      │                          │       └─type integer scalar
-                      │                          └─value b
-                      │                                  └─type arr array
-                      │                                                 ├─1
-                      │                                                 ├─10
-                      │                                                 └─type integer scalar
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─[]
-                      │  │ │  ├─value c
-                      │  │ │  │       └─type arr1 array
-                      │  │ │  │                       ├─1
-                      │  │ │  │                       ├─10
-                      │  │ │  │                       └─type rec record
-                      │  │ │  │                                       ├─value a
-                      │  │ │  │                                       │       └─type integer scalar
-                      │  │ │  │                                       └─value b
-                      │  │ │  │                                               └─type arr array
-                      │  │ │  │                                                              ├─1
-                      │  │ │  │                                                              ├─10
-                      │  │ │  │                                                              └─type integer scalar
-                      │  │ │  ├─1
-                      │  │ │  └─type rec record
-                      │  │ │                  ├─value a
-                      │  │ │                  │       └─type integer scalar
-                      │  │ │                  └─value b
-                      │  │ │                          └─type arr array
-                      │  │ │                                         ├─1
-                      │  │ │                                         ├─10
-                      │  │ │                                         └─type integer scalar
-                      │  │ ├─value b
-                      │  │ │       └─type arr array
-                      │  │ │                      ├─1
-                      │  │ │                      ├─10
-                      │  │ │                      └─type integer scalar
-                      │  │ └─type arr array
-                      │  │                ├─1
-                      │  │                ├─10
-                      │  │                └─type integer scalar
-                      │  └─value a
-                      │          └─type arr array
-                      │                         ├─1
-                      │                         ├─10
-                      │                         └─type integer scalar
-                      ├─:=
-                      │  ├─[]
-                      │  │  ├─[]
-                      │  │  │  ├─value d
-                      │  │  │  │       └─type arr2 array
-                      │  │  │  │                       ├─1
-                      │  │  │  │                       ├─10
-                      │  │  │  │                       └─type * array
-                      │  │  │  │                                    ├─1
-                      │  │  │  │                                    ├─10
-                      │  │  │  │                                    └─type rec record
-                      │  │  │  │                                                    ├─value a
-                      │  │  │  │                                                    │       └─type integer scalar
-                      │  │  │  │                                                    └─value b
-                      │  │  │  │                                                            └─type arr array
-                      │  │  │  │                                                                           ├─1
-                      │  │  │  │                                                                           ├─10
-                      │  │  │  │                                                                           └─type integer scalar
-                      │  │  │  ├─1
-                      │  │  │  └─type * array
-                      │  │  │               ├─1
-                      │  │  │               ├─10
-                      │  │  │               └─type rec record
-                      │  │  │                               ├─value a
-                      │  │  │                               │       └─type integer scalar
-                      │  │  │                               └─value b
-                      │  │  │                                       └─type arr array
-                      │  │  │                                                      ├─1
-                      │  │  │                                                      ├─10
-                      │  │  │                                                      └─type integer scalar
-                      │  │  ├─2
-                      │  │  └─type rec record
-                      │  │                  ├─value a
-                      │  │                  │       └─type integer scalar
-                      │  │                  └─value b
-                      │  │                          └─type arr array
-                      │  │                                         ├─1
-                      │  │                                         ├─10
-                      │  │                                         └─type integer scalar
-                      │  └─value b
-                      │          └─type rec record
-                      │                          ├─value a
-                      │                          │       └─type integer scalar
-                      │                          └─value b
-                      │                                  └─type arr array
-                      │                                                 ├─1
-                      │                                                 ├─10
-                      │                                                 └─type integer scalar
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─[]
-                      │  │ │  ├─[]
-                      │  │ │  │  ├─value d
-                      │  │ │  │  │       └─type arr2 array
-                      │  │ │  │  │                       ├─1
-                      │  │ │  │  │                       ├─10
-                      │  │ │  │  │                       └─type * array
-                      │  │ │  │  │                                    ├─1
-                      │  │ │  │  │                                    ├─10
-                      │  │ │  │  │                                    └─type rec record
-                      │  │ │  │  │                                                    ├─value a
-                      │  │ │  │  │                                                    │       └─type integer scalar
-                      │  │ │  │  │                                                    └─value b
-                      │  │ │  │  │                                                            └─type arr array
-                      │  │ │  │  │                                                                           ├─1
-                      │  │ │  │  │                                                                           ├─10
-                      │  │ │  │  │                                                                           └─type integer scalar
-                      │  │ │  │  ├─2
-                      │  │ │  │  └─type * array
-                      │  │ │  │               ├─1
-                      │  │ │  │               ├─10
-                      │  │ │  │               └─type rec record
-                      │  │ │  │                               ├─value a
-                      │  │ │  │                               │       └─type integer scalar
-                      │  │ │  │                               └─value b
-                      │  │ │  │                                       └─type arr array
-                      │  │ │  │                                                      ├─1
-                      │  │ │  │                                                      ├─10
-                      │  │ │  │                                                      └─type integer scalar
-                      │  │ │  ├─4
-                      │  │ │  └─type rec record
-                      │  │ │                  ├─value a
-                      │  │ │                  │       └─type integer scalar
-                      │  │ │                  └─value b
-                      │  │ │                          └─type arr array
-                      │  │ │                                         ├─1
-                      │  │ │                                         ├─10
-                      │  │ │                                         └─type integer scalar
-                      │  │ ├─value b
-                      │  │ │       └─type arr array
-                      │  │ │                      ├─1
-                      │  │ │                      ├─10
-                      │  │ │                      └─type integer scalar
-                      │  │ └─type arr array
-                      │  │                ├─1
-                      │  │                ├─10
-                      │  │                └─type integer scalar
-                      │  └─value a
-                      │          └─type arr array
-                      │                         ├─1
-                      │                         ├─10
-                      │                         └─type integer scalar
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─value b
-                      │  │ │       └─type rec record
-                      │  │ │                       ├─value a
-                      │  │ │                       │       └─type integer scalar
-                      │  │ │                       └─value b
-                      │  │ │                               └─type arr array
-                      │  │ │                                              ├─1
-                      │  │ │                                              ├─10
-                      │  │ │                                              └─type integer scalar
-                      │  │ ├─value b
-                      │  │ │       └─type arr array
-                      │  │ │                      ├─1
-                      │  │ │                      ├─10
-                      │  │ │                      └─type integer scalar
-                      │  │ └─type arr array
-                      │  │                ├─1
-                      │  │                ├─10
-                      │  │                └─type integer scalar
-                      │  └─.
-                      │    ├─[]
-                      │    │  ├─[]
-                      │    │  │  ├─value d
-                      │    │  │  │       └─type arr2 array
-                      │    │  │  │                       ├─1
-                      │    │  │  │                       ├─10
-                      │    │  │  │                       └─type * array
-                      │    │  │  │                                    ├─1
-                      │    │  │  │                                    ├─10
-                      │    │  │  │                                    └─type rec record
-                      │    │  │  │                                                    ├─value a
-                      │    │  │  │                                                    │       └─type integer scalar
-                      │    │  │  │                                                    └─value b
-                      │    │  │  │                                                            └─type arr array
-                      │    │  │  │                                                                           ├─1
-                      │    │  │  │                                                                           ├─10
-                      │    │  │  │                                                                           └─type integer scalar
-                      │    │  │  ├─2
-                      │    │  │  └─type * array
-                      │    │  │               ├─1
-                      │    │  │               ├─10
-                      │    │  │               └─type rec record
-                      │    │  │                               ├─value a
-                      │    │  │                               │       └─type integer scalar
-                      │    │  │                               └─value b
-                      │    │  │                                       └─type arr array
-                      │    │  │                                                      ├─1
-                      │    │  │                                                      ├─10
-                      │    │  │                                                      └─type integer scalar
-                      │    │  ├─4
-                      │    │  └─type rec record
-                      │    │                  ├─value a
-                      │    │                  │       └─type integer scalar
-                      │    │                  └─value b
-                      │    │                          └─type arr array
-                      │    │                                         ├─1
-                      │    │                                         ├─10
-                      │    │                                         └─type integer scalar
-                      │    ├─value b
-                      │    │       └─type arr array
-                      │    │                      ├─1
-                      │    │                      ├─10
-                      │    │                      └─type integer scalar
-                      │    └─type arr array
-                      │                   ├─1
-                      │                   ├─10
-                      │                   └─type integer scalar
-                      └─:=
-                         ├─[]
-                         │  ├─[]
-                         │  │  ├─.
-                         │  │  │ ├─value f
-                         │  │  │ │       └─type rec1 record
-                         │  │  │ │                        └─value a
-                         │  │  │ │                                └─type arr2 array
-                         │  │  │ │                                                ├─1
-                         │  │  │ │                                                ├─10
-                         │  │  │ │                                                └─type * array
-                         │  │  │ │                                                             ├─1
-                         │  │  │ │                                                             ├─10
-                         │  │  │ │                                                             └─type rec record
-                         │  │  │ │                                                                             ├─value a
-                         │  │  │ │                                                                             │       └─type integer scalar
-                         │  │  │ │                                                                             └─value b
-                         │  │  │ │                                                                                     └─type arr array
-                         │  │  │ │                                                                                                    ├─1
-                         │  │  │ │                                                                                                    ├─10
-                         │  │  │ │                                                                                                    └─type integer scalar
-                         │  │  │ ├─value a
-                         │  │  │ │       └─type arr2 array
-                         │  │  │ │                       ├─1
-                         │  │  │ │                       ├─10
-                         │  │  │ │                       └─type * array
-                         │  │  │ │                                    ├─1
-                         │  │  │ │                                    ├─10
-                         │  │  │ │                                    └─type rec record
-                         │  │  │ │                                                    ├─value a
-                         │  │  │ │                                                    │       └─type integer scalar
-                         │  │  │ │                                                    └─value b
-                         │  │  │ │                                                            └─type arr array
-                         │  │  │ │                                                                           ├─1
-                         │  │  │ │                                                                           ├─10
-                         │  │  │ │                                                                           └─type integer scalar
-                         │  │  │ └─type arr2 array
-                         │  │  │                 ├─1
-                         │  │  │                 ├─10
-                         │  │  │                 └─type * array
-                         │  │  │                              ├─1
-                         │  │  │                              ├─10
-                         │  │  │                              └─type rec record
-                         │  │  │                                              ├─value a
-                         │  │  │                                              │       └─type integer scalar
-                         │  │  │                                              └─value b
-                         │  │  │                                                      └─type arr array
-                         │  │  │                                                                     ├─1
-                         │  │  │                                                                     ├─10
-                         │  │  │                                                                     └─type integer scalar
-                         │  │  ├─2
-                         │  │  └─type * array
-                         │  │               ├─1
-                         │  │               ├─10
-                         │  │               └─type rec record
-                         │  │                               ├─value a
-                         │  │                               │       └─type integer scalar
-                         │  │                               └─value b
-                         │  │                                       └─type arr array
-                         │  │                                                      ├─1
-                         │  │                                                      ├─10
-                         │  │                                                      └─type integer scalar
-                         │  ├─10
-                         │  └─type rec record
-                         │                  ├─value a
-                         │                  │       └─type integer scalar
-                         │                  └─value b
-                         │                          └─type arr array
-                         │                                         ├─1
-                         │                                         ├─10
-                         │                                         └─type integer scalar
-                         └─value b
-                                 └─type rec record
-                                                 ├─value a
-                                                 │       └─type integer scalar
-                                                 └─value b
-                                                         └─type arr array
-                                                                        ├─1
-                                                                        ├─10
-                                                                        └─type integer scalar
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        arr: type array [1..10] of integer
+        rec: type record:
+                   a: integer
+                   b: array [1..10] of integer
+        arr1: type array [1..10] of record:
+                                     a: integer
+                                     b: array [1..10] of integer
+        arr2: type array [1..10] of array [1..10] of record:
+                                                      a: integer
+                                                      b: array [1..10] of integer
+        rec1: type record:
+                    a: array [1..10] of array [1..10] of record:
+                                                         a: integer
+                                                         b: array [1..10] of integer
+        a: array [1..10] of integer
+        b: record:
+             a: integer
+             b: array [1..10] of integer
+        c: array [1..10] of record:
+                              a: integer
+                              b: array [1..10] of integer
+        d: array [1..10] of array [1..10] of record:
+                                               a: integer
+                                               b: array [1..10] of integer
+        f: record:
+             a: array [1..10] of array [1..10] of record:
+                                                  a: integer
+                                                  b: array [1..10] of integer
+
+    └─statements
+               ├─:=
+               │  ├─.
+               │  │ ├─b
+               │  │ └─a
+               │  └─10
+               ├─:=
+               │  ├─.
+               │  │ ├─b
+               │  │ └─b
+               │  └─a
+               ├─:=
+               │  ├─a
+               │  └─.
+               │    ├─b
+               │    └─b
+               ├─:=
+               │  ├─[]
+               │  │  ├─c
+               │  │  └─1
+               │  └─b
+               ├─:=
+               │  ├─.
+               │  │ ├─[]
+               │  │ │  ├─c
+               │  │ │  └─1
+               │  │ └─b
+               │  └─a
+               ├─:=
+               │  ├─[]
+               │  │  ├─[]
+               │  │  │  ├─d
+               │  │  │  └─1
+               │  │  └─2
+               │  └─b
+               ├─:=
+               │  ├─.
+               │  │ ├─[]
+               │  │ │  ├─[]
+               │  │ │  │  ├─d
+               │  │ │  │  └─2
+               │  │ │  └─4
+               │  │ └─b
+               │  └─a
+               ├─:=
+               │  ├─.
+               │  │ ├─b
+               │  │ └─b
+               │  └─.
+               │    ├─[]
+               │    │  ├─[]
+               │    │  │  ├─d
+               │    │  │  └─2
+               │    │  └─4
+               │    └─b
+               └─:=
+                  ├─[]
+                  │  ├─[]
+                  │  │  ├─.
+                  │  │  │ ├─f
+                  │  │  │ └─a
+                  │  │  └─2
+                  │  └─10
+                  └─b

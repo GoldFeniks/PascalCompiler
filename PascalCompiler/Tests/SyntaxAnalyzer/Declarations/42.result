@@ -1,1 +1,1 @@
-(3, 12) Syntax Error: Incompatible types "integer", "char"
+Unsupported operands types "integer", "char" for And

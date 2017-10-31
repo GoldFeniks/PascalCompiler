@@ -1,24 +1,15 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─procedure p
-           │    │           ├─p_list
-           │    │           │      └─value a
-           │    │           │              ├─type integer scalar
-           │    │           │              └─10
-           │    │           └─block
-           │    │                 ├─decl
-           │    │                 └─statements
-           │    └─function f
-           │               ├─p_list
-           │               │      ├─value a
-           │               │      │       ├─type real scalar
-           │               │      │       └─10
-           │               │      └─const c
-           │               │              ├─type char scalar
-           │               │              └─'c'
-           │               ├─type real scalar
-           │               └─block
-           │                     ├─decl
-           │                     └─statements
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        p: function (a: integer = 20; )
+             result: nil
+
+         └─statements
+        f: function (a: real = 101.000000; c: const char = 'c'; )
+             result: real
+
+         └─statements
+
+    └─statements

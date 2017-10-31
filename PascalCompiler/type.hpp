@@ -17,23 +17,24 @@ namespace pascal_compiler {
             public:
 
                 enum class type_category : unsigned int {
-                    alias, integer, real, symbol, array, nil,
+                    type, integer, real, symbol, array, nil,
                     record, function, modified, pointer, string
                 };
 
                 static const std::string type_strings[];
 
                 type(const std::string& name, const type_category category) : name_(name), 
-                    category_(category), is_anonymous_(name.length()) {}
+                    category_(category), is_anonymous_(!name.length()) {}
 
                 virtual ~type() {}
 
-                const std::string& name() const;
+                std::string name() const;
                 type_category category() const;
                 bool is_category(const type_category category) const;
-                virtual const type_p& base_type() const;
                 bool is_anonymous() const;
                 bool is_scalar() const;
+
+                virtual std::string to_string(const std::string& prefix = "") const;
 
             private:
 
@@ -44,30 +45,49 @@ namespace pascal_compiler {
             };// class type
 
             //basic types
-            const type_p integer = std::make_shared<type>("integer", type::type_category::integer);
-            const type_p real = std::make_shared<type>("real", type::type_category::real);
-            const type_p symbol = std::make_shared<type>("char", type::type_category::symbol);
-            const type_p string = std::make_shared<type>("string", type::type_category::string);
-            const type_p nil = std::make_shared<type>("nil", type::type_category::nil);
+            inline type_p integer() {
+                static const auto integer = std::make_shared<type>("integer", type::type_category::integer);
+                return integer;
+            }
 
-            class alias_type;
-            typedef std::shared_ptr<alias_type> alias_type_p;
+            inline type_p real() {
+                static const auto real = std::make_shared<type>("real", type::type_category::real);
+                return real;
+            }
 
-            class alias_type : public type {
+            inline type_p symbol() {
+                static const auto symbol = std::make_shared<type>("char", type::type_category::symbol);
+                return symbol;
+            }
+
+            inline type_p string() {
+                static const auto string = std::make_shared<type>("string", type::type_category::string);
+                return string;
+            }
+
+            inline type_p nil() {
+                static const auto nil = std::make_shared<type>("nil", type::type_category::nil);
+                return nil;
+            }
+
+            class type_type;
+            typedef std::shared_ptr<type_type> alias_type_p;
+
+            class type_type : public type {
 
             public:
 
-                alias_type(const std::string& name, const type_p& alias_to) :
-                    type(name, type_category::alias), alias_to_(alias_to) {}
+                type_type(const std::string& name, const type_p& alias_to) :
+                    type(name, type_category::type), alias_to_(alias_to) {}
 
                 type_p alias_to() const;
-                const type_p& base_type() const override;
+                std::string to_string(const std::string& prefix = "") const override;
 
             private:
 
                 type_p alias_to_;
 
-            };// class alias_type
+            };// class type_type
 
             class array_type;
             typedef std::shared_ptr<array_type> array_type_p;
@@ -83,6 +103,7 @@ namespace pascal_compiler {
                 size_t min() const;
                 size_t max() const;
                 const type_p& element_type() const;
+                std::string to_string(const std::string& prefix = "") const override;
 
             private:
 
@@ -102,6 +123,7 @@ namespace pascal_compiler {
 
                 void add_field(const std::string& name, const type_p& type);
                 const symbols_table& fields() const;
+                std::string to_string(const std::string& prefix = "") const override;
 
             private:
 
@@ -117,12 +139,13 @@ namespace pascal_compiler {
             public:
 
                 function_type(const std::string& name, const symbols_table& parameters, const symbols_table& table,
-                    const type_p& return_type = nil) :
+                    const type_p& return_type = nil()) :
                     type(name, type_category::function), parameters_(parameters), table_(table), return_type_(return_type) {};
 
                 const symbols_table& parameters() const;
                 const symbols_table& table() const;
                 const type_p& return_type() const;
+                std::string to_string(const std::string& prefix = "") const override;
 
             private:
 
@@ -144,7 +167,8 @@ namespace pascal_compiler {
                     type("", type_category::modified), type_(type), modificator_(modificator) {};
 
                 modificator_type modificator() const;
-                const type_p& base_type() const override;
+                std::string to_string(const std::string& prefix = "") const override;
+                const type_p& base_type() const;
 
             private:
 
@@ -164,12 +188,15 @@ namespace pascal_compiler {
                     type(name, type_category::pointer), pointer_to_(pointer_to) {}
 
                 const type_p& pointer_to() const;
+                std::string to_string(const std::string& prefix = "") const override;
 
             private:
 
                 type_p pointer_to_;
 
             };// class pointer_type
+
+            type_p base_type(const type_p& t);
 
         }// namespase types
 

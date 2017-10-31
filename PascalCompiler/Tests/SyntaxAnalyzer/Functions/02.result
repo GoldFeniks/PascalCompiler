@@ -1,39 +1,15 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─procedure p
-           │    │           ├─p_list
-           │    │           │      ├─value a
-           │    │           │      │       └─type integer scalar
-           │    │           │      ├─const b
-           │    │           │      │       └─type real scalar
-           │    │           │      ├─const c
-           │    │           │      │       └─type real scalar
-           │    │           │      ├─var d
-           │    │           │      │     └─type char scalar
-           │    │           │      ├─var e
-           │    │           │      │     └─type char scalar
-           │    │           │      └─var f
-           │    │           │            └─type char scalar
-           │    │           └─block
-           │    │                 ├─decl
-           │    │                 └─statements
-           │    └─function f
-           │               ├─p_list
-           │               │      ├─value a
-           │               │      │       └─type integer scalar
-           │               │      ├─value b
-           │               │      │       └─type integer scalar
-           │               │      ├─value c
-           │               │      │       └─type integer scalar
-           │               │      ├─const d
-           │               │      │       └─type real scalar
-           │               │      ├─const e
-           │               │      │       └─type real scalar
-           │               │      └─var f
-           │               │            └─type char scalar
-           │               ├─type integer scalar
-           │               └─block
-           │                     ├─decl
-           │                     └─statements
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        p: function (a: integer; b: const real; c: const real; d: var char; e: var char; f: var char; )
+             result: nil
+
+         └─statements
+        f: function (a: integer; b: integer; c: integer; d: const real; e: const real; f: var char; )
+             result: integer
+
+         └─statements
+
+    └─statements

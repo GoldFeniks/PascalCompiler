@@ -1,120 +1,39 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─type rec record
-           │    │               └─value a
-           │    │                       └─type real scalar
-           │    ├─function f
-           │    │          ├─p_list
-           │    │          │      ├─value a
-           │    │          │      │       └─type real scalar
-           │    │          │      ├─value b
-           │    │          │      │       └─type real scalar
-           │    │          │      ├─value c
-           │    │          │      │       └─type real scalar
-           │    │          │      └─value d
-           │    │          │              └─type rec record
-           │    │          │                              └─value a
-           │    │          │                                      └─type real scalar
-           │    │          ├─type rec record
-           │    │          │               └─value a
-           │    │          │                       └─type real scalar
-           │    │          └─block
-           │    │                ├─decl
-           │    │                └─statements
-           │    │                           ├─:=
-           │    │                           │  ├─.
-           │    │                           │  │ ├─value d
-           │    │                           │  │ │       └─type rec record
-           │    │                           │  │ │                       └─value a
-           │    │                           │  │ │                               └─type real scalar
-           │    │                           │  │ ├─value a
-           │    │                           │  │ │       └─type real scalar
-           │    │                           │  │ └─type real scalar
-           │    │                           │  └─/
-           │    │                           │    ├─+
-           │    │                           │    │ ├─value a
-           │    │                           │    │ │       └─type real scalar
-           │    │                           │    │ ├─value b
-           │    │                           │    │ │       └─type real scalar
-           │    │                           │    │ └─type real scalar
-           │    │                           │    ├─value c
-           │    │                           │    │       └─type real scalar
-           │    │                           │    └─type real scalar
-           │    │                           └─:=
-           │    │                              ├─value result
-           │    │                              │            └─type rec record
-           │    │                              │                            └─value a
-           │    │                              │                                    └─type real scalar
-           │    │                              └─value d
-           │    │                                      └─type rec record
-           │    │                                                      └─value a
-           │    │                                                              └─type real scalar
-           │    └─value r
-           │            └─type rec record
-           │                            └─value a
-           │                                    └─type real scalar
-           └─statements
-                      └─:=
-                         ├─value r
-                         │       └─type rec record
-                         │                       └─value a
-                         │                               └─type real scalar
-                         └─()
-                            ├─function f
-                            │          ├─p_list
-                            │          │      ├─value a
-                            │          │      │       └─type real scalar
-                            │          │      ├─value b
-                            │          │      │       └─type real scalar
-                            │          │      ├─value c
-                            │          │      │       └─type real scalar
-                            │          │      └─value d
-                            │          │              └─type rec record
-                            │          │                              └─value a
-                            │          │                                      └─type real scalar
-                            │          ├─type rec record
-                            │          │               └─value a
-                            │          │                       └─type real scalar
-                            │          └─block
-                            │                ├─decl
-                            │                └─statements
-                            │                           ├─:=
-                            │                           │  ├─.
-                            │                           │  │ ├─value d
-                            │                           │  │ │       └─type rec record
-                            │                           │  │ │                       └─value a
-                            │                           │  │ │                               └─type real scalar
-                            │                           │  │ ├─value a
-                            │                           │  │ │       └─type real scalar
-                            │                           │  │ └─type real scalar
-                            │                           │  └─/
-                            │                           │    ├─+
-                            │                           │    │ ├─value a
-                            │                           │    │ │       └─type real scalar
-                            │                           │    │ ├─value b
-                            │                           │    │ │       └─type real scalar
-                            │                           │    │ └─type real scalar
-                            │                           │    ├─value c
-                            │                           │    │       └─type real scalar
-                            │                           │    └─type real scalar
-                            │                           └─:=
-                            │                              ├─value result
-                            │                              │            └─type rec record
-                            │                              │                            └─value a
-                            │                              │                                    └─type real scalar
-                            │                              └─value d
-                            │                                      └─type rec record
-                            │                                                      └─value a
-                            │                                                              └─type real scalar
-                            ├─p_list
-                            │      ├─1.0
-                            │      ├─10.1
-                            │      ├─3
-                            │      └─value r
-                            │              └─type rec record
-                            │                              └─value a
-                            │                                      └─type real scalar
-                            └─type rec record
-                                            └─value a
-                                                    └─type real scalar
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        rec: type record:
+                   a: real
+        f: function (a: real; b: real; c: real; d: record:
+    a: real; )
+             result: record:
+                       a: real
+
+         └─statements
+                    ├─:=
+                    │  ├─.
+                    │  │ ├─d
+                    │  │ └─a
+                    │  └─/
+                    │    ├─+
+                    │    │ ├─a
+                    │    │ └─b
+                    │    └─c
+                    └─:=
+                       ├─result
+                       └─d
+        r: record:
+             a: real
+
+    └─statements
+               └─:=
+                  ├─r
+                  └─()
+                     ├─f
+                     └─p_list
+                            ├─1.0
+                            ├─10.1
+                            ├─real
+                            │    └─3
+                            └─r

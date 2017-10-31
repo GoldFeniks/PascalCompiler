@@ -1,52 +1,39 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─value a
-           │    │       └─type integer scalar
-           │    ├─value b
-           │    │       └─type integer scalar
-           │    ├─value c
-           │    │       └─type real scalar
-           │    ├─value d
-           │    │       └─type real scalar
-           │    ├─value e
-           │    │       └─type char scalar
-           │    └─value f
-           │            └─type char scalar
-           └─statements
-                      ├─:=
-                      │  ├─value a
-                      │  │       └─type integer scalar
-                      │  └─value b
-                      │          └─type integer scalar
-                      ├─:=
-                      │  ├─value b
-                      │  │       └─type integer scalar
-                      │  └─10
-                      ├─:=
-                      │  ├─value c
-                      │  │       └─type real scalar
-                      │  └─value a
-                      │          └─type integer scalar
-                      ├─:=
-                      │  ├─value c
-                      │  │       └─type real scalar
-                      │  └─value d
-                      │          └─type real scalar
-                      ├─:=
-                      │  ├─value c
-                      │  │       └─type real scalar
-                      │  └─10.1
-                      ├─:=
-                      │  ├─value d
-                      │  │       └─type real scalar
-                      │  └─10
-                      ├─:=
-                      │  ├─value e
-                      │  │       └─type char scalar
-                      │  └─value f
-                      │          └─type char scalar
-                      └─:=
-                         ├─value f
-                         │       └─type char scalar
-                         └─'c'
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: integer
+        b: integer
+        c: real
+        d: real
+        e: char
+        f: char
+
+    └─statements
+               ├─:=
+               │  ├─a
+               │  └─b
+               ├─:=
+               │  ├─b
+               │  └─10
+               ├─:=
+               │  ├─c
+               │  └─real
+               │       └─a
+               ├─:=
+               │  ├─c
+               │  └─d
+               ├─:=
+               │  ├─c
+               │  └─10.1
+               ├─:=
+               │  ├─d
+               │  └─real
+               │       └─10
+               ├─:=
+               │  ├─e
+               │  └─f
+               └─:=
+                  ├─f
+                  └─'c'

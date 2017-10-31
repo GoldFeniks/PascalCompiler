@@ -1,0 +1,19 @@
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        f: function (a: var integer; b: var integer; )
+             result: nil
+
+         └─statements
+                    └─if
+                       ├─<
+                       │ ├─a
+                       │ └─b
+                       ├─exit
+                       └─:=
+                          ├─a
+                          └─b
+
+    └─statements

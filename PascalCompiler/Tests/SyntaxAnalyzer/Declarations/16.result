@@ -1,13 +1,11 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─type i alias
-           │    │            └─type integer scalar
-           │    └─type r record
-           │                  ├─value i
-           │                  │       └─type i alias
-           │                  │                    └─type integer scalar
-           │                  └─value j
-           │                          └─type i alias
-           │                                       └─type integer scalar
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        i: type integer
+        r: type record:
+                 i: integer
+                 j: integer
+
+    └─statements

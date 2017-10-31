@@ -1,1 +1,1 @@
-(8, 5) Syntax Error: End expected but ReservedWord "else" found
+(8, 5) Syntax error: End expected but ReservedWord "else" found

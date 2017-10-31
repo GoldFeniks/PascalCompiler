@@ -2,6 +2,7 @@
 #include "tokenizer.hpp"
 #include <string>
 #include "syntax_analyzer.hpp"
+#include "exceptions.hpp"
 
 void tokenizer_output(const std::string in_file, const std::string out_file) {
     std::ofstream out(out_file);
@@ -18,14 +19,17 @@ void tokenizer_output(const std::string in_file, const std::string out_file) {
 
 void syntax_analyzer_output(const std::string in_file, const std::string out_file) {
     std::ofstream out(out_file);
-    /*pascal_compiler::SyntaxAnalyzer syntax_analyzer(in_file);
+    pascal_compiler::syntax_analyzer::syntax_analyzer syntax_analyzer(in_file);
     try {
-        syntax_analyzer.Parse();
-        out << syntax_analyzer.ToString();
+        syntax_analyzer.parse();
+        out << syntax_analyzer.tables().back().to_string();
     }
-    catch (pascal_compiler::SyntaxAnalyzer::SyntaxErrorException e) {
+    catch (const pascal_compiler::exception e) {
         out << e.what();
-    }*/
+    }
+    catch (const pascal_compiler::syntax_analyzer::tree::convertion_error e) {
+        out << e.what();
+    }
 }
 
 int main(const int argc, char* argv[]) {

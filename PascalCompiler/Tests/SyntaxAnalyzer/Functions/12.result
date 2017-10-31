@@ -1,1 +1,1 @@
-(13, 19) Syntax Error: function doesn't take 2 argument(s)
+(13, 11) Syntax error: Incompatible types "integer", "real"

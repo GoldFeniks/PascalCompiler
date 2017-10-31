@@ -1,34 +1,12 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─type myinteger alias
-           │    │                    └─type integer scalar
-           │    ├─type myarray array
-           │    │                  ├─1
-           │    │                  ├─2
-           │    │                  └─type myinteger alias
-           │    │                                       └─type integer scalar
-           │    ├─type myarray2 array
-           │    │                   ├─1
-           │    │                   ├─2
-           │    │                   └─type myarray array
-           │    │                                      ├─1
-           │    │                                      ├─2
-           │    │                                      └─type myinteger alias
-           │    │                                                           └─type integer scalar
-           │    ├─value a1
-           │    │        └─type myarray array
-           │    │                           ├─1
-           │    │                           ├─2
-           │    │                           └─type myinteger alias
-           │    │                                                └─type integer scalar
-           │    └─value a2
-           │             └─type myarray2 array
-           │                                 ├─1
-           │                                 ├─2
-           │                                 └─type myarray array
-           │                                                    ├─1
-           │                                                    ├─2
-           │                                                    └─type myinteger alias
-           │                                                                         └─type integer scalar
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        myinteger: type integer
+        myarray: type array [1..2] of integer
+        myarray2: type array [1..2] of array [1..2] of integer
+        a1: array [1..2] of integer
+        a2: array [1..2] of array [1..2] of integer
+
+    └─statements

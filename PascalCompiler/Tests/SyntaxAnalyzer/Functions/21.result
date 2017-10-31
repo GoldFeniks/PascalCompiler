@@ -1,0 +1,32 @@
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        rec: type record:
+                   a: array [1..2] of integer
+        f: function (g: integer = 10; a: real = 10; )
+             result: record:
+                       a: array [1..2] of integer
+
+         └─statements
+                    └─:=
+                       ├─[]
+                       │  ├─.
+                       │  │ ├─result
+                       │  │ └─a
+                       │  └─1
+                       └─10
+        a: integer
+
+    └─statements
+               └─:=
+                  ├─a
+                  └─[]
+                     ├─.
+                     │ ├─()
+                     │ │  ├─f
+                     │ │  └─p_list
+                     │ │         └─1
+                     │ └─a
+                     └─1

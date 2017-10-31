@@ -1,1 +1,1 @@
-(35, 13) Syntax Error: Incompatible types "rec", "arr"
+(35, 16) Syntax error: Incompatible types "record", "array"

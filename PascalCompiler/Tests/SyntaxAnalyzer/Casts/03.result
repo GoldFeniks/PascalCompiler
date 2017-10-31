@@ -1,0 +1,29 @@
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        myinteger: type integer
+        mychar: type char
+        myreal: type real
+        a: integer
+        b: real
+        c: char
+
+    └─statements
+               ├─:=
+               │  ├─a
+               │  └─integer
+               │          └─b
+               ├─:=
+               │  ├─c
+               │  └─char
+               │       └─b
+               ├─:=
+               │  ├─c
+               │  └─char
+               │       └─a
+               └─:=
+                  ├─b
+                  └─real
+                       └─c

@@ -1,11 +1,9 @@
-└─test
-     └─block
-           ├─decl
-           │    └─value a
-           │            └─type * array
-           │                         ├─2
-           │                         ├─20
-           │                         └─type * record
-           │                                       └─value a
-           │                                               └─type integer scalar
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: array [2..20] of record:
+                              a: integer
+
+    └─statements

@@ -1,5 +1,7 @@
 #include "symbols_table.hpp"
 #include "boost/format.hpp"
+#include "type.hpp"
+#include "tree.hpp"
 
 using namespace pascal_compiler::syntax_analyzer;
 
@@ -33,7 +35,7 @@ void symbols_table::change_last(const symbol_t& symbol) {
 
 void symbols_table::change(const std::string& name, const symbol_t& symbol) {
     table_[name] = symbol;
-    for (auto it : vector_)
+    for (auto& it : vector_)
         if (it.first == name) {
             it.second = symbol;
             return;
@@ -45,3 +47,17 @@ size_t symbols_table::size() const { return vector_.size(); }
 const symbols_table::table_t& symbols_table::table() const { return table_; }
 
 const symbols_table::vector_t& symbols_table::vector() const { return vector_; }
+
+std::string symbols_table::to_string(const std::string& prefix) const {
+    std::string result = "";
+    for (const auto it : vector_) {
+        result += str(boost::format("%3%%1%: %2%\n") % it.first % 
+            it.second.first->to_string(prefix + std::string(it.first.size(), ' ')) % prefix);
+        if (it.second.second) {
+            result += '\n';
+            result += it.second.second->to_string(prefix + std::string(it.first.size(), ' '));
+        }
+    }
+    result.pop_back();
+    return result;
+}

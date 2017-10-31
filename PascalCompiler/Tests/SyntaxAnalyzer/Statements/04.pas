@@ -2,7 +2,7 @@ program test;
 var
     a: Integer;
 begin
-    if 10 < 15 then
+    if a < 15 then
         a := 10;
         write('Less', a)
     else

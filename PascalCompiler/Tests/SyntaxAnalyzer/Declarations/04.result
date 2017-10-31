@@ -1,17 +1,12 @@
-└─test
-     └─block
-           ├─decl
-           │    └─value a
-           │            └─type * record
-           │                          ├─value a
-           │                          │       └─type integer scalar
-           │                          ├─value b
-           │                          │       └─type * array
-           │                          │                    ├─1
-           │                          │                    ├─10
-           │                          │                    └─type real scalar
-           │                          └─value c
-           │                                  └─type * record
-           │                                                └─value c
-           │                                                        └─type char scalar
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: record:
+             a: integer
+             b: array [1..10] of real
+             c: record:
+                c: char
+
+    └─statements

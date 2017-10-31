@@ -23,7 +23,7 @@ namespace pascal_compiler {
 
         namespace operations {
 
-            extern inline const type_p& get_type_for_operands(type_p left, type_p right);
+            extern inline type_p get_type_for_operands(type_p left, type_p right, const tokenizer::token::sub_types op);
 
         }// namespace operations
 
@@ -31,7 +31,7 @@ namespace pascal_compiler {
 
         namespace tree {
 
-            class convertion_error : exception {
+            class convertion_error : public exception {
                 
             public:
 
@@ -79,6 +79,7 @@ namespace pascal_compiler {
                 const std::string& name() const;
                 node_category category() const;
                 const position_type& position() const;
+                std::string to_string(const std::string& prefix = "", const bool last = true) const;
 
             private:
 
@@ -105,7 +106,9 @@ namespace pascal_compiler {
                 
             };// class typed
 
-            const type_p& get_type(const tree_node_p& node);
+            typedef std::shared_ptr<typed> typed_p;
+
+            type_p get_type(const tree_node_p& node);
 
             class variable_node;
             typedef std::shared_ptr<variable_node> variable_node_p;
@@ -165,9 +168,10 @@ namespace pascal_compiler {
                 
             public:
 
-                operation_node(const tokenizer::token_p& token, const tree_node_p& left, const tree_node_p& right) :
+                operation_node(const tokenizer::token_p& token, const tree_node_p& left, const tree_node_p& right,
+                    const type_p& result_type) :
                     tree_node(token->get_value_string(), node_category::operation, token->get_position(), left, right),
-                    typed(get_type_for_operands(get_type(left), get_type(right))), operation_type_(token->get_sub_type()),
+                    typed(result_type), operation_type_(token->get_sub_type()),
                     left_(left), right_(right) {}
 
                 operation_node(const tokenizer::token_p& token, const tree_node_p& left) :
@@ -224,7 +228,7 @@ namespace pascal_compiler {
                 call_node(const position_type& position, const tree_node_p& function,
                     const tree_node_p& args) :
                     tree_node("()", node_category::call, position, function, args),
-                    typed(std::dynamic_pointer_cast<function_type>(variable())->return_type()),
+                    typed(std::dynamic_pointer_cast<function_type>(get_type(function))->return_type()),
                     applied(function) {}
 
             };// class call_node
@@ -238,7 +242,7 @@ namespace pascal_compiler {
 
                 index_node(const position_type& position, const tree_node_p& variable, 
                     const type_p& result_type, const tree_node_p& index) :
-                    tree_node("[]", node_category::index, position, index, variable), typed(result_type), 
+                    tree_node("[]", node_category::index, position, variable, index), typed(result_type), 
                     applied(variable), index_(index) {}
 
                 const tree_node_p& index() const;
@@ -267,7 +271,7 @@ namespace pascal_compiler {
 
                 variable_node_p field_;
 
-            };// clas field_access_node
+            };// class field_access_node
 
             class cast_node;
             typedef std::shared_ptr<cast_node> cast_node_p;
@@ -277,7 +281,8 @@ namespace pascal_compiler {
             public:
 
                 cast_node(const type_p& type, const tree_node_p& node, const position_type& position);
-            };
+
+            };// class cast_node
 
         }// namespace tree
 

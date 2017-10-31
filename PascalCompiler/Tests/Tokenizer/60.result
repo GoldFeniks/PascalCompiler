@@ -32,7 +32,7 @@
 (12,33)   Separator           CloseParenthesis              )                             )                             
 (12,34)   Separator           Semicolon                     ;                             ;                             
 (13,4)    ReservedWord        Begin                         begin                         begin                         
-(14,7)    Identifier          Identifier                    exit                          exit                          
+(14,7)    ReservedWord        Exit                          exit                          exit                          
 (14,11)   Separator           Semicolon                     ;                             ;                             
 (15,7)    Identifier          Identifier                    result                        result                        
 (15,14)   Operation           Assign                        :=                            :=                            

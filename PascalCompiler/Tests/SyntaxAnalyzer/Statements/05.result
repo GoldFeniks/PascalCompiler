@@ -1,16 +1,16 @@
-└─test
-     └─block
-           ├─decl
-           │    └─value a
-           │            └─type integer scalar
-           └─statements
-                      └─for
-                          ├─value a
-                          │       └─type integer scalar
-                          ├─10
-                          ├─to
-                          ├─100
-                          └─:=
-                             ├─value a
-                             │       └─type integer scalar
-                             └─10
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: integer
+
+    └─statements
+               └─for
+                   ├─a
+                   ├─10
+                   ├─to
+                   ├─100
+                   └─:=
+                      ├─a
+                      └─10

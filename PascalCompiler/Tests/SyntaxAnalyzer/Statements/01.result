@@ -1,13 +1,13 @@
-└─test
-     └─block
-           ├─decl
-           └─statements
-                      └─if
-                         ├─<
-                         │ ├─10
-                         │ ├─15
-                         │ └─type integer scalar
-                         ├─write
-                         │     └─'Less'
-                         └─write
-                               └─'Greater'
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+
+    └─statements
+               └─if
+                  ├─1
+                  ├─write
+                  │     └─less
+                  └─write
+                        └─greater

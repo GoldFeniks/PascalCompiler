@@ -1,1 +1,1 @@
-(5, 26) Syntax Error: Incompatible types "integer", "real"
+(5, 20) Syntax error: integer expected but real found

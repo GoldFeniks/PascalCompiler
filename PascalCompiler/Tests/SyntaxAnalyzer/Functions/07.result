@@ -1,1 +1,1 @@
-(5, 5) Syntax Error: "result" declaration not found
+(5, 23) Syntax error: Incompatible types "nil", "real"

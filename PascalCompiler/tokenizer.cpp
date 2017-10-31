@@ -7,11 +7,11 @@
 using namespace pascal_compiler;
 
 const std::unordered_map<std::string, tokenizer::token::sub_types> tokenizer::token::token_sub_types = {
-	{ "and",  sub_types::and },           { "array", sub_types::array },        { "begin", sub_types::begin },          { "case", sub_types::case_op },
-	{ "const", sub_types::const_op },        { "div", sub_types::div },            { "do", sub_types::do_op },                { "downto", sub_types::downto },
-	{ "else", sub_types::else_op },          { "end", sub_types::end },            { "file", sub_types::file },            { "for", sub_types::for_op },
-	{ "function", sub_types::function },  { "goto", sub_types::goto_op },          { "if", sub_types::if_op },                { "in", sub_types::in },
-	{ "label", sub_types::label },        { "mod", sub_types::mod },            { "nil", sub_types::nil },              { "not", sub_types::not },
+	{ "and",  sub_types::and },            { "array", sub_types::array },        { "begin", sub_types::begin },          { "case", sub_types::case_op },
+	{ "const", sub_types::const_op },      { "div", sub_types::div },            { "do", sub_types::do_op },                { "downto", sub_types::downto },
+	{ "else", sub_types::else_op },        { "end", sub_types::end },            { "file", sub_types::file },            { "for", sub_types::for_op },
+	{ "function", sub_types::function },   { "goto", sub_types::goto_op },          { "if", sub_types::if_op },                { "in", sub_types::in },
+	{ "label", sub_types::label },         { "mod", sub_types::mod },            { "nil", sub_types::nil },              { "not", sub_types::not },
 	{ "of", sub_types::of },              { "packed", sub_types::packed },      { "procedure", sub_types::procedure },  { "program", sub_types::program },
 	{ "record", sub_types::record },      { "repeat", sub_types::repeat },      { "set", sub_types::set },              { "then", sub_types::then },
 	{ "to", sub_types::to },              { "type", sub_types::type },          { "until", sub_types::until },          { "var", sub_types::var },
@@ -27,7 +27,7 @@ const std::unordered_map<std::string, tokenizer::token::sub_types> tokenizer::to
     { "absolute", sub_types::absolute },  { "inline", sub_types::inline_op },      { "string", sub_types::string },        { "unit", sub_types::unit },
     { "uses", sub_types::uses },          { "xor", sub_types::xor },            { "operator", sub_types::operator_op },    { ".", sub_types::dot },
     { "or", sub_types::or },              { "write", sub_types::write },        { "read", sub_types::read },            { "break", sub_types::break_op },
-    { "continue", sub_types::continue_op }
+    { "continue", sub_types::continue_op }, {"exit", sub_types::exit }
 };
 
 const std::string tokenizer::token::types_strings[] = {
@@ -55,8 +55,8 @@ const std::string tokenizer::token::sub_types_strings[] = {
     "Then",              "To",                "Type",               "Unit",
     "Until",             "Uses",              "Var",                "While",
     "With",              "Xor",               "Range",              "operation",
-    "CharConst",         "end_of_file",         "Write",              "Read",
-    "Break",             "Continue"
+    "CharConst",         "end_of_file",       "Write",              "Read",
+    "Break",             "Continue",          "Exit"
 };
 
 const std::unordered_set<std::string> tokenizer::token::char_operators = { "shl", "shr", "xor", "mod", "div", "not", "or", "and" };

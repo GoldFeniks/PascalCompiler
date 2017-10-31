@@ -23,9 +23,22 @@ tree_node::node_category tree_node::category() const { return type_; }
 
 const tree_node::position_type& tree_node::position() const { return position_; }
 
+std::string tree_node::to_string(const std::string& prefix, const bool last) const {
+    auto result = str(boost::format("%1%%2%%3%\n") % prefix %
+        (last ? "\xE2\x94\x94\xE2\x94\x80" : "\xE2\x94\x9C\xE2\x94\x80") % name_);
+    const auto spaces = std::string(name_.length() - 1, ' ');
+    const auto n_prefix = str(boost::format("%1%%2%%3%") % prefix %
+        (last ? "  " : "\xE2\x94\x82 ") % spaces);
+    if (!children_.size())
+        return result;
+    for (auto i = 0; i < children_.size() - 1; ++i)
+        result += children_[i]->to_string(n_prefix, false);
+    return result + children_.back()->to_string(n_prefix, true);
+}
+
 const type_p& typed::type() const { return type_; }
 
-const type_p& tree::get_type(const tree_node_p& node) {
+type_p tree::get_type(const tree_node_p& node) {
     const auto type = std::dynamic_pointer_cast<typed>(node);
     if (!type)
         throw std::logic_error("This point should never be reached");
@@ -53,7 +66,7 @@ const variable_node_p& field_access_node::field() const { return field_; }
 //class cast_node
 cast_node::cast_node(const type_p& type, const tree_node_p& node, const position_type& position) : 
     tree_node(type->name(), node_category::cast, position, node), typed(type), applied(node) {
-    const auto tl = type->base_type(), tr = get_type(node)->base_type();
+    const auto tl = base_type(type), tr = base_type(get_type(node));
     if (!tl->is_scalar() || !tr->is_scalar())
         throw convertion_error(tl, tr);
 }

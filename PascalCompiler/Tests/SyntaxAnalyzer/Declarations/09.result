@@ -1,13 +1,16 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─const a
-           │    │       ├─type integer scalar
-           │    │       └─20
-           │    ├─const b
-           │    │       ├─type real scalar
-           │    │       └─10e10
-           │    └─const c
-           │            ├─type char scalar
-           │            └─'c'
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: const integer
+
+         └─20
+        b: const type real
+
+         └─10e10
+        c: const type char
+
+         └─'c'
+
+    └─statements

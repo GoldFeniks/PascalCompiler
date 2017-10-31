@@ -1,40 +1,43 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─const a
-           │    │       ├─type integer scalar
-           │    │       └─0
-           │    ├─const b
-           │    │       ├─type integer scalar
-           │    │       └─1
-           │    ├─const c
-           │    │       ├─type integer scalar
-           │    │       └─8
-           │    ├─const d
-           │    │       ├─type integer scalar
-           │    │       └─2
-           │    ├─const e
-           │    │       ├─type integer scalar
-           │    │       └─4
-           │    ├─const f
-           │    │       ├─type integer scalar
-           │    │       └─1
-           │    ├─const g
-           │    │       ├─type integer scalar
-           │    │       └─1
-           │    ├─const h
-           │    │       ├─type integer scalar
-           │    │       └─0
-           │    ├─const i
-           │    │       ├─type integer scalar
-           │    │       └─1
-           │    ├─const j
-           │    │       ├─type integer scalar
-           │    │       └─0
-           │    ├─const k
-           │    │       ├─type integer scalar
-           │    │       └─1
-           │    └─const l
-           │            ├─type integer scalar
-           │            └─0
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: const integer
+
+         └─0
+        b: const integer
+
+         └─1
+        c: const integer
+
+         └─8
+        d: const integer
+
+         └─2
+        e: const integer
+
+         └─4
+        f: const integer
+
+         └─1
+        g: const integer
+
+         └─1
+        h: const integer
+
+         └─0
+        i: const integer
+
+         └─1
+        j: const integer
+
+         └─0
+        k: const integer
+
+         └─1
+        l: const integer
+
+         └─0
+
+    └─statements

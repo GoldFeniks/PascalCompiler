@@ -1,17 +1,14 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─value a
-           │    │       └─type integer scalar
-           │    ├─value b
-           │    │       └─type real scalar
-           │    └─value c
-           │            └─type char scalar
-           └─statements
-                      └─read
-                           ├─value a
-                           │       └─type integer scalar
-                           ├─value b
-                           │       └─type real scalar
-                           └─value c
-                                   └─type char scalar
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: integer
+        b: real
+        c: char
+
+    └─statements
+               └─read
+                    ├─a
+                    ├─b
+                    └─c

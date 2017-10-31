@@ -146,7 +146,7 @@ namespace pascal_compiler {
                 until,             uses,              var,                while_op,
                 with,              xor,               range,              operator_op,
                 char_const,        end_of_file,       write,              read,
-                break_op,          continue_op
+                break_op,          continue_op,       exit
 			};
 
             static const std::string sub_types_strings[];

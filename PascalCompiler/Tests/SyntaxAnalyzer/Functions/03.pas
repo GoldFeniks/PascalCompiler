@@ -1,10 +1,10 @@
 program test;
 
-procedure p(a: Integer = 10);
+procedure p(a: Integer = 10 + 10);
 begin
 end;
 
-function f(a: Real = 10; const c: Char = 'c') : Real;
+function f(a: Real = 10 * 10.1; const c: Char = 'c') : Real;
 begin
 end;
 

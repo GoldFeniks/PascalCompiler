@@ -1,65 +1,29 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─function f
-           │    │          ├─p_list
-           │    │          │      ├─value a
-           │    │          │      │       └─type integer scalar
-           │    │          │      ├─value b
-           │    │          │      │       └─type integer scalar
-           │    │          │      └─value c
-           │    │          │              └─type integer scalar
-           │    │          ├─type real scalar
-           │    │          └─block
-           │    │                ├─decl
-           │    │                └─statements
-           │    │                           └─:=
-           │    │                              ├─value result
-           │    │                              │            └─type real scalar
-           │    │                              └─/
-           │    │                                ├─+
-           │    │                                │ ├─value a
-           │    │                                │ │       └─type integer scalar
-           │    │                                │ ├─value b
-           │    │                                │ │       └─type integer scalar
-           │    │                                │ └─type integer scalar
-           │    │                                ├─value c
-           │    │                                │       └─type integer scalar
-           │    │                                └─type real scalar
-           │    └─value r
-           │            └─type real scalar
-           └─statements
-                      └─:=
-                         ├─value r
-                         │       └─type real scalar
-                         └─()
-                            ├─function f
-                            │          ├─p_list
-                            │          │      ├─value a
-                            │          │      │       └─type integer scalar
-                            │          │      ├─value b
-                            │          │      │       └─type integer scalar
-                            │          │      └─value c
-                            │          │              └─type integer scalar
-                            │          ├─type real scalar
-                            │          └─block
-                            │                ├─decl
-                            │                └─statements
-                            │                           └─:=
-                            │                              ├─value result
-                            │                              │            └─type real scalar
-                            │                              └─/
-                            │                                ├─+
-                            │                                │ ├─value a
-                            │                                │ │       └─type integer scalar
-                            │                                │ ├─value b
-                            │                                │ │       └─type integer scalar
-                            │                                │ └─type integer scalar
-                            │                                ├─value c
-                            │                                │       └─type integer scalar
-                            │                                └─type real scalar
-                            ├─p_list
-                            │      ├─1
-                            │      ├─2
-                            │      └─3
-                            └─type real scalar
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        f: function (a: integer; b: integer; c: integer; )
+             result: real
+
+         └─statements
+                    └─:=
+                       ├─result
+                       └─/
+                         ├─real
+                         │    └─+
+                         │      ├─a
+                         │      └─b
+                         └─real
+                              └─c
+        r: real
+
+    └─statements
+               └─:=
+                  ├─r
+                  └─()
+                     ├─f
+                     └─p_list
+                            ├─1
+                            ├─2
+                            └─3

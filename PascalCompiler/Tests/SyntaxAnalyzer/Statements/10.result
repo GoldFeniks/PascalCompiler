@@ -1,30 +1,23 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─value a
-           │    │       └─type real scalar
-           │    ├─value b
-           │    │       └─type real scalar
-           │    └─value c
-           │            └─type integer scalar
-           └─statements
-                      └─while
-                            ├─and
-                            │   ├─<
-                            │   │ ├─value a
-                            │   │ │       └─type real scalar
-                            │   │ ├─value b
-                            │   │ │       └─type real scalar
-                            │   │ └─type integer scalar
-                            │   ├─value c
-                            │   │       └─type integer scalar
-                            │   └─type integer scalar
-                            └─statements
-                                       ├─-=
-                                       │  ├─value c
-                                       │  │       └─type integer scalar
-                                       │  └─1
-                                       └─+=
-                                          ├─value c
-                                          │       └─type integer scalar
-                                          └─1
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: real
+        b: real
+        c: integer
+
+    └─statements
+               └─while
+                     ├─and
+                     │   ├─<
+                     │   │ ├─a
+                     │   │ └─b
+                     │   └─c
+                     └─statements
+                                ├─-=
+                                │  ├─c
+                                │  └─1
+                                └─+=
+                                   ├─c
+                                   └─1

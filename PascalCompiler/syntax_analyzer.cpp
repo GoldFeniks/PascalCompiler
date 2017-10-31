@@ -15,12 +15,18 @@ syntax_analyzer& syntax_analyzer::operator=(
     return *this;
 }
 
+void syntax_analyzer::parse() {
+    parse_program();
+}
+
+const std::vector<symbols_table>& syntax_analyzer::tables() const { return tables_; }
+
 tree_node_p syntax_analyzer::parse_simple_expression() {
-    return parse_operation<&syntax_analyzer::parse_expression, simple_expression_operators>();
+    return parse_operation<&syntax_analyzer::parse_term, simple_expression_operators>();
 }
 
 tree_node_p syntax_analyzer::parse_expression() {
-    return parse_operation<&syntax_analyzer::parse_factor, expression_operators>();
+    return parse_operation<&syntax_analyzer::parse_simple_expression, expression_operators>(integer());
 }
 
 tree_node_p syntax_analyzer::parse_term() {
@@ -33,8 +39,18 @@ tree_node_p syntax_analyzer::parse_factor() {
     case pascal_compiler::tokenizer::token::sub_types::identifier:
     {
         auto decl = find_declaration(token);
-        const auto var = std::make_shared<variable_node>(token->get_string_value(), token->get_position(), decl.first, decl.second);
-        switch(var->type()->category()) {
+        if (decl.first->category() == type::type_category::type) {
+            require(tokenizer::token::sub_types::open_parenthesis);
+            tokenizer_.next();
+            const auto result = std::make_shared<cast_node>(base_type(decl.first), 
+                parse_expression(), tokenizer_.current()->get_position());
+            require(tokenizer::token::sub_types::close_parenthesis);
+            tokenizer_.next();
+            return result;
+        }
+        tree_node_p var = std::make_shared<variable_node>(token->get_string_value(), 
+            token->get_position(), decl.first, decl.second);
+        switch(decl.first->category()) {
         case type::type_category::function:
             return parse_function_call(var);
         case type::type_category::array:
@@ -46,11 +62,11 @@ tree_node_p syntax_analyzer::parse_factor() {
         }
     }
     case pascal_compiler::tokenizer::token::sub_types::integer_const:
-        return std::make_shared<constant_node>(token->get_string(), integer, token->get_value(), token->get_position());
+        return std::make_shared<constant_node>(token->get_string(), integer(), token->get_value(), token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::real_const:
-        return std::make_shared<constant_node>(token->get_string(), real, token->get_value(), token->get_position());
+        return std::make_shared<constant_node>(token->get_string(), real(), token->get_value(), token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::char_const:
-        return std::make_shared<constant_node>(token->get_string(), symbol, token->get_value(), token->get_position());
+        return std::make_shared<constant_node>(token->get_string(), symbol(), token->get_value(), token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::open_parenthesis:
     {
         const auto node = parse_expression();
@@ -89,7 +105,9 @@ tree_node_p syntax_analyzer::parse_index(tree_node_p node) {
         require(node_type, type::type_category::array, token->get_position());
         const auto a = std::dynamic_pointer_cast<array_type>(node_type);
         tokenizer_.next();
-        node = std::make_shared<index_node>(token->get_position(), node, a->element_type(), parse_expression());
+        const auto expr = parse_expression();
+        require(get_type(expr), type::type_category::integer, expr->position());
+        node = std::make_shared<index_node>(token->get_position(), node, a->element_type(), expr);
         require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::close_bracket);
         node_type = a->element_type();
         token = tokenizer_.next();
@@ -116,6 +134,7 @@ tree_node_p syntax_analyzer::parse_field_access(tree_node_p node) {
         else
             throw field_not_found(token);
         node_type = it->second.first;
+        token = tokenizer_.next();
     }
     if (node_type->category() == type::type_category::array)
         return parse_index(node);
@@ -126,7 +145,10 @@ tree_node_p syntax_analyzer::parse_actual_parameter_list(const function_type_p& 
     auto result = 
         std::make_shared<tree_node>("p_list", tree_node::node_category::null, tokenizer_.current()->get_position());
     std::vector<tree_node_p> args;
-    parse_expressions_list(args);
+    if (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::open_parenthesis) {
+        tokenizer_.next();
+        parse_expressions_list(args);
+    }
     size_t i = 0;
     for (; i < args.size(); ++i) {
         if (i == type->parameters().size())
@@ -138,8 +160,9 @@ tree_node_p syntax_analyzer::parse_actual_parameter_list(const function_type_p& 
         else
             result->push_back(args[i]);
     }
-    if (i != type->parameters().size() && type->parameters()[i].second)
-        throw syntax_error("Illegal parameters count", args.back()->position());
+    if (i != type->parameters().size() && !type->parameters()[i].second)
+        throw syntax_error("Illegal parameters count", 
+            args.size() ? args.back()->position() : tokenizer_.current()->get_position());
     return result;
 }
 
@@ -149,7 +172,7 @@ tree_node_p syntax_analyzer::parse_block() {
 }
 
 tree_node_p syntax_analyzer::parse_typed_const(const type_p& type) {
-    const auto result_type = type->base_type();
+    const auto result_type = base_type(type);
     if (result_type->is_scalar())
         return parse_expression();
     auto token = tokenizer_.current();
@@ -157,13 +180,13 @@ tree_node_p syntax_analyzer::parse_typed_const(const type_p& type) {
     auto result = std::make_shared<typed_constant_node>(token->get_position(), result_type);
     if (result_type->is_category(type::type_category::array)) {
         const auto a = std::dynamic_pointer_cast<array_type>(result_type);
-        const auto base_type = a->element_type()->base_type();
+        const auto b_type = base_type(a->element_type());
         for (auto i = a->min(); i <= a->max(); ++i) {
             token = tokenizer_.next();
-            auto c = parse_typed_const(base_type);
-            require_types_compatibility(base_type, get_type(c), token->get_position());
-            if (base_type != get_type(c))
-                c = std::make_shared<cast_node>(base_type, c, token->get_position());
+            auto c = parse_typed_const(b_type);
+            require_types_compatibility(b_type, get_type(c), token->get_position());
+            if (b_type != get_type(c))
+                c = std::make_shared<cast_node>(b_type, c, token->get_position());
             i == a->max() 
                 ? require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::close_parenthesis) 
                 : require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::comma);  
@@ -180,11 +203,11 @@ tree_node_p syntax_analyzer::parse_typed_const(const type_p& type) {
         if (it.first != token->get_string_value())
             throw syntax_error("Illegal initialization order", token->get_position());
         tokenizer_.next();
-        const auto base_type = it.second.first->base_type();
-        auto c = parse_typed_const(base_type);
-        require_types_compatibility(base_type, get_type(c), token->get_position());
-        if (base_type != get_type(c))
-            c = std::make_shared<cast_node>(base_type, c, token->get_position());
+        const auto b_type = base_type(it.second.first);
+        auto c = parse_typed_const(b_type);
+        require_types_compatibility(b_type, get_type(c), token->get_position());
+        if (b_type != get_type(c))
+            c = std::make_shared<cast_node>(b_type, c, token->get_position());
         result->push_back(c);
         if (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::close_parenthesis)
             break;
@@ -198,11 +221,29 @@ tree_node_p syntax_analyzer::parse_typed_const(const type_p& type) {
 
 tree_node_p syntax_analyzer::parse_statements() {
     auto result = std::make_shared<tree_node>("statements", tree_node::node_category::null, tokenizer_.current()->get_position());
-    result->push_back(parse_statement());
-    while (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::semicolon) {
+    do {
         tokenizer_.next();
         result->push_back(parse_statement());
-    }
+    } while (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::semicolon);
+    return result;
+}
+
+tree_node_p syntax_analyzer::parse_exit_statement() {
+    auto result = std::make_shared<tree_node>("exit", tree_node::node_category::null, tokenizer_.current()->get_position());
+    auto expr_type = nil();
+    tree_node_p expr;
+    if (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::open_parenthesis)
+        if (tokenizer_.next()->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::close_parenthesis) {
+            expr = parse_expression();
+            expr_type = base_type(get_type(expr));
+            require(pascal_compiler::tokenizer::token::sub_types::close_parenthesis);
+            tokenizer_.next();
+        }
+    const auto result_type = tables().back().get_type("result");
+    require_types_compatibility(result_type, expr_type, result->position());
+    if (expr_type != result_type)
+        expr = std::make_shared<cast_node>(result_type, expr, expr->position());
+    result->push_back(expr);
     return result;
 }
 
@@ -220,9 +261,11 @@ tree_node_p syntax_analyzer::parse_statement() {
     case pascal_compiler::tokenizer::token::sub_types::repeat:
         return parse_repeat_statement();
     case pascal_compiler::tokenizer::token::sub_types::break_op:
+        require_loop(token->get_sub_type());
         tokenizer_.next();
         return std::make_shared<tree_node>("break", tree_node::node_category::null, token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::continue_op:
+        require_loop(token->get_sub_type());
         tokenizer_.next();
         return std::make_shared<tree_node>("continue", tree_node::node_category::null, token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::read:
@@ -231,6 +274,9 @@ tree_node_p syntax_analyzer::parse_statement() {
     case pascal_compiler::tokenizer::token::sub_types::write:
         tokenizer_.next();
         return parse_write_statement();
+    case pascal_compiler::tokenizer::token::sub_types::exit:
+        tokenizer_.next();
+        return parse_exit_statement();
     case pascal_compiler::tokenizer::token::sub_types::identifier:
     {
         const auto type = find_declaration(token).first;
@@ -257,10 +303,7 @@ tree_node_p syntax_analyzer::parse_compound_statement() {
 tree_node_p syntax_analyzer::parse_if_statement() {
     auto result = std::make_shared<tree_node>("if", tree_node::node_category::null, tokenizer_.current()->get_position());
     tokenizer_.next();
-    //TODO parse condition
-    const auto cond = parse_expression();
-    require(get_type(cond), type::type_category::integer, tokenizer_.current()->get_position());
-    result->push_back(cond);
+    result->push_back(parse_condition());
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::then);
     tokenizer_.next();
     result->push_back(parse_statement());
@@ -272,19 +315,19 @@ tree_node_p syntax_analyzer::parse_if_statement() {
 }
 
 tree_node_p syntax_analyzer::parse_while_statement() {
+    ++loops_count_;
     auto result = std::make_shared<tree_node>("while", tree_node::node_category::null, tokenizer_.current()->get_position());
     tokenizer_.next();
-    //TODO parse condition
-    const auto cond = parse_expression();
-    require(get_type(cond), type::type_category::integer, tokenizer_.current()->get_position());
-    result->push_back(cond);
+    result->push_back(parse_condition());
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::do_op);
     tokenizer_.next();
     result->push_back(parse_statement());
+    --loops_count_;
     return result;
 }
 
 tree_node_p syntax_analyzer::parse_for_statement() {
+    ++loops_count_;
     auto result = std::make_shared<tree_node>("for", tree_node::node_category::null, tokenizer_.current()->get_position());
     auto token = tokenizer_.next();
     require(token, pascal_compiler::tokenizer::token::sub_types::identifier);
@@ -307,25 +350,24 @@ tree_node_p syntax_analyzer::parse_for_statement() {
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::do_op);
     tokenizer_.next();
     result->push_back(parse_statement());
+    --loops_count_;
     return result;
 }
 
 tree_node_p syntax_analyzer::parse_repeat_statement() {
+    ++loops_count_;
     auto result = std::make_shared<tree_node>("repeat", tree_node::node_category::null, 
         tokenizer_.current()->get_position(), parse_statements());
-    tokenizer_.next();
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::until);
     tokenizer_.next();
-    //TODO parse condition
-    const auto cond = parse_expression();
-    require(get_type(cond), type::type_category::integer, tokenizer_.current()->get_position());
-    result->push_back(cond);
+    result->push_back(parse_condition());
+    --loops_count_;
     return result;
 }
 
 tree_node_p syntax_analyzer::parse_write_statement() {
     auto result = std::make_shared<tree_node>("write", tree_node::node_category::null, tokenizer_.current()->get_position());
-    auto token = tokenizer_.next();
+    auto token = tokenizer_.current();
     require(token, pascal_compiler::tokenizer::token::sub_types::open_parenthesis);
     token = tokenizer_.next();
     while (token->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::close_parenthesis) {
@@ -343,11 +385,14 @@ tree_node_p syntax_analyzer::parse_write_statement() {
         require(token, pascal_compiler::tokenizer::token::sub_types::comma);
         token = tokenizer_.next();
     }
+    tokenizer_.next();
     return result;
 }
 
 tree_node_p syntax_analyzer::parse_read_statement() {
     auto result = std::make_shared<tree_node>("read", tree_node::node_category::null, tokenizer_.current()->get_position());
+    require(pascal_compiler::tokenizer::token::sub_types::open_parenthesis);
+    tokenizer_.next();
     std::vector<tree_node_p> exprs;
     parse_expressions_list(exprs);
     for (const auto it : exprs) {
@@ -376,11 +421,12 @@ tree_node_p syntax_analyzer::parse_assignment_statement() {
         break;
     case type::type_category::modified:
         if (std::dynamic_pointer_cast<modified_type>(result_type)->modificator() == modified_type::modificator_type::constant)
-            throw syntax_error("Can't read to const variable", token->get_position());
+            throw syntax_error("Can't modify const variable", token->get_position());
     default:
         break;
     }
     token = tokenizer_.current();
+    result_type = get_type(node);
     if (token->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::assign        ||
         token->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::plus_assign   ||
         token->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::minus_assign  ||
@@ -397,17 +443,22 @@ tree_node_p syntax_analyzer::parse_assignment_statement() {
     return node;
 }
 
+tree_node_p syntax_analyzer::parse_condition() {
+    const auto cond = parse_expression();
+    require(get_type(cond), type::type_category::integer, tokenizer_.current()->get_position());
+    return cond;    
+}
+
 type_p syntax_analyzer::parse_type(const std::string& name) {
     auto token = tokenizer_.current();
+    type_p result_type;
     switch (token->get_sub_type()) {
     case pascal_compiler::tokenizer::token::sub_types::identifier:
     {
         tokenizer_.next();
-        auto type = find_declaration(token);
-        require(type.first, type::type_category::alias, token->get_position());
-        if (!name.length())
-            return std::make_shared<alias_type>(name, type.first);
-        return type.first;
+        result_type = find_declaration(token).first;
+        require(result_type, type::type_category::type, token->get_position());
+        break;
     }
     case pascal_compiler::tokenizer::token::sub_types::array:
     {
@@ -424,19 +475,21 @@ type_p syntax_analyzer::parse_type(const std::string& name) {
         require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::close_bracket);
         require(tokenizer_.next(), pascal_compiler::tokenizer::token::sub_types::of);
         tokenizer_.next();
-        return std::make_shared<array_type>(name,
-            std::static_pointer_cast<constant_node>(from)->get_value<long long>(),
-            std::static_pointer_cast<constant_node>(to)->get_value<long long>(),
-            parse_type());
+        const auto min = std::static_pointer_cast<constant_node>(from)->get_value<long long>();
+        const auto max = std::static_pointer_cast<constant_node>(to)->get_value<long long>();
+        if (min > max)
+            throw syntax_error("Upper bound of range is less than lower bound", from->position());
+        result_type = std::make_shared<array_type>(name, min, max, base_type(parse_type()));
+        break;
     }
     case pascal_compiler::tokenizer::token::sub_types::record:
     {
         token = tokenizer_.next();
-        auto type = std::make_shared<record_type>(name);
+        auto r_type = std::make_shared<record_type>(name);
         while (token->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::identifier) {
             require(tokenizer_.next(), pascal_compiler::tokenizer::token::sub_types::colon);
             tokenizer_.next();
-            type->add_field(token->get_string_value(), parse_type());
+            r_type->add_field(token->get_string_value(), base_type(parse_type()));
             token = tokenizer_.current();
             if (token->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::end) {
                 require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::semicolon);
@@ -445,30 +498,36 @@ type_p syntax_analyzer::parse_type(const std::string& name) {
         }
         require(token, pascal_compiler::tokenizer::token::sub_types::end);
         tokenizer_.next();
+        result_type = r_type;
+        break;
     }
     default:
         throw unexpected_token(token, pascal_compiler::tokenizer::token::sub_types::identifier);
     }
+    if (name.length())
+        return std::make_shared<type_type>(name, base_type(result_type));
+    return result_type;
 }
 
 void syntax_analyzer::parse_program() {
     tables_.push_back(symbols_table());
-    tables_.back().add("integer", std::make_shared<alias_type>("integer", integer));
-    tables_.back().add("real", std::make_shared<alias_type>("real", real));
-    tables_.back().add("symbol", std::make_shared<alias_type>("symbol", symbol));
+    tables_.back().add("integer", std::make_shared<type_type>("integer", integer()));
+    tables_.back().add("real", std::make_shared<type_type>("real", real()));
+    tables_.back().add("char", std::make_shared<type_type>("char", symbol()));
 
-    auto token = tokenizer_.current();
+    auto token = tokenizer_.next();
     require(token, pascal_compiler::tokenizer::token::sub_types::program);
     token = tokenizer_.next();
     require(token, pascal_compiler::tokenizer::token::sub_types::identifier);
     require(tokenizer_.next(), pascal_compiler::tokenizer::token::sub_types::semicolon);
     tokenizer_.next();
     tables_.push_back(symbols_table());
+    tables_.back().add("result", nil());
     const auto block = parse_block();
-    tables_.back().add(token->get_string_value(), 
+    tables_[0].add(token->get_string_value(), 
         std::make_shared<function_type>(token->get_string_value(), symbols_table(), tables_.back()), block);
-    require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::dot);
     tables_.pop_back();
+    require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::dot);
     tokenizer_.next();
 }
 
@@ -481,16 +540,20 @@ void syntax_analyzer::parse_expressions_list(std::vector<tree_node_p>& list) {
         require(pascal_compiler::tokenizer::token::sub_types::comma);
         token = tokenizer_.next();
     }
+    tokenizer_.next();
 }
 
 void syntax_analyzer::parse_identifier_list(std::vector<std::string>& names, symbols_table& table) {
     auto token = tokenizer_.current();
-    do {
+    require(token, pascal_compiler::tokenizer::token::sub_types::identifier);
+    table.add(token->get_string_value(), nullptr);
+    names.push_back(token->get_string_value());
+    while ((token = tokenizer_.next())->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::comma) {
+        token = tokenizer_.next();
         require(token, pascal_compiler::tokenizer::token::sub_types::identifier);
         table.add(token->get_string_value(), nullptr);
         names.push_back(token->get_string_value());
-        token = tokenizer_.next();
-    } while ((token = tokenizer_.next())->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::comma);
+    }
 }
 
 void syntax_analyzer::parse_declaration_part() {
@@ -541,7 +604,7 @@ void syntax_analyzer::parse_var_declaration() {
         parse_identifier_list(names, tables_.back());
         require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::colon);
         tokenizer_.next();
-        auto result_type = parse_type()->base_type();
+        auto result_type = base_type(parse_type());
         for (const auto it : names)
             tables_.back().change(it, make_pair(result_type, nullptr));
         token = tokenizer_.current();
@@ -593,8 +656,9 @@ void syntax_analyzer::parse_function_declaration() {
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::colon);
     const auto rt = tokenizer_.next();
     require(rt, pascal_compiler::tokenizer::token::sub_types::identifier);
-    const auto result_type = find_declaration(rt).first;
-    require(result_type, type::type_category::alias, rt->get_position());
+    auto result_type = find_declaration(rt).first;
+    require(result_type, type::type_category::type, rt->get_position());
+    result_type = base_type(result_type);
     require(tokenizer_.next(), pascal_compiler::tokenizer::token::sub_types::semicolon);
     tokenizer_.next();
     tables_.push_back(symbols_table());
@@ -604,6 +668,8 @@ void syntax_analyzer::parse_function_declaration() {
     const auto args = tables_.back(); tables_.pop_back();
     tables_.back().add(token->get_string_value(), 
         std::make_shared<function_type>(token->get_string_value(), args, vars, result_type), block);
+    require(pascal_compiler::tokenizer::token::sub_types::semicolon);
+    tokenizer_.next();
 }
 
 void syntax_analyzer::parse_procedure_declaration() {
@@ -612,15 +678,17 @@ void syntax_analyzer::parse_procedure_declaration() {
     tables_.push_back(symbols_table());
     tokenizer_.next();
     parse_formal_parameter_list();
-    require(tokenizer_.next(), pascal_compiler::tokenizer::token::sub_types::semicolon);
+    require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::semicolon);
     tokenizer_.next();
     tables_.push_back(symbols_table());
-    tables_.back().add("result", nil);
+    tables_.back().add("result", nil());
     const auto block = parse_block();
     const auto vars = tables_.back(); tables_.pop_back();
     const auto args = tables_.back(); tables_.pop_back();
     tables_.back().add(token->get_string_value(),
         std::make_shared<function_type>(token->get_string_value(), args, vars), block);
+    require(pascal_compiler::tokenizer::token::sub_types::semicolon);
+    tokenizer_.next();
 }
 
 void syntax_analyzer::parse_formal_parameter_list() {
@@ -631,11 +699,18 @@ void syntax_analyzer::parse_formal_parameter_list() {
     while (token->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::close_parenthesis) {
         auto last = false;
         std::vector<std::string> names;
+        if (token->get_sub_type() != tokenizer::token::sub_types::identifier) {
+            if (token->get_sub_type() != tokenizer::token::sub_types::var &&
+                token->get_sub_type() != tokenizer::token::sub_types::const_op)
+                require(tokenizer::token::sub_types::identifier);
+            tokenizer_.next();
+        }
         parse_identifier_list(names, tables_.back());
         require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::colon);
         require(tokenizer_.next(), pascal_compiler::tokenizer::token::sub_types::identifier);
         auto result_type = find_declaration(tokenizer_.current()).first;
-        require(result_type, type::type_category::alias, tokenizer_.current()->get_position());
+        require(result_type, type::type_category::type, tokenizer_.current()->get_position());
+        result_type = base_type(result_type);
         switch (token->get_sub_type()) {
         case pascal_compiler::tokenizer::token::sub_types::var:
             result_type = std::make_shared<modified_type>(modified_type::modificator_type::var, result_type);
@@ -654,7 +729,7 @@ void syntax_analyzer::parse_formal_parameter_list() {
             tokenizer_.next();
             const auto value = parse_expression();
             require_constant(value);
-            require_types_compatibility(result_type, get_type(value), tokenizer_.current()->get_position());
+            require_types_compatibility(base_type(result_type), get_type(value), tokenizer_.current()->get_position());
             tables_.back().change_last(make_pair(result_type, value));
             end = true;
             last = true;
@@ -674,9 +749,9 @@ void syntax_analyzer::parse_formal_parameter_list() {
 
 const symbols_table::symbol_t& syntax_analyzer::find_declaration(const pascal_compiler::tokenizer::token_p& token) {
     const auto name = token->get_string_value();
-    for (auto& it : tables_) {
+    for (std::vector<symbols_table>::const_reverse_iterator it = tables_.rbegin(); it != tables_.rend(); ++it) {
         symbols_table::table_t::const_iterator result;
-        if ((result = it.table().find(name)) != it.table().end())
+        if ((result = it->table().find(name)) != it->table().end())
             return result->second;
     }
     throw declaration_not_found(token);
@@ -691,7 +766,7 @@ void syntax_analyzer::require(const pascal_compiler::tokenizer::token::sub_types
     require(tokenizer_.current(), type);
 }
 
-void syntax_analyzer::require(const type_p& type, const type::type_category category, 
+void syntax_analyzer::require(const type_p type, const type::type_category category, 
     const tree_node::position_type& position) {
     if (!type || type->category() != category)
         throw unexpected_type(type, category, position);
@@ -699,7 +774,7 @@ void syntax_analyzer::require(const type_p& type, const type::type_category cate
 
 void syntax_analyzer::require_types_compatibility(const type_p& left, const type_p& right,
     const tree_node::position_type& position) {
-    if (!left->is_category(type::type_category::alias) && !right->is_category(type::type_category::alias) &&
+    if (!left->is_category(type::type_category::type) && !right->is_category(type::type_category::type) &&
         (left == right ||
         left->is_category(type::type_category::real) && right->is_category(type::type_category::integer)))
         return;
@@ -711,7 +786,14 @@ void syntax_analyzer::require_constant(const tree_node_p& node) {
         throw syntax_error("Illegal expression", node->position());
 }
 
-const tree_node_p syntax_analyzer::get_constant(const tree_node_p& node) {
+void syntax_analyzer::require_loop(const pascal_compiler::tokenizer::token::sub_types type) const {
+    if (loops_count_ <= 0)
+        throw syntax_error(str(boost::format("%1% not allowed") % 
+            (type == pascal_compiler::tokenizer::token::sub_types::break_op ? "break" : "continue")),
+            tokenizer_.current()->get_position());
+}
+
+tree_node_p syntax_analyzer::get_constant(const tree_node_p& node) {
     if (node->category() == tree_node::node_category::constant)
         return node;
     if (node->category() == tree_node::node_category::variable) {

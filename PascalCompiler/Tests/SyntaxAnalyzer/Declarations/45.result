@@ -1,10 +1,10 @@
-└─test
-     └─block
-           ├─decl
-           │    └─value i
-           │            ├─type integer scalar
-           │            └─=
-           │              ├─'c'
-           │              ├─'c'
-           │              └─type integer scalar
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        i: integer
+
+         └─1
+
+    └─statements

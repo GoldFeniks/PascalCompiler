@@ -1,1 +1,1 @@
-(3, 13) Syntax Error: Incompatible types "char", "integer"
+Unsupported operands types "char", "integer" for ShiftRight

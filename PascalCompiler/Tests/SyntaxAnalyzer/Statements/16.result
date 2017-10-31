@@ -1,143 +1,63 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─type rec record
-           │    │               ├─value a
-           │    │               │       └─type integer scalar
-           │    │               └─value b
-           │    │                       └─type real scalar
-           │    ├─type arr array
-           │    │              ├─1
-           │    │              ├─10
-           │    │              └─type integer scalar
-           │    ├─value r
-           │    │       └─type rec record
-           │    │                       ├─value a
-           │    │                       │       └─type integer scalar
-           │    │                       └─value b
-           │    │                               └─type real scalar
-           │    ├─value d
-           │    │       └─type rec record
-           │    │                       ├─value a
-           │    │                       │       └─type integer scalar
-           │    │                       └─value b
-           │    │                               └─type real scalar
-           │    ├─value a
-           │    │       └─type arr array
-           │    │                      ├─1
-           │    │                      ├─10
-           │    │                      └─type integer scalar
-           │    ├─value b
-           │    │       └─type arr array
-           │    │                      ├─1
-           │    │                      ├─10
-           │    │                      └─type integer scalar
-           │    ├─value c
-           │    │       └─type integer scalar
-           │    └─value f
-           │            └─type integer scalar
-           └─statements
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─value r
-                      │  │ │       └─type rec record
-                      │  │ │                       ├─value a
-                      │  │ │                       │       └─type integer scalar
-                      │  │ │                       └─value b
-                      │  │ │                               └─type real scalar
-                      │  │ ├─value a
-                      │  │ │       └─type integer scalar
-                      │  │ └─type integer scalar
-                      │  └─value c
-                      │          └─type integer scalar
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─value r
-                      │  │ │       └─type rec record
-                      │  │ │                       ├─value a
-                      │  │ │                       │       └─type integer scalar
-                      │  │ │                       └─value b
-                      │  │ │                               └─type real scalar
-                      │  │ ├─value a
-                      │  │ │       └─type integer scalar
-                      │  │ └─type integer scalar
-                      │  └─10
-                      ├─:=
-                      │  ├─.
-                      │  │ ├─value r
-                      │  │ │       └─type rec record
-                      │  │ │                       ├─value a
-                      │  │ │                       │       └─type integer scalar
-                      │  │ │                       └─value b
-                      │  │ │                               └─type real scalar
-                      │  │ ├─value b
-                      │  │ │       └─type real scalar
-                      │  │ └─type real scalar
-                      │  └─10.1
-                      ├─:=
-                      │  ├─value r
-                      │  │       └─type rec record
-                      │  │                       ├─value a
-                      │  │                       │       └─type integer scalar
-                      │  │                       └─value b
-                      │  │                               └─type real scalar
-                      │  └─value d
-                      │          └─type rec record
-                      │                          ├─value a
-                      │                          │       └─type integer scalar
-                      │                          └─value b
-                      │                                  └─type real scalar
-                      ├─:=
-                      │  ├─[]
-                      │  │  ├─value a
-                      │  │  │       └─type arr array
-                      │  │  │                      ├─1
-                      │  │  │                      ├─10
-                      │  │  │                      └─type integer scalar
-                      │  │  ├─1
-                      │  │  └─type integer scalar
-                      │  └─10
-                      ├─:=
-                      │  ├─[]
-                      │  │  ├─value a
-                      │  │  │       └─type arr array
-                      │  │  │                      ├─1
-                      │  │  │                      ├─10
-                      │  │  │                      └─type integer scalar
-                      │  │  ├─2
-                      │  │  └─type integer scalar
-                      │  └─20
-                      ├─:=
-                      │  ├─[]
-                      │  │  ├─value a
-                      │  │  │       └─type arr array
-                      │  │  │                      ├─1
-                      │  │  │                      ├─10
-                      │  │  │                      └─type integer scalar
-                      │  │  ├─3
-                      │  │  └─type integer scalar
-                      │  └─+
-                      │    ├─value c
-                      │    │       └─type integer scalar
-                      │    ├─value f
-                      │    │       └─type integer scalar
-                      │    └─type integer scalar
-                      └─:=
-                         ├─[]
-                         │  ├─value a
-                         │  │       └─type arr array
-                         │  │                      ├─1
-                         │  │                      ├─10
-                         │  │                      └─type integer scalar
-                         │  ├─4
-                         │  └─type integer scalar
-                         └─.
-                           ├─value r
-                           │       └─type rec record
-                           │                       ├─value a
-                           │                       │       └─type integer scalar
-                           │                       └─value b
-                           │                               └─type real scalar
-                           ├─value a
-                           │       └─type integer scalar
-                           └─type integer scalar
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        rec: type record:
+                   a: integer
+                   b: real
+        arr: type array [1..10] of integer
+        r: record:
+             a: integer
+             b: real
+        d: record:
+             a: integer
+             b: real
+        a: array [1..10] of integer
+        b: array [1..10] of integer
+        c: integer
+        f: integer
+
+    └─statements
+               ├─:=
+               │  ├─.
+               │  │ ├─r
+               │  │ └─a
+               │  └─c
+               ├─:=
+               │  ├─.
+               │  │ ├─r
+               │  │ └─a
+               │  └─10
+               ├─:=
+               │  ├─.
+               │  │ ├─r
+               │  │ └─b
+               │  └─10.1
+               ├─:=
+               │  ├─r
+               │  └─d
+               ├─:=
+               │  ├─[]
+               │  │  ├─a
+               │  │  └─1
+               │  └─10
+               ├─:=
+               │  ├─[]
+               │  │  ├─a
+               │  │  └─2
+               │  └─20
+               ├─:=
+               │  ├─[]
+               │  │  ├─a
+               │  │  └─3
+               │  └─+
+               │    ├─c
+               │    └─f
+               └─:=
+                  ├─[]
+                  │  ├─a
+                  │  └─4
+                  └─.
+                    ├─r
+                    └─a

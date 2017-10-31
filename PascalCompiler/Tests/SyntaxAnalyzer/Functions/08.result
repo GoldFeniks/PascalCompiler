@@ -1,1 +1,1 @@
-(5, 12) Syntax Error: Incompatible types "integer", "real"
+(5, 23) Syntax error: Incompatible types "integer", "real"

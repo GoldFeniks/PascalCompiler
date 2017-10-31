@@ -3,6 +3,7 @@
 #include <vector>
 #include "tokenizer.hpp"
 #include "tree.hpp"
+#include "type.hpp"
 #include "operations.hpp"
 #include "symbols_table.hpp"
 #include "exceptions.hpp"
@@ -28,7 +29,8 @@ namespace pascal_compiler {
         public:
 
             explicit declaration_not_found(const tokenizer::token_p& token) : 
-                syntax_error(str(boost::format("\"%1%\"") % token->get_string_value()), token->get_position()) {};
+                syntax_error(str(boost::format("Declaration not found \"%1%\"") 
+                    % token->get_string_value()), token->get_position()) {};
 
         };
 
@@ -81,11 +83,15 @@ namespace pascal_compiler {
             syntax_analyzer& operator=(const syntax_analyzer&) = delete;
             syntax_analyzer& operator=(syntax_analyzer&& other) noexcept;
 
+            void parse();
+            const std::vector<symbols_table>& tables() const;
+
         private:
 
             tokenizer tokenizer_;
             tree_node_p root_;
             std::vector<symbols_table> tables_;
+            size_t loops_count_ = 0;
 
             void parse_program();
 
@@ -100,6 +106,7 @@ namespace pascal_compiler {
             tree_node_p parse_block();
             tree_node_p parse_typed_const(const type_p& type);
             tree_node_p parse_statements();
+            tree_node_p parse_exit_statement();
             tree_node_p parse_statement();
             tree_node_p parse_compound_statement();
             tree_node_p parse_if_statement();
@@ -109,6 +116,7 @@ namespace pascal_compiler {
             tree_node_p parse_write_statement();
             tree_node_p parse_read_statement();
             tree_node_p parse_assignment_statement();
+            tree_node_p parse_condition();
 
             type_p parse_type(const std::string& name = "");
             
@@ -127,11 +135,12 @@ namespace pascal_compiler {
 
             static void require(const tokenizer::token_p& token, const tokenizer::token::sub_types type);
             void require(const tokenizer::token::sub_types type) const;
-            static void require(const type_p& type, const type::type_category category, 
+            static void require(const type_p type, const type::type_category category, 
                 const tree_node::position_type& position);
             static void require_types_compatibility(const type_p& left, const type_p& right,
                 const tree_node::position_type& position);
             static void require_constant(const tree_node_p& node);
+            void require_loop(const tokenizer::token::sub_types type) const;
 
             static bool simple_expression_operators(const tokenizer::token::sub_types type) {
                 return type == tokenizer::token::sub_types::plus ||
@@ -158,23 +167,29 @@ namespace pascal_compiler {
                        type == tokenizer::token::sub_types::or;
             }
 
-            static const tree_node_p get_constant(const tree_node_p& node);
+            static tree_node_p get_constant(const tree_node_p& node);
 
-            template<tree_node_p(syntax_analyzer::*Parse)(void), bool(*Cond)(const tokenizer::token::sub_types)>
-            tree_node_p parse_operation() {
+            template<tree_node_p(syntax_analyzer::*Parse)(), bool(*Cond)(const tokenizer::token::sub_types)>
+            tree_node_p parse_operation(const type_p& d_type = nullptr) {
                 auto result = (this->*Parse)();
                 auto token = tokenizer_.current();
                 while (Cond(token->get_sub_type())) {
                     tokenizer_.next();
-                    const auto node = (this->*Parse)();
+                    auto node = (this->*Parse)();
                     const auto left = get_constant(result);
                     const auto right = get_constant(node);
                     if (left->category() == tree_node::node_category::constant &&
                         right->category() == tree_node::node_category::constant)
                         result = calculate(token->get_sub_type(), std::static_pointer_cast<constant_node>(left), 
                             std::static_pointer_cast<constant_node>(right));
-                    else
-                        result = std::make_shared<operation_node>(token, result, node);
+                    else {
+                        const auto type = get_type_for_operands(get_type(result), get_type(node), token->get_sub_type());
+                        if (base_type(get_type(result)) != type)
+                            result = std::make_shared<cast_node>(type, result, result->position());
+                        if (base_type(get_type(node)) != type)
+                            node = std::make_shared<cast_node>(type, node, node->position());
+                        result = std::make_shared<operation_node>(token, result, node, d_type ? d_type : type);
+                    }
                     token = tokenizer_.current();
                 }
                 return result;

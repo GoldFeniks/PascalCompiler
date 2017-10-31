@@ -1,15 +1,15 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─procedure p
-           │    │           ├─p_list
-           │    │           └─block
-           │    │                 ├─decl
-           │    │                 └─statements
-           │    └─function f
-           │               ├─p_list
-           │               ├─type integer scalar
-           │               └─block
-           │                     ├─decl
-           │                     └─statements
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        p: function ()
+             result: nil
+
+         └─statements
+        f: function ()
+             result: integer
+
+         └─statements
+
+    └─statements

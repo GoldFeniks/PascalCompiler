@@ -1,25 +1,10 @@
-└─test
-     └─block
-           ├─decl
-           │    ├─type a array
-           │    │            ├─1
-           │    │            ├─10
-           │    │            └─type integer scalar
-           │    ├─type b array
-           │    │            ├─1
-           │    │            ├─10
-           │    │            └─type * array
-           │    │                         ├─1
-           │    │                         ├─10
-           │    │                         └─type real scalar
-           │    └─type c array
-           │                 ├─1
-           │                 ├─10
-           │                 └─type * array
-           │                              ├─1
-           │                              ├─10
-           │                              └─type * array
-           │                                           ├─10
-           │                                           ├─1
-           │                                           └─type char scalar
-           └─statements
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        a: type array [1..10] of integer
+        b: type array [1..10] of array [1..10] of real
+        c: type array [1..10] of array [1..10] of array [10..11] of char
+
+    └─statements

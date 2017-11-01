@@ -95,7 +95,8 @@ function_header = "function", identifier, formal_parameter_list, ":", type_ident
 compound_statement = "begin", statement_list, "end";
 
 statement = [ 
-    simple_statement 
+    compound_statement
+    | simple_statement 
     | structured_statement
 ];
 
@@ -104,8 +105,9 @@ simple_statement =
     | procedure_statement
     | read
     | write
-    | continue
-    | break;
+    | "continue"
+    | "break"
+    | exit;
 
 assignment_statement = (identifier | indexed_variable | field_ascess), (":=" | "+=" | "-=" | "*=" | "/="), expression;
 
@@ -130,11 +132,11 @@ repetitive_statement =
     | repeat_statement
     | while_statement;
 
-for_statement = "for", variable_identifier, ":=", expression, ("to" | "downto"), expression, "do", (statement | compound_statement);
+for_statement = "for", variable_identifier, ":=", expression, ("to" | "downto"), expression, "do", statement;
 
 repeat_statement = "repeat", statement_list, "until", expression;
 
-while_statement = "while", expression, "do", (statement | compound_statement);
+while_statement = "while", expression, "do", statement;
 
 identifier = [ "&" ], letter, { letter | digit };
 
@@ -218,3 +220,5 @@ read = "read", "(", identifier_list, ")";
 write = "write", "(", expressions_list, ")";
 
 field_access = factor, ".", identifier, { ".", identifier };
+
+exit = "exit", [ "(", expression, ") "];

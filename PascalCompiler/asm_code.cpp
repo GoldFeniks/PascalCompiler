@@ -156,8 +156,8 @@ void asm_code::add_data(const std::string& name, const symbols_table::symbol_t& 
             push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) } });
             break;
         case type::type_category::real:
-            push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) - 4 } });
             push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) } });
+            push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) - 4 } });
             break;
         case type::type_category::array:
         case type::type_category::record:
@@ -171,7 +171,7 @@ void asm_code::add_data(const std::string& name, const symbols_table::symbol_t& 
 }
 
 std::string asm_code::to_string() const {
-    std::string result = "include c:\\masm32\\include\\masm32rt.inc\n.xmm\n.const\n__neg@ dq 8000000000000000r\n";
+    std::string result = "include c:\\masm32\\include\\masm32rt.inc\n.xmm\n.const\n";
     for (const auto& it : double_const_)
         result += str(boost::format("__real\@%1% dq %1%r ;%2%\n") % it.second % it.first);
     result += ".code\nstart:\n";

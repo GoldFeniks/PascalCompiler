@@ -63,8 +63,8 @@ void variable_node::to_asm_code(asm_code& code) {
         code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
         break;
     case type::type_category::real: 
-        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
         code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) - 4 } });
+        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
         break;
     case type::type_category::array:
     case type::type_category::record:
@@ -178,23 +178,13 @@ void operation_node::to_asm(asm_code& code) const {
     left_->to_asm_code(code);
     if (right_ == nullptr) {
         if (operation_type_ == tokenizer::token::sub_types::minus) {
-            if (type() == real()) {
-                code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm1,{ "__neg@" } });
-                code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm0, {asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
-                code.push_back({ asm_command::type::pxor, asm_reg::reg_type::xmm0, asm_reg::reg_type::xmm1 });
-                code.push_back({ asm_command::type::movsd,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword }, asm_reg::reg_type::xmm0 });
-            }
-            else {
-                code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
-                code.push_back({ asm_command::type::neg, asm_reg::reg_type::eax });
-                code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
-            }
+            if (type() == real()) 
+                code.push_back({ asm_command::type::xor, {asm_reg::reg_type::esp, asm_mem::mem_size::dword, 4},{"2147483648"} });
+            else
+                code.push_back({ asm_command::type::neg,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword} });
         }
-        else if (operation_type_ == tokenizer::token::sub_types::not) {
-            code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
-            code.push_back({ asm_command::type::not, asm_reg::reg_type::eax });
-            code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });            
-        }
+        else if (operation_type_ == tokenizer::token::sub_types::not)
+            code.push_back({ asm_command::type::neg,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword } });       
         return;
     }
     right_->to_asm_code(code);

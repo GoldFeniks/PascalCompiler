@@ -194,6 +194,8 @@ namespace pascal_compiler {
 
             private:
 
+                void to_asm_assign(asm_code& code) const;
+                void to_asm(asm_code& code) const;
                 tokenizer::token::sub_types operation_type_;
                 tree_node_p left_ = nullptr, right_ = nullptr;
                 static const std::unordered_map<tokenizer::token::sub_types, asm_command::type> ops, f_ops;

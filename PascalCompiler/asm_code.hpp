@@ -40,7 +40,7 @@ namespace pascal_compiler {
         public:
 
             enum class mem_size {
-                word, dword, qword
+                byte, word, dword, qword
             };
 
             static const std::string mem_size_str[];
@@ -106,7 +106,8 @@ namespace pascal_compiler {
         public:
 
             enum class type {
-                mov, push, pop, add, sub, mul, div, printf, movsd, and, or, xor, mulsd, addsd, divsd, subsd
+                mov, push, pop, add, sub, mul, div, printf, movsd, 
+                and, or, xor, mulsd, addsd, divsd, subsd, neg, pxor, not, cdq
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);
@@ -119,6 +120,7 @@ namespace pascal_compiler {
             asm_command(const type type, const asm_reg& arg);
             asm_command(const type type, const asm_imm& arg);
             asm_command(const type type, const std::vector<std::shared_ptr<asm_arg>>& args);
+            asm_command(const type type) : type_(type) {}
             std::string to_string() const;
 
         private:

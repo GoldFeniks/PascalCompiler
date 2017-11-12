@@ -95,7 +95,7 @@ tree_node_p syntax_analyzer::parse_factor() {
         const auto factor = parse_factor();
         if (!base_type(get_type(factor))->is_scalar())
             throw unsupported_operands_types(std::dynamic_pointer_cast<typed>(factor), token->get_sub_type());
-        return std::make_shared<operation_node>(token, parse_factor());
+        return std::make_shared<operation_node>(token, factor);
     }
     default:
         throw unexpected_token(token, pascal_compiler::tokenizer::token::sub_types::identifier);
@@ -391,8 +391,8 @@ tree_node_p syntax_analyzer::parse_write_statement() {
     token = tokenizer_.next();
     while (token->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::close_parenthesis) {
         if (token->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::string_const) {
-            result->push_back(std::make_shared<tree_node>(
-                token->get_string_value(), tree_node::node_category::null, token->get_position()));
+            result->push_back(std::make_shared<constant_node>(
+                token->get_string_value(), string(), token->get_value(), token->get_position()));
             token = tokenizer_.next();
         }
         else {
@@ -457,8 +457,6 @@ tree_node_p syntax_analyzer::parse_assignment_statement() {
         if (result_type != get_type(expr))
             expr = std::make_shared<cast_node>(result_type, expr, expr->position());
         return std::make_shared<operation_node>(token, node, expr, result_type);
-        return std::make_shared<tree_node>(token->get_string_value(), 
-            tree_node::node_category::null, token->get_position(), node, expr);
     }
     return node;
 }

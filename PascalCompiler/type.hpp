@@ -58,12 +58,17 @@ namespace pascal_compiler {
             }
 
             inline type_p character() {
-                static const auto symbol = std::make_shared<type>("char", type::type_category::character, 1);
+                static const auto symbol = std::make_shared<type>("char", type::type_category::character, 2);
                 return symbol;
             }
 
             inline type_p nil() {
                 static const auto nil = std::make_shared<type>("nil", type::type_category::nil, 0);
+                return nil;
+            }
+
+            inline type_p string() {
+                static const auto nil = std::make_shared<type>("string", type::type_category::string, 0);
                 return nil;
             }
 

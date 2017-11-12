@@ -63,8 +63,8 @@ void variable_node::to_asm_code(asm_code& code) {
         code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
         break;
     case type::type_category::real: 
-        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) - 4 } });
         code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
+        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) - 4 } });
         break;
     case type::type_category::array:
     case type::type_category::record:
@@ -92,6 +92,8 @@ std::string constant_node::value_string() const {
 void constant_node::to_asm_code(asm_code& code) {
     switch (type()->category()) {
     case type::type_category::character:
+        code.push_back({ asm_command::type::push,{ std::to_string(static_cast<char>(value_)) } });
+        break;
     case type::type_category::integer:
         code.push_back({ asm_command::type::push, { std::to_string(static_cast<long long>(value_)) } });
         break;
@@ -113,7 +115,6 @@ const std::unordered_map<tokenizer::token::sub_types, asm_command::type> operati
     { tokenizer::token::sub_types::plus, asm_command::type::add },
     { tokenizer::token::sub_types::minus, asm_command::type::sub },
     { tokenizer::token::sub_types::mult, asm_command::type::mul },
-    { tokenizer::token::sub_types::divide, asm_command::type::div },
     { tokenizer::token::sub_types::and, asm_command::type::and },
     { tokenizer::token::sub_types::or, asm_command::type::or },
     { tokenizer::token::sub_types::xor, asm_command::type::xor },
@@ -145,52 +146,90 @@ const tree_node_p& operation_node::left() const { return left_; }
 const tree_node_p& operation_node::right() const { return right_; }
 
 void operation_node::to_asm_code(asm_code& code) {
-    //TODO ADD UNARY
-    //TODO ADD CHAR
-    const auto b = is_assign();  
-    if (!b)
-        left_->to_asm_code(code);
+    if (is_assign())
+        to_asm_assign(code);
+    else
+        to_asm(code);
+}
+
+void operation_node::to_asm_assign(asm_code& code) const {
     right_->to_asm_code(code);
     asm_mem::mem_size mem_size;
     asm_command::type com_type;
-    asm_reg::reg_type reg1, reg2;
+    asm_reg::reg_type reg1;
     if (type() == real()) {
         reg1 = asm_reg::reg_type::xmm0;
-        reg2 = asm_reg::reg_type::xmm1;
-        if (!b) {
-            code.push_back({ asm_command::type::movsd, reg2,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
-            code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp },{ "8" } });
-        }
-        code.push_back({ asm_command::type::movsd, reg1, { asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
-        code.push_back({ asm_command::type::add,{asm_reg::reg_type::esp },{ "8" } });
+        code.push_back({ asm_command::type::movsd, reg1,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
         com_type = f_ops.at(operation_type_);
         mem_size = asm_mem::mem_size::qword;
     }
     else {
         reg1 = asm_reg::reg_type::eax;
-        reg2 = asm_reg::reg_type::ebx;
-        if (!b) {
-            code.push_back({ asm_command::type::pop, reg2 });
-        }
         code.push_back({ asm_command::type::pop, reg1 });
-        mem_size = asm_mem::mem_size::dword;
+        mem_size = type() == integer() ? asm_mem::mem_size::dword : asm_mem::mem_size::word;
         com_type = ops.at(operation_type_);
     }
-    if (b)
-        code.push_back({ com_type,{ mem_size, code.get_offset(left_->name()) }, reg1 });
-    else {
-        if (com_type == asm_command::type::mul ||
-            com_type == asm_command::type::div)
-            code.push_back({ com_type, reg2 });
-        else
-            code.push_back({ com_type, reg1, reg2 });
-        if (type() == real()) {
-            code.push_back({ asm_command::type::sub,{ asm_reg::reg_type::esp },{ "8" } });
-            code.push_back({ asm_command::type::movsd, { asm_reg::reg_type::esp, asm_mem::mem_size::qword }, reg1 });
+    if (com_type == asm_command::type::div)
+        code.push_back({ asm_command::type::cdq });
+    code.push_back({ com_type,{ mem_size, code.get_offset(left_->name()) }, reg1 });
+}
+
+void operation_node::to_asm(asm_code& code) const {
+    left_->to_asm_code(code);
+    if (right_ == nullptr) {
+        if (operation_type_ == tokenizer::token::sub_types::minus) {
+            if (type() == real()) {
+                code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm1,{ "__neg@" } });
+                code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm0, {asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
+                code.push_back({ asm_command::type::pxor, asm_reg::reg_type::xmm0, asm_reg::reg_type::xmm1 });
+                code.push_back({ asm_command::type::movsd,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword }, asm_reg::reg_type::xmm0 });
+            }
+            else {
+                code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
+                code.push_back({ asm_command::type::neg, asm_reg::reg_type::eax });
+                code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
+            }
         }
-        else
-            code.push_back({ asm_command::type::push, reg1 });
+        else if (operation_type_ == tokenizer::token::sub_types::not) {
+            code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
+            code.push_back({ asm_command::type::not, asm_reg::reg_type::eax });
+            code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });            
+        }
+        return;
     }
+    right_->to_asm_code(code);
+    asm_command::type com_type;
+    asm_reg::reg_type reg1, reg2;
+    if (type() == real()) {
+        reg1 = asm_reg::reg_type::xmm0;
+        reg2 = asm_reg::reg_type::xmm1;
+        code.push_back({ asm_command::type::movsd, reg2,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
+        code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp },{ "8" } });
+        code.push_back({ asm_command::type::movsd, reg1,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
+        com_type = f_ops.at(operation_type_);
+    }
+    else {
+        reg1 = asm_reg::reg_type::eax;
+        reg2 = asm_reg::reg_type::ebx;
+        code.push_back({ asm_command::type::pop, reg2 });
+        code.push_back({ asm_command::type::pop, reg1 });
+        com_type = ops.at(operation_type_);
+    }
+    if (com_type == asm_command::type::div)
+        code.push_back({ asm_command::type::cdq });
+    if (com_type == asm_command::type::mul ||
+        com_type == asm_command::type::div)
+        code.push_back({ com_type, reg2 });
+    else
+        code.push_back({ com_type, reg1, reg2 });
+    if (type() == real()) {
+        code.push_back({ asm_command::type::movsd,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword }, reg1 });
+    }
+    else
+        code.push_back({ asm_command::type::push, 
+            operation_type_ == tokenizer::token::sub_types::mod 
+            ? asm_reg::reg_type::edx 
+            : reg1 });
 }
 
 bool operation_node::is_assign() const {
@@ -221,13 +260,15 @@ void write_node::to_asm_code(asm_code& code) {
     std::vector<std::shared_ptr<asm_arg>> args;
     std::string format = "\"";
     size_t offset = 0;
+    for (const auto& it : children())
+        offset += std::dynamic_pointer_cast<typed>(it)->type()->data_size();
     for (const auto& it : children()) {
         const auto type = std::dynamic_pointer_cast<typed>(it);
         asm_mem::mem_size size;
         switch (type->type()->category()) { 
         case type::type_category::character: 
             format += "%c";
-            size = asm_mem::mem_size::word;
+            size = asm_mem::mem_size::byte;
             break;
         case type::type_category::integer:
             format += "%d";
@@ -237,15 +278,18 @@ void write_node::to_asm_code(asm_code& code) {
             format += "%f";
             size = asm_mem::mem_size::qword;
             break;
+        case type::type_category::string:
+            format += "%s";
+            args.push_back(std::make_shared<asm_imm>(std::string("\"") + it->name() + "\""));
+            continue;
         default: 
             throw std::logic_error("This point should never be reached");
         }
         it->to_asm_code(code);
+        offset -= type->type()->data_size();
         args.push_back(std::make_shared<asm_reg>(asm_reg::reg_type::eax, size, offset));
-        offset += type->type()->data_size();
     }
     code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, asm_reg::reg_type::esp });
-    reverse(args.begin(), args.end());
     args.insert(args.begin(), std::make_shared<asm_imm>( format + "\\n\"" ));
     code.push_back({ asm_command::type::printf, args });
     code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, std::to_string(offset) });

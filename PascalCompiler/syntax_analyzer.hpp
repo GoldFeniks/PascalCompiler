@@ -15,6 +15,7 @@ namespace pascal_compiler {
 
         using namespace tree;
         using namespace operations;
+        using namespace code;
 
         class syntax_error : public exception {
             
@@ -82,6 +83,7 @@ namespace pascal_compiler {
 
             syntax_analyzer& operator=(const syntax_analyzer&) = delete;
             syntax_analyzer& operator=(syntax_analyzer&& other) noexcept;
+            void to_asm_code(asm_code& code);
 
             void parse();
             const std::vector<symbols_table>& tables() const;

@@ -7,6 +7,7 @@
 #include "type.hpp"
 #include "tokenizer.hpp"
 #include "exceptions.hpp"
+#include "asm_code.hpp"
 
 namespace pascal_compiler {
 
@@ -28,6 +29,7 @@ namespace pascal_compiler {
         }// namespace operations
 
         using namespace operations;
+        using namespace code;
 
         namespace tree {
 
@@ -51,7 +53,7 @@ namespace pascal_compiler {
 
                 enum class node_category {
                     variable, constant, typed_constant, operation, procedure,
-                    function, call, index, field_access, null, cast
+                    function, call, index, field_access, null, cast, write
                 };
 
                 template<typename... C>
@@ -80,6 +82,7 @@ namespace pascal_compiler {
                 node_category category() const;
                 const position_type& position() const;
                 std::string to_string(const std::string& prefix = "", const bool last = true) const;
+                virtual void to_asm_code(code::asm_code& code);
 
             private:
 
@@ -124,6 +127,7 @@ namespace pascal_compiler {
                 virtual ~variable_node() {}
 
                 const tree_node_p& value() const;
+                void to_asm_code(asm_code& code) override;
 
             private:
 
@@ -148,12 +152,15 @@ namespace pascal_compiler {
                         return T(static_cast<long long>(value_));
                     case type::type_category::real:
                         return T(static_cast<double>(value_));
-                    case type::type_category::symbol:
+                    case type::type_category::character:
                         return T(static_cast<char*>(value_)[0]);
                     default: 
                         throw std::logic_error("This point should be unreachable");
                     }
                 }
+
+                std::string value_string() const;
+                void to_asm_code(asm_code& code) override;
 
             private:
 
@@ -183,10 +190,14 @@ namespace pascal_compiler {
                 const tree_node_p& left() const;
                 const tree_node_p& right() const;
 
+                void to_asm_code(asm_code& code) override;
+
             private:
 
                 tokenizer::token::sub_types operation_type_;
                 tree_node_p left_ = nullptr, right_ = nullptr;
+                static const std::unordered_map<tokenizer::token::sub_types, asm_command::type> ops, f_ops;
+                bool is_assign() const;
 
             };// class operation_node
 
@@ -283,6 +294,21 @@ namespace pascal_compiler {
                 cast_node(const type_p& type, const tree_node_p& node, const position_type& position);
 
             };// class cast_node
+
+            class write_node;
+            typedef std::shared_ptr<write_node> write_node_p;
+
+            class write_node : public tree_node {
+
+            public:
+
+                template<typename... T>
+                explicit write_node(const position_type& position, T... children) 
+                   : tree_node("write", node_category::write, position, children...) {}
+
+                void to_asm_code(asm_code& code) override;
+
+            };
 
         }// namespace tree
 

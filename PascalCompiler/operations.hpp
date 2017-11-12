@@ -57,6 +57,12 @@ namespace pascal_compiler {
                     throw unsupported_operands_types(left, right, type);
             }
 
+            inline void require_integer(const type_p& left, const type_p& right,
+                const tokenizer::token::sub_types type) {
+                if (left != integer() || right != integer())
+                    throw unsupported_operands_types(left, right, type);
+            }
+
             template<typename T, typename Left = typename T::first_argument_type, typename Right = typename T::second_argument_type>
             constant_node_p calculate(const constant_node_p& left, const constant_node_p& right, const type_p& type) {
                 T op;
@@ -131,49 +137,42 @@ namespace pascal_compiler {
                     {
                         tokenizer::token::sub_types::mod,
                         [](const constant_node_p& left, const constant_node_p& right) -> constant_node_p {
-                            require_integer(left, right, tokenizer::token::sub_types::mod);
                             return calculate<std::modulus<long long>>(left, right, integer());
                         }
                     },
                     {
                         tokenizer::token::sub_types::div,
                         [](const constant_node_p& left, const constant_node_p& right) -> constant_node_p {
-                            require_integer(left, right, tokenizer::token::sub_types::div);
                             return calculate<std::divides<long long>>(left, right, integer());
                         }
                     },
                     {
                         tokenizer::token::sub_types::shift_left,
                         [](const constant_node_p& left, const constant_node_p& right) -> constant_node_p {
-                            require_integer(left, right, tokenizer::token::sub_types::shift_left);
                             return calculate<shift_left<long long>>(left, right, integer());
                         }
                     },
                     {
                         tokenizer::token::sub_types::shift_right,
                         [](const constant_node_p& left, const constant_node_p& right) -> constant_node_p {
-                            require_integer(left, right, tokenizer::token::sub_types::shift_right);
                             return calculate<shift_right<long long>>(left, right, integer());
                         }
                     },
                     {
                         tokenizer::token::sub_types::and,
                         [](const constant_node_p& left, const constant_node_p& right) -> constant_node_p {
-                            require_integer(left, right, tokenizer::token::sub_types::and);
                             return calculate<std::bit_and<long long>>(left, right, integer());
                         }
                     },
                     {
                         tokenizer::token::sub_types::or,
                         [](const constant_node_p& left, const constant_node_p& right) -> constant_node_p {
-                            require_integer(left, right, tokenizer::token::sub_types::or);
                             return calculate<std::bit_or<long long>>(left, right, integer());
                         }
                     },
                     {
                         tokenizer::token::sub_types::xor,
                         [](const constant_node_p& left, const constant_node_p& right) -> constant_node_p {
-                            require_integer(left, right, tokenizer::token::sub_types::xor);
                             return calculate<std::bit_xor<long long>>(left, right, integer());
                         }
                     },
@@ -249,6 +248,9 @@ namespace pascal_compiler {
                                                const constant_node_p& left, const constant_node_p& right);
 
             extern inline constant_node_p calculate(const tokenizer::token::sub_types type, const constant_node_p& left);
+
+            bool inline is_relational(const tokenizer::token::sub_types type);
+            bool inline is_int_only(const tokenizer::token::sub_types type);
 
             inline type_p get_type_for_operands(type_p left, type_p right, const tokenizer::token::sub_types op);
             

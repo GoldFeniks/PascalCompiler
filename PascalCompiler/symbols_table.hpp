@@ -8,6 +8,14 @@
 
 namespace pascal_compiler {
 
+    namespace code {
+
+        class asm_code;
+
+    }//namespace code
+
+    using namespace code;
+
     namespace syntax_analyzer {
 
         namespace types {
@@ -59,6 +67,7 @@ namespace pascal_compiler {
                 const table_t& table() const;
                 const vector_t& vector() const;
                 std::string to_string(const std::string& prefix = "") const;
+                void to_asm_code(asm_code& code) const;
 
             private:
 

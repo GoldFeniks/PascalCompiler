@@ -3,6 +3,7 @@
 #include <string>
 #include "syntax_analyzer.hpp"
 #include "exceptions.hpp"
+#include "asm_code.hpp"
 
 void tokenizer_output(const std::string in_file, const std::string out_file) {
     std::ofstream out(out_file);
@@ -32,6 +33,24 @@ void syntax_analyzer_output(const std::string in_file, const std::string out_fil
     }
 }
 
+void generator_output(const std::string in_file, const std::string out_file) {
+    std::ofstream out(out_file);
+    pascal_compiler::syntax_analyzer::syntax_analyzer syntax_analyzer(in_file);
+    try {
+        syntax_analyzer.parse();
+        pascal_compiler::code::asm_code code;
+        syntax_analyzer.to_asm_code(code);
+        out << code.to_string();
+    }
+    catch (const pascal_compiler::exception e) {
+        out << e.what();
+    }
+    catch (const pascal_compiler::syntax_analyzer::tree::convertion_error e) {
+        out << e.what();
+    }
+
+}
+
 int main(const int argc, char* argv[]) {
     if (argc <= 1) {
         std::cout << "Pascal compiler. Tyshchenko Andrey 2017";
@@ -47,6 +66,8 @@ int main(const int argc, char* argv[]) {
         tokenizer_output(argv[2], in_file);
     else if (key == "-p")
         syntax_analyzer_output(argv[2], in_file);
+    else if (key == "-g")
+        generator_output(argv[2], in_file);
     else
         std::cout << "Unknown key " << key;
 	return 0;

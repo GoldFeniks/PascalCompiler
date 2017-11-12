@@ -17,14 +17,14 @@ namespace pascal_compiler {
             public:
 
                 enum class type_category : unsigned int {
-                    type, integer, real, symbol, array, nil,
+                    character, integer, real, type, array, nil,
                     record, function, modified, pointer, string
                 };
 
                 static const std::string type_strings[];
 
-                type(const std::string& name, const type_category category) : name_(name), 
-                    category_(category), is_anonymous_(!name.length()) {}
+                type(const std::string& name, const type_category category, const size_t size = 0) : name_(name), 
+                    category_(category), size_(size), is_anonymous_(!name.length()) {}
 
                 virtual ~type() {}
 
@@ -33,6 +33,7 @@ namespace pascal_compiler {
                 bool is_category(const type_category category) const;
                 bool is_anonymous() const;
                 bool is_scalar() const;
+                size_t data_size() const;
 
                 virtual std::string to_string(const std::string& prefix = "") const;
 
@@ -40,33 +41,29 @@ namespace pascal_compiler {
 
                 std::string name_;
                 type_category category_;
+                size_t size_;
                 bool is_anonymous_ = false;
 
             };// class type
 
             //basic types
             inline type_p integer() {
-                static const auto integer = std::make_shared<type>("integer", type::type_category::integer);
+                static const auto integer = std::make_shared<type>("integer", type::type_category::integer, 4);
                 return integer;
             }
 
             inline type_p real() {
-                static const auto real = std::make_shared<type>("real", type::type_category::real);
+                static const auto real = std::make_shared<type>("real", type::type_category::real, 8);
                 return real;
             }
 
-            inline type_p symbol() {
-                static const auto symbol = std::make_shared<type>("char", type::type_category::symbol);
+            inline type_p character() {
+                static const auto symbol = std::make_shared<type>("char", type::type_category::character, 1);
                 return symbol;
             }
 
-            inline type_p string() {
-                static const auto string = std::make_shared<type>("string", type::type_category::string);
-                return string;
-            }
-
             inline type_p nil() {
-                static const auto nil = std::make_shared<type>("nil", type::type_category::nil);
+                static const auto nil = std::make_shared<type>("nil", type::type_category::nil, 0);
                 return nil;
             }
 

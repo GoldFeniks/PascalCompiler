@@ -2,6 +2,7 @@
 #include "boost/format.hpp"
 #include "type.hpp"
 #include "tree.hpp"
+#include "asm_code.hpp"
 
 using namespace pascal_compiler::syntax_analyzer;
 
@@ -60,4 +61,10 @@ std::string symbols_table::to_string(const std::string& prefix) const {
     }
     result.pop_back();
     return result;
+}
+
+void symbols_table::to_asm_code(asm_code& code) const {
+    for (const auto& it : vector_)
+        if (it.second.first->is_scalar())
+            code.add_data(it.first, it.second);
 }

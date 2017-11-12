@@ -1,0 +1,18 @@
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        i: integer
+        c: char
+        c1: const integer
+
+          └─10
+
+    └─statements
+               └─:=
+                  ├─i
+                  └─<<
+                     ├─integer
+                     │       └─c
+                     └─c1

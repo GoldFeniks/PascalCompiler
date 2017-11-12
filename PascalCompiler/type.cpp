@@ -7,7 +7,7 @@ using namespace syntax_analyzer;
 using namespace types;
 
 const std::string type::type_strings[] = {
-    "type",  "integer",  "real",      "char",   "array",   "nil",
+    "char",   "integer",  "real",     "type",   "array",   "nil",
     "record", "function", "modified", "pointer", "string"
 };
 
@@ -23,7 +23,11 @@ bool type::is_anonymous() const { return is_anonymous_; }
 bool type::is_scalar() const {
     return category_ == type_category::integer ||
            category_ == type_category::real    ||
-           category_ == type_category::symbol;        
+           category_ == type_category::character;        
+}
+
+size_t type::data_size() const {
+    return size_;
 }
 
 std::string type::to_string(const std::string& prefix) const {

@@ -1,0 +1,43 @@
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        rec: type record:
+                   a: integer
+        arr: type array [1..10] of record:
+                                    a: integer
+        f: function (a: record:
+    a: integer; )
+             result: array [1..10] of record:
+                                        a: integer
+             b: integer
+
+              └─10
+             t: array [1..10] of record:
+                                   a: integer
+
+         └─statements
+                    ├─:=
+                    │  ├─.
+                    │  │ ├─a
+                    │  │ └─a
+                    │  └─b
+                    ├─:=
+                    │  ├─[]
+                    │  │  ├─t
+                    │  │  └─0
+                    │  └─a
+                    └─:=
+                       ├─result
+                       └─t
+        a: array [1..10] of record:
+                              a: integer
+
+    └─statements
+               └─()
+                  ├─f
+                  └─p_list
+                         └─[]
+                            ├─a
+                            └─0

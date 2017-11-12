@@ -1,4 +1,5 @@
 ﻿#include "syntax_analyzer.hpp"
+#include "asm_code.hpp"
 
 using namespace pascal_compiler::syntax_analyzer;
 using namespace tree;
@@ -13,6 +14,14 @@ syntax_analyzer& syntax_analyzer::operator=(
     std::swap(tokenizer_, other.tokenizer_);
     swap(root_, other.root_);
     return *this;
+}
+
+void syntax_analyzer::to_asm_code(asm_code& code) {
+    const auto func = tables_.back().vector()[3];
+    const auto func_t = std::dynamic_pointer_cast<function_type>(func.second.first);
+    const auto func_v = func.second.second;
+    func_t->table().to_asm_code(code);
+    func_v->to_asm_code(code);
 }
 
 void syntax_analyzer::parse() {
@@ -66,7 +75,7 @@ tree_node_p syntax_analyzer::parse_factor() {
     case pascal_compiler::tokenizer::token::sub_types::real_const:
         return std::make_shared<constant_node>(token->get_string(), real(), token->get_value(), token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::char_const:
-        return std::make_shared<constant_node>(token->get_string(), symbol(), token->get_value(), token->get_position());
+        return std::make_shared<constant_node>(token->get_string(), character(), token->get_value(), token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::open_parenthesis:
     {
         const auto node = parse_expression();
@@ -74,10 +83,20 @@ tree_node_p syntax_analyzer::parse_factor() {
         tokenizer_.next();
         return node;
     }
+    case pascal_compiler::tokenizer::token::sub_types::not:
+    {
+        const auto factor = parse_factor();
+        require(base_type(get_type(factor)), type::type_category::integer, factor->position());
+        return std::make_shared<operation_node>(token, factor);
+    }
     case pascal_compiler::tokenizer::token::sub_types::plus:
     case pascal_compiler::tokenizer::token::sub_types::minus:
-    case pascal_compiler::tokenizer::token::sub_types::not:
+    {
+        const auto factor = parse_factor();
+        if (!base_type(get_type(factor))->is_scalar())
+            throw unsupported_operands_types(std::dynamic_pointer_cast<typed>(factor), token->get_sub_type());
         return std::make_shared<operation_node>(token, parse_factor());
+    }
     default:
         throw unexpected_token(token, pascal_compiler::tokenizer::token::sub_types::identifier);
     }
@@ -366,7 +385,7 @@ tree_node_p syntax_analyzer::parse_repeat_statement() {
 }
 
 tree_node_p syntax_analyzer::parse_write_statement() {
-    auto result = std::make_shared<tree_node>("write", tree_node::node_category::null, tokenizer_.current()->get_position());
+    auto result = std::make_shared<write_node>(tokenizer_.current()->get_position());
     auto token = tokenizer_.current();
     require(token, pascal_compiler::tokenizer::token::sub_types::open_parenthesis);
     token = tokenizer_.next();
@@ -437,6 +456,7 @@ tree_node_p syntax_analyzer::parse_assignment_statement() {
         require_types_compatibility(result_type, get_type(expr), expr->position());
         if (result_type != get_type(expr))
             expr = std::make_shared<cast_node>(result_type, expr, expr->position());
+        return std::make_shared<operation_node>(token, node, expr, result_type);
         return std::make_shared<tree_node>(token->get_string_value(), 
             tree_node::node_category::null, token->get_position(), node, expr);
     }
@@ -513,7 +533,7 @@ void syntax_analyzer::parse_program() {
     tables_.push_back(symbols_table());
     tables_.back().add("integer", std::make_shared<type_type>("integer", integer()));
     tables_.back().add("real", std::make_shared<type_type>("real", real()));
-    tables_.back().add("char", std::make_shared<type_type>("char", symbol()));
+    tables_.back().add("char", std::make_shared<type_type>("char", character()));
 
     auto token = tokenizer_.next();
     require(token, pascal_compiler::tokenizer::token::sub_types::program);
@@ -774,6 +794,7 @@ void syntax_analyzer::require(const type_p type, const type::type_category categ
 
 void syntax_analyzer::require_types_compatibility(const type_p& left, const type_p& right,
     const tree_node::position_type& position) {
+    //check for modificator
     if (!left->is_category(type::type_category::type) && !right->is_category(type::type_category::type) &&
         (left == right ||
         left->is_category(type::type_category::real) && right->is_category(type::type_category::integer)))

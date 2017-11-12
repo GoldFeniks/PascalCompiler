@@ -1,0 +1,27 @@
+integer: type integer
+real: type real
+char: type char
+test: function ()
+        result: nil
+        arr: type array [1..10] of integer
+        f: function (a: array [1..10] of integer; )
+             result: array [1..10] of integer
+             b: integer
+
+              └─10
+
+         └─statements
+                    ├─:=
+                    │  ├─[]
+                    │  │  ├─a
+                    │  │  └─0
+                    │  └─b
+                    └─exit
+                         └─a
+        a: array [1..10] of integer
+
+    └─statements
+               └─()
+                  ├─f
+                  └─p_list
+                         └─a

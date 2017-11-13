@@ -58,7 +58,7 @@ namespace pascal_compiler {
             }
 
             inline type_p character() {
-                static const auto symbol = std::make_shared<type>("char", type::type_category::character, 2);
+                static const auto symbol = std::make_shared<type>("char", type::type_category::character, 1);
                 return symbol;
             }
 

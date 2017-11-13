@@ -87,6 +87,8 @@ tree_node_p syntax_analyzer::parse_factor() {
     {
         const auto factor = parse_factor();
         require(base_type(get_type(factor)), type::type_category::integer, factor->position());
+        if (factor->category() == tree_node::node_category::constant)
+            return calculate(token->get_sub_type(), std::dynamic_pointer_cast<constant_node>(factor));
         return std::make_shared<operation_node>(token, factor);
     }
     case pascal_compiler::tokenizer::token::sub_types::plus:
@@ -95,6 +97,8 @@ tree_node_p syntax_analyzer::parse_factor() {
         const auto factor = parse_factor();
         if (!base_type(get_type(factor))->is_scalar())
             throw unsupported_operands_types(std::dynamic_pointer_cast<typed>(factor), token->get_sub_type());
+        if (factor->category() == tree_node::node_category::constant)
+            return calculate(token->get_sub_type(), std::dynamic_pointer_cast<constant_node>(factor));
         return std::make_shared<operation_node>(token, factor);
     }
     default:

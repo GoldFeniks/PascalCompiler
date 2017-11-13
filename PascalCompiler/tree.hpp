@@ -294,6 +294,7 @@ namespace pascal_compiler {
             public:
 
                 cast_node(const type_p& type, const tree_node_p& node, const position_type& position);
+                void to_asm_code(code::asm_code& code) override;
 
             };// class cast_node
 

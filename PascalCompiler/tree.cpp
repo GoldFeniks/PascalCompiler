@@ -1,5 +1,6 @@
 #include "tree.hpp"
 #include "boost/format.hpp"
+#include <iterator>
 
 using namespace pascal_compiler;
 using namespace syntax_analyzer;
@@ -56,8 +57,10 @@ const tree_node_p& variable_node::value() const { return value_; }
 
 void variable_node::to_asm_code(asm_code& code) {
     switch (type()->category()) { 
-    case type::type_category::character: 
-        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::word, code.get_offset(name()) } });
+    case type::type_category::character:
+        code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_mem::mem_size::byte, code.get_offset(name()) } });
+        code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"1"} });
+        code.push_back({ asm_command::type::mov,{asm_reg::reg_type::esp, asm_mem::mem_size::byte},asm_reg::reg_type::al });
         break;
     case type::type_category::integer: 
         code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
@@ -92,7 +95,9 @@ std::string constant_node::value_string() const {
 void constant_node::to_asm_code(asm_code& code) {
     switch (type()->category()) {
     case type::type_category::character:
-        code.push_back({ asm_command::type::push,{ std::to_string(static_cast<char>(value_)) } });
+        code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"1"} });
+        code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte },
+            { std::to_string(static_cast<char>(value_)) } });
         break;
     case type::type_category::integer:
         code.push_back({ asm_command::type::push, { std::to_string(static_cast<long long>(value_)) } });
@@ -114,17 +119,19 @@ void constant_node::to_asm_code(asm_code& code) {
 const std::unordered_map<tokenizer::token::sub_types, asm_command::type> operation_node::ops = {
     { tokenizer::token::sub_types::plus, asm_command::type::add },
     { tokenizer::token::sub_types::minus, asm_command::type::sub },
-    { tokenizer::token::sub_types::mult, asm_command::type::mul },
+    { tokenizer::token::sub_types::mult, asm_command::type::imul },
     { tokenizer::token::sub_types::and, asm_command::type::and },
     { tokenizer::token::sub_types::or, asm_command::type::or },
     { tokenizer::token::sub_types::xor, asm_command::type::xor },
-    { tokenizer::token::sub_types::div, asm_command::type::div },
-    { tokenizer::token::sub_types::mod, asm_command::type::div },
+    { tokenizer::token::sub_types::div, asm_command::type::idiv },
+    { tokenizer::token::sub_types::mod, asm_command::type::idiv },
     { tokenizer::token::sub_types::plus_assign, asm_command::type::add },
     { tokenizer::token::sub_types::minus_assign, asm_command::type::sub },
-    { tokenizer::token::sub_types::mult_assign, asm_command::type::mul },
-    { tokenizer::token::sub_types::divide_assign, asm_command::type::div },
+    { tokenizer::token::sub_types::mult_assign, asm_command::type::imul },
+    { tokenizer::token::sub_types::divide_assign, asm_command::type::idiv },
     { tokenizer::token::sub_types::assign, asm_command::type::mov },
+    { tokenizer::token::sub_types::shift_left, asm_command::type::shl},
+    { tokenizer::token::sub_types::shift_right, asm_command::type::shr}
 };
 
 const std::unordered_map<tokenizer::token::sub_types, asm_command::type> operation_node::f_ops = {
@@ -164,12 +171,19 @@ void operation_node::to_asm_assign(asm_code& code) const {
         mem_size = asm_mem::mem_size::qword;
     }
     else {
-        reg1 = asm_reg::reg_type::eax;
-        code.push_back({ asm_command::type::pop, reg1 });
-        mem_size = type() == integer() ? asm_mem::mem_size::dword : asm_mem::mem_size::word;
+        if (type() == integer()) {
+            reg1 = asm_reg::reg_type::eax;
+            code.push_back({ asm_command::type::pop, reg1 });
+        }
+        else {
+            reg1 = asm_reg::reg_type::al;
+            code.push_back({ asm_command::type::movsx, reg1, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, {"1"} });
+        }
+        mem_size = type() == integer() ? asm_mem::mem_size::dword : asm_mem::mem_size::byte;
         com_type = ops.at(operation_type_);
     }
-    if (com_type == asm_command::type::div)
+    if (com_type == asm_command::type::idiv)
         code.push_back({ asm_command::type::cdq });
     code.push_back({ com_type,{ mem_size, code.get_offset(left_->name()) }, reg1 });
 }
@@ -205,10 +219,10 @@ void operation_node::to_asm(asm_code& code) const {
         code.push_back({ asm_command::type::pop, reg1 });
         com_type = ops.at(operation_type_);
     }
-    if (com_type == asm_command::type::div)
+    if (com_type == asm_command::type::idiv)
         code.push_back({ asm_command::type::cdq });
-    if (com_type == asm_command::type::mul ||
-        com_type == asm_command::type::div)
+    if (com_type == asm_command::type::imul ||
+        com_type == asm_command::type::idiv)
         code.push_back({ com_type, reg2 });
     else
         code.push_back({ com_type, reg1, reg2 });
@@ -246,38 +260,109 @@ cast_node::cast_node(const type_p& type, const tree_node_p& node, const position
         throw convertion_error(tl, tr);
 }
 
+void cast_node::to_asm_code(asm_code& code) {
+    children()[0]->to_asm_code(code);
+    const auto t = std::dynamic_pointer_cast<typed>(children()[0])->type();
+    const auto result_type = type();
+    switch (result_type->category()) { 
+    case type::type_category::character:
+        switch (t->category()) { 
+        case type::type_category::character: 
+            return;
+        case type::type_category::integer: 
+            code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
+            code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp,{ "1" } });
+            code.push_back({ asm_command::type::mov, {asm_reg::reg_type::esp, asm_mem::mem_size::byte}, asm_reg::reg_type::al});
+            return;
+        case type::type_category::real: 
+            code.push_back({ asm_command::type::cvttsd2si, asm_reg::reg_type::eax, {asm_reg::reg_type::esp, asm_mem::mem_size::qword} });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp,{ "7" } });
+            code.push_back({ asm_command::type::mov, {asm_reg::reg_type::esp, asm_mem::mem_size::byte}, asm_reg::reg_type::al });
+            return;
+        default: 
+            throw std::logic_error("This point should be unreachable");
+        }
+    case type::type_category::integer:
+        switch (t->category()) { 
+        case type::type_category::character: 
+            code.push_back({ asm_command::type::movsx, asm_reg::reg_type::eax,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte } });
+            code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp,{ "3" } });
+            code.push_back({ asm_command::type::mov, {asm_reg::reg_type::esp, asm_mem::mem_size::dword}, asm_reg::reg_type::eax });
+            return;
+        case type::type_category::integer: 
+            return;
+        case type::type_category::real: 
+            code.push_back({ asm_command::type::cvttsd2si, asm_reg::reg_type::eax,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp,{ "3" } });
+            code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, asm_reg::reg_type::eax });
+            break;
+        default: 
+            throw std::logic_error("This point should be unreachable");
+        }
+        break;
+    case type::type_category::real:
+        switch (t->category()) { 
+        case type::type_category::character: 
+            code.push_back({ asm_command::type::movsx, asm_reg::reg_type::eax,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte } });
+            code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp,{ "7" } });
+            goto end;
+        case type::type_category::integer: 
+            code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword } });
+            code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp,{ "4" } });
+            goto end;
+        case type::type_category::real: 
+            return;
+        default: 
+            throw std::logic_error("This point should be unreachable");
+        }
+        end:
+        code.push_back({ asm_command::type::cvtsi2sd, asm_reg::reg_type::xmm0, asm_reg::reg_type::eax });
+        code.push_back({ asm_command::type::movsd, {asm_reg::reg_type::esp, asm_mem::mem_size::qword}, asm_reg::reg_type::xmm0 });
+        return;
+    default: 
+        throw std::logic_error("This point should be unreachable");;
+    }
+}
+
 void write_node::to_asm_code(asm_code& code) {
     std::vector<std::shared_ptr<asm_arg>> args;
-    std::string format = "\"";
-    size_t offset = 0;
+    std::string f = "";
+    long offset = 0;
     for (const auto& it : children())
         offset += std::dynamic_pointer_cast<typed>(it)->type()->data_size();
-    for (const auto& it : children()) {
-        const auto type = std::dynamic_pointer_cast<typed>(it);
+    for (std::vector<tree_node_p>::const_reverse_iterator it = children().rbegin(); it != children().rend(); ++it) {
+        const auto type = std::dynamic_pointer_cast<typed>(*it)->type();
         asm_mem::mem_size size;
-        switch (type->type()->category()) { 
-        case type::type_category::character: 
-            format += "%c";
+        switch (type->category()) {
+        case type::type_category::character:
+            f += 'c';
             size = asm_mem::mem_size::byte;
             break;
         case type::type_category::integer:
-            format += "%d";
+            f += 'd';
             size = asm_mem::mem_size::dword;
             break;
-        case type::type_category::real: 
-            format += "%f";
+        case type::type_category::real:
+            f += 'f';
             size = asm_mem::mem_size::qword;
             break;
         case type::type_category::string:
-            format += "%s";
-            args.push_back(std::make_shared<asm_imm>(std::string("\"") + it->name() + "\""));
+            f += 's';
+            args.push_back(std::make_shared<asm_imm>(std::string("\"") + (*it)->name() + "\""));
             continue;
-        default: 
+        default:
             throw std::logic_error("This point should never be reached");
         }
-        it->to_asm_code(code);
-        offset -= type->type()->data_size();
+        (*it)->to_asm_code(code);
+        offset -= type->data_size();
         args.push_back(std::make_shared<asm_reg>(asm_reg::reg_type::eax, size, offset));
+    }
+    reverse(args.begin(), args.end());
+    reverse(f.begin(), f.end());
+    std::string format = "\"";
+    for (const auto& it : f) {
+        format += '%'; 
+        format += it;
     }
     code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, asm_reg::reg_type::esp });
     args.insert(args.begin(), std::make_shared<asm_imm>( format + "\\n\"" ));

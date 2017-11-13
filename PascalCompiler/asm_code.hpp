@@ -63,11 +63,11 @@ namespace pascal_compiler {
         public:
 
             enum class reg_type {
-                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp
+                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp, al
             };
 
             asm_reg(const reg_type reg) : asm_arg(type::reg), reg_(reg) {}
-            asm_reg(const reg_type reg, const asm_mem::mem_size size, const size_t offset = 0) 
+            asm_reg(const reg_type reg, const asm_mem::mem_size size, const long offset = 0) 
                 : asm_arg(type::reg), reg_(reg), typed_(true), size_(size), offset_(offset) {}
             reg_type get_reg_type() const;
             std::string to_string() const override;
@@ -77,7 +77,7 @@ namespace pascal_compiler {
             reg_type reg_;
             bool typed_ = false;
             const asm_mem::mem_size size_ = asm_mem::mem_size::dword;
-            const size_t offset_ = 0;
+            const long offset_ = 0;
             static const std::string reg_type_str[];
 
         };
@@ -106,8 +106,12 @@ namespace pascal_compiler {
         public:
 
             enum class type {
-                mov, push, pop, add, sub, mul, div, printf, movsd, 
-                and, or, xor, mulsd, addsd, divsd, subsd, neg, pxor, not, cdq
+                mov, push, pop, add, sub, imul, idiv, printf, movsd, 
+                and, or, xor, mulsd, addsd, divsd, subsd, neg, pxor, 
+                not, cdq, movsx, shl, shr,
+                // ReSharper disable CppInconsistentNaming
+                cvtsi2sd, cvttsd2si
+                // ReSharper restore CppInconsistentNaming
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);

@@ -6,11 +6,12 @@
 using namespace pascal_compiler;
 using namespace code;
 
-const std::string asm_reg::reg_type_str[] = { "eax", "ebx", "ecx", "edx", "xmm0", "xmm1", "esp", "ebp" };
+const std::string asm_reg::reg_type_str[] = { "eax", "ebx", "ecx", "edx", "xmm0", "xmm1", "esp", "ebp", "al" };
 const std::string asm_mem::mem_size_str[] = { "byte", "word", "dword", "qword" };
 const std::string asm_command::type_str[] = { 
-    "mov", "push", "pop", "add", "sub", "mul", "div", "printf", "movsd", 
-    "and", "or", "xor", "mulsd", "addsd", "divsd", "subsd", "neg", "pxor", "not", "cdq"
+    "mov", "push", "pop", "add", "sub", "imul", "idiv", "printf", "movsd", 
+    "and", "or", "xor", "mulsd", "addsd", "divsd", "subsd", "neg", "pxor", 
+    "not", "cdq", "movsx", "shl", "shr", "cvtsi2sd", "cvttsd2si"
 };
 
 asm_arg::type asm_arg::get_type() const {
@@ -49,11 +50,11 @@ asm_reg::reg_type asm_reg::get_reg_type() const {
 
 std::string asm_reg::to_string() const {
     if (typed_) {
-        if (offset_ > 0)
-            return str(boost::format("%1% ptr [%2% + %3%]")
+        if (offset_ != 0)
+            return str(boost::format("%1% ptr [%2% %4% %3%]")
                 % asm_mem::mem_size_str[static_cast<unsigned char>(size_)]
                 % reg_type_str[static_cast<unsigned char>(reg_)]
-                % offset_
+                % abs(offset_) % (offset_ > 0 ? '+' : '-')
             );
         return str(boost::format("%1% ptr [%2%]")
             % asm_mem::mem_size_str[static_cast<unsigned char>(size_)]
@@ -150,7 +151,9 @@ void asm_code::add_data(const std::string& name, const symbols_table::symbol_t& 
         symbol.second->to_asm_code(*this);
         switch (symbol.first->category()) { 
         case type::type_category::character:
-            push_back({ asm_command::type::pop,{ asm_mem::mem_size::word, get_offset(name) } });
+            push_back({ asm_command::type::mov, asm_reg::reg_type::al, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
+            push_back({ asm_command::type::add, asm_reg::reg_type::esp, {"1"} });
+            push_back({ asm_command::type::mov, {asm_mem::mem_size::byte, get_offset(name)}, asm_reg::reg_type::al });
             break;
         case type::type_category::integer:
             push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) } });

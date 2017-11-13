@@ -191,12 +191,11 @@ void operation_node::to_asm_assign(asm_code& code) const {
 void operation_node::to_asm(asm_code& code) const {
     left_->to_asm_code(code);
     if (right_ == nullptr) {
-        if (operation_type_ == tokenizer::token::sub_types::minus) {
+        if (operation_type_ == tokenizer::token::sub_types::minus)
             if (type() == real()) 
                 code.push_back({ asm_command::type::xor, {asm_reg::reg_type::esp, asm_mem::mem_size::dword, 4},{"2147483648"} });
             else
                 code.push_back({ asm_command::type::neg,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword} });
-        }
         else if (operation_type_ == tokenizer::token::sub_types::not)
             code.push_back({ asm_command::type::neg,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword } });       
         return;
@@ -215,9 +214,16 @@ void operation_node::to_asm(asm_code& code) const {
     else {
         reg1 = asm_reg::reg_type::eax;
         reg2 = asm_reg::reg_type::ebx;
-        code.push_back({ asm_command::type::pop, reg2 });
-        code.push_back({ asm_command::type::pop, reg1 });
         com_type = ops.at(operation_type_);
+        if (com_type == asm_command::type::shl || 
+            com_type == asm_command::type::shr) {
+            reg2 = asm_reg::reg_type::cl;
+            code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx, asm_reg::reg_type::ecx });
+            code.push_back({ asm_command::type::pop, asm_reg::reg_type::ecx });
+        }
+        else
+            code.push_back({ asm_command::type::pop, reg2 });
+        code.push_back({ asm_command::type::pop, reg1 });
     }
     if (com_type == asm_command::type::idiv)
         code.push_back({ asm_command::type::cdq });
@@ -234,6 +240,9 @@ void operation_node::to_asm(asm_code& code) const {
             operation_type_ == tokenizer::token::sub_types::mod 
             ? asm_reg::reg_type::edx 
             : reg1 });
+    if (com_type == asm_command::type::shl ||
+        com_type == asm_command::type::shr)
+        code.push_back({ asm_command::type::mov, asm_reg::reg_type::ecx, asm_reg::reg_type::ebx });
 }
 
 bool operation_node::is_assign() const {

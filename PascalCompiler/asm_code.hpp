@@ -63,7 +63,7 @@ namespace pascal_compiler {
         public:
 
             enum class reg_type {
-                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp, al
+                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp, al, cl
             };
 
             asm_reg(const reg_type reg) : asm_arg(type::reg), reg_(reg) {}

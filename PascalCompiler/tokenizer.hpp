@@ -192,7 +192,7 @@ namespace pascal_compiler {
 
                 explicit value(const long long long_long) : long_long(long_long) {};
                 explicit value(const double real) : real(real) {};
-                explicit value(const bool b) : long_long(b ? 0 : 1) {};
+                explicit value(const bool b) : long_long(b ? -1 : 0) {};
                 value() {};
 
             };

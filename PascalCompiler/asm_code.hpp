@@ -19,7 +19,7 @@ namespace pascal_compiler {
             virtual ~asm_arg() = default;
 
             enum class type : unsigned char {
-                reg, mem, imm
+                reg, mem, imm, label
             };
             
             virtual std::string to_string() const = 0;
@@ -63,7 +63,7 @@ namespace pascal_compiler {
         public:
 
             enum class reg_type {
-                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp, al, cl
+                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp, al, cl, ah
             };
 
             asm_reg(const reg_type reg) : asm_arg(type::reg), reg_(reg) {}
@@ -110,8 +110,10 @@ namespace pascal_compiler {
                 and, or, xor, mulsd, addsd, divsd, subsd, neg, pxor, 
                 not, cdq, movsx, shl, shr,
                 // ReSharper disable CppInconsistentNaming
-                cvtsi2sd, cvttsd2si
+                cvtsi2sd, cvttsd2si,
                 // ReSharper restore CppInconsistentNaming
+                jl, jle, jg, jge, jne, je, cmp, jmp, label, 
+                comisd, ucomisd, jbe, jb, jp, jnp, lahf, test
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);
@@ -135,6 +137,7 @@ namespace pascal_compiler {
             static const std::string type_str[];
             std::vector<std::shared_ptr<asm_arg>> args_;
             type type_;
+
             
         };
 

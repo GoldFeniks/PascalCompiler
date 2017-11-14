@@ -1,0 +1,26 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 1
+sub esp, 1
+mov byte ptr [esp], 104
+mov al, byte ptr [esp]
+add esp, 1
+mov byte ptr [ebp - 1], al
+mov al, byte ptr [ebp - 1]
+sub esp, 1
+mov byte ptr [esp], al
+sub esp, 1
+movsx eax, byte ptr [esp + 1]
+mov word ptr [esp], ax
+mov eax, esp
+printf("%c\n", word ptr [eax])
+add esp, 2
+mov esp, ebp
+pop ebp
+exit
+end start

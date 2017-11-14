@@ -1,0 +1,40 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 4
+push 98
+pop dword ptr [ebp - 4]
+push dword ptr [ebp - 4]
+pop eax
+sub esp, 1
+mov byte ptr [esp], al
+sub esp, 1
+movsx eax, byte ptr [esp + 1]
+mov word ptr [esp], ax
+sub esp, 1
+mov byte ptr [esp], 10
+sub esp, 1
+movsx eax, byte ptr [esp + 1]
+mov word ptr [esp], ax
+push dword ptr [ebp - 4]
+sub esp, 1
+mov byte ptr [esp], 10
+sub esp, 1
+movsx eax, byte ptr [esp + 1]
+mov word ptr [esp], ax
+push dword ptr [ebp - 4]
+mov eax, dword ptr [esp]
+sub esp, 4
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+mov eax, esp
+printf("%s%f%c%s%d%c%s%c\n", "int to real ", qword ptr [eax], word ptr [eax + 8], "int to int ", dword ptr [eax + 10], word ptr [eax + 14], "int to char ", word ptr [eax + 16])
+add esp, 18
+mov esp, ebp
+pop ebp
+exit
+end start

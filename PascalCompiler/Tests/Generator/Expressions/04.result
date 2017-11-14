@@ -1,0 +1,22 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__real@0c05edccccccccccd dq 0c05edccccccccccdr ;-123.45
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 8
+push dword ptr [__real@0c05edccccccccccd + 4]
+push dword ptr [__real@0c05edccccccccccd]
+pop dword ptr [ebp - 8]
+pop dword ptr [ebp - 4]
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+mov eax, esp
+printf("%f\n", qword ptr [eax])
+add esp, 8
+mov esp, ebp
+pop ebp
+exit
+end start

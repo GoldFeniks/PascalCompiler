@@ -153,8 +153,8 @@ const std::unordered_map<tokenizer::token::sub_types, asm_command::type> operati
     { tokenizer::token::sub_types::assign, asm_command::type::movsd },
     { tokenizer::token::sub_types::greater_equal, asm_command::type::setb },
     { tokenizer::token::sub_types::greater, asm_command::type::setbe },
-    { tokenizer::token::sub_types::less_equal, asm_command::type::setg },
-    { tokenizer::token::sub_types::less, asm_command::type::setge },
+    { tokenizer::token::sub_types::less_equal, asm_command::type::seta },
+    { tokenizer::token::sub_types::less, asm_command::type::setae },
     { tokenizer::token::sub_types::equal, asm_command::type::jp },
     { tokenizer::token::sub_types::not_equal, asm_command::type::jnp }
 };
@@ -192,7 +192,7 @@ void operation_node::to_asm_assign(asm_code& code) const {
         }
         else {
             reg1 = asm_reg::reg_type::al;
-            code.push_back({ asm_command::type::movsx, reg1, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
+            code.push_back({ asm_command::type::mov, reg1, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
             code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, {"1"} });
         }
         mem_size = type() == integer() ? asm_mem::mem_size::dword : asm_mem::mem_size::byte;
@@ -208,7 +208,7 @@ void operation_node::to_asm(asm_code& code) const {
     if (right_ == nullptr) {
         if (operation_type_ == tokenizer::token::sub_types::minus)
             if (type() == real()) 
-                code.push_back({ asm_command::type::xor, {asm_reg::reg_type::esp, asm_mem::mem_size::dword, 4},{"2147483648"} });
+                code.push_back({ asm_command::type::xor, {asm_reg::reg_type::esp, asm_mem::mem_size::byte, 7},{"128"} });
             else
                 code.push_back({ asm_command::type::neg,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword} });
         else if (operation_type_ == tokenizer::token::sub_types::not)
@@ -267,10 +267,10 @@ void operation_node::to_asm_compare(asm_code& code) const {
     asm_command::type comm;
     switch(t->category()) { 
     case type::type_category::character: 
-        code.push_back({ asm_command::type::mov, asm_reg::reg_type::bl, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
-        code.push_back({ asm_command::type::cmp, asm_reg::reg_type::al, { asm_reg::reg_type::esp, asm_mem::mem_size::byte, 1 } });
+        code.push_back({ asm_command::type::movsx, asm_reg::reg_type::ebx, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
+        code.push_back({ asm_command::type::movsx, asm_reg::reg_type::eax, { asm_reg::reg_type::esp, asm_mem::mem_size::byte, 1 } });
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"2"} });
-        code.push_back({ asm_command::type::cmp, asm_reg::reg_type::al, asm_reg::reg_type::bl });
+        code.push_back({ asm_command::type::cmp, asm_reg::reg_type::eax, asm_reg::reg_type::ebx });
         comm = ops.at(operation_type_);
         break;
     case type::type_category::integer: 
@@ -369,7 +369,7 @@ void cast_node::to_asm_code(asm_code& code) {
             return;
         case type::type_category::real: 
             code.push_back({ asm_command::type::cvttsd2si, asm_reg::reg_type::eax,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
-            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp,{ "3" } });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp,{ "4" } });
             code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, asm_reg::reg_type::eax });
             break;
         default: 
@@ -410,6 +410,7 @@ void write_node::to_asm_code(asm_code& code) {
             ? std::dynamic_pointer_cast<typed>(it)->type()->data_size()
             : 2;
     }
+    auto stack_size = offset;
     for (std::vector<tree_node_p>::const_reverse_iterator it = children().rbegin(); it != children().rend(); ++it) {
         const auto type = std::dynamic_pointer_cast<typed>(*it)->type();
         asm_mem::mem_size size;
@@ -452,5 +453,5 @@ void write_node::to_asm_code(asm_code& code) {
     code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, asm_reg::reg_type::esp });
     args.insert(args.begin(), std::make_shared<asm_imm>( format + "\\n\"" ));
     code.push_back({ asm_command::type::printf, args });
-    code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, std::to_string(offset) });
+    code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, std::to_string(stack_size) });
 }

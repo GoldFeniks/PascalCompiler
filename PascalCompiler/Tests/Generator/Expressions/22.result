@@ -1,0 +1,49 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 1
+sub esp, 1
+mov byte ptr [esp], 122
+mov al, byte ptr [esp]
+add esp, 1
+mov byte ptr [ebp - 1], al
+mov al, byte ptr [ebp - 1]
+sub esp, 1
+mov byte ptr [esp], al
+sub esp, 1
+movsx eax, byte ptr [esp + 1]
+mov word ptr [esp], ax
+sub esp, 1
+mov byte ptr [esp], 10
+sub esp, 1
+movsx eax, byte ptr [esp + 1]
+mov word ptr [esp], ax
+mov al, byte ptr [ebp - 1]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+sub esp, 3
+mov dword ptr [esp], eax
+sub esp, 1
+mov byte ptr [esp], 10
+sub esp, 1
+movsx eax, byte ptr [esp + 1]
+mov word ptr [esp], ax
+mov al, byte ptr [ebp - 1]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+sub esp, 7
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+mov eax, esp
+printf("%s%f%c%s%d%c%s%c\n", "char to real ", qword ptr [eax], word ptr [eax + 8], "char to int ", dword ptr [eax + 10], word ptr [eax + 14], "char to char ", word ptr [eax + 16])
+add esp, 18
+mov esp, ebp
+pop ebp
+exit
+end start

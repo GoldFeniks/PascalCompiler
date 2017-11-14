@@ -1,0 +1,118 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 16
+push 2
+pop dword ptr [ebp - 4]
+push 5
+pop dword ptr [ebp - 8]
+push 64
+pop dword ptr [ebp - 12]
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+mov ebx, ecx
+pop ecx
+pop eax
+shl eax, cl
+push eax
+mov ecx, ebx
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 8]
+mov ebx, ecx
+pop ecx
+pop eax
+shr eax, cl
+push eax
+mov ecx, ebx
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push 5
+mov ebx, ecx
+pop ecx
+pop eax
+shl eax, cl
+push eax
+mov ecx, ebx
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 12]
+push 5
+mov ebx, ecx
+pop ecx
+pop eax
+shr eax, cl
+push eax
+mov ecx, ebx
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+pop eax
+and eax, ebx
+push eax
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+pop eax
+or eax, ebx
+push eax
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+pop eax
+xor eax, ebx
+push eax
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+not dword ptr [esp]
+pop eax
+mov dword ptr [ebp - 16], eax
+push dword ptr [ebp - 16]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+mov esp, ebp
+pop ebp
+exit
+end start

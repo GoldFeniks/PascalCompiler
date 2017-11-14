@@ -1,0 +1,153 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 12
+push 10
+pop dword ptr [ebp - 4]
+push 20
+pop dword ptr [ebp - 8]
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+setge al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+setle al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+setg al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+setl al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push 10
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+pop ebx
+cmp dword ptr [esp], ebx
+setg al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push 11
+pop ebx
+pop eax
+add eax, ebx
+push eax
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+setl al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+setne al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+sete al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+pop ebx
+cmp dword ptr [esp], ebx
+setne al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+not dword ptr [esp]
+pop eax
+mov dword ptr [ebp - 12], eax
+push dword ptr [ebp - 12]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+mov esp, ebp
+pop ebp
+exit
+end start

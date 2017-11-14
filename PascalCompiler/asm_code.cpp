@@ -42,6 +42,8 @@ std::string asm_code::add_double_constant(const double value) {
         result += c + (c < 10 ? 48 : 87);
         mask >>= 4;
     }
+    if (result[0] >= 97)
+        result.insert(result.begin(), '0');
     double_const_[value] = result;
     return std::string("__real@") + result;
 }

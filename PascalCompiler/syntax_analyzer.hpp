@@ -166,7 +166,8 @@ namespace pascal_compiler {
                        type == tokenizer::token::sub_types::greater_equal ||
                        type == tokenizer::token::sub_types::not_equal     ||
                        type == tokenizer::token::sub_types::and           ||
-                       type == tokenizer::token::sub_types::or;
+                       type == tokenizer::token::sub_types::or            ||
+                       type == tokenizer::token::sub_types::xor;
             }
 
             static tree_node_p get_constant(const tree_node_p& node);

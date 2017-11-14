@@ -1,0 +1,122 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__real@4025000000000000 dq 4025000000000000r ;10.5
+__real@4034800000000000 dq 4034800000000000r ;20.5
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 20
+push dword ptr [__real@4025000000000000 + 4]
+push dword ptr [__real@4025000000000000]
+pop dword ptr [ebp - 8]
+pop dword ptr [ebp - 4]
+push dword ptr [__real@4034800000000000 + 4]
+push dword ptr [__real@4034800000000000]
+pop dword ptr [ebp - 16]
+pop dword ptr [ebp - 12]
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm0, qword ptr [esp + 8]
+movsd xmm1, qword ptr [esp]
+add esp, 12
+ucomisd xmm0, xmm1
+lahf 
+test ah, 68
+jp $LN7AT63F@
+mov dword ptr [esp], -1
+jmp $LN7AT63E@
+$LN7AT63F@:
+mov dword ptr [esp], 0
+$LN7AT63E@:
+not dword ptr [esp]
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm0, qword ptr [esp + 8]
+movsd xmm1, qword ptr [esp]
+add esp, 12
+ucomisd xmm0, xmm1
+lahf 
+test ah, 68
+jnp $LN7AT50F@
+mov dword ptr [esp], -1
+jmp $LN7AT50E@
+$LN7AT50F@:
+mov dword ptr [esp], 0
+$LN7AT50E@:
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm0, qword ptr [esp + 8]
+movsd xmm1, qword ptr [esp]
+add esp, 12
+ucomisd xmm0, xmm1
+lahf 
+test ah, 68
+jp $LN7AT43F@
+mov dword ptr [esp], -1
+jmp $LN7AT43E@
+$LN7AT43F@:
+mov dword ptr [esp], 0
+$LN7AT43E@:
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm0, qword ptr [esp + 8]
+movsd xmm1, qword ptr [esp]
+add esp, 12
+comisd xmm0, xmm1
+setb al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm0, qword ptr [esp + 8]
+movsd xmm1, qword ptr [esp]
+add esp, 12
+comisd xmm0, xmm1
+seta al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm0, qword ptr [esp + 8]
+movsd xmm1, qword ptr [esp]
+add esp, 12
+comisd xmm0, xmm1
+setbe al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm0, qword ptr [esp + 8]
+movsd xmm1, qword ptr [esp]
+add esp, 12
+comisd xmm0, xmm1
+setae al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+mov eax, esp
+printf("%d%d%d%d%d%d%d\n", dword ptr [eax], dword ptr [eax + 4], dword ptr [eax + 8], dword ptr [eax + 12], dword ptr [eax + 16], dword ptr [eax + 20], dword ptr [eax + 24])
+add esp, 28
+mov esp, ebp
+pop ebp
+exit
+end start

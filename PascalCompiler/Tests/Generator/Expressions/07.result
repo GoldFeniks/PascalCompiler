@@ -1,0 +1,76 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 8
+push 10
+pop dword ptr [ebp - 4]
+push dword ptr [ebp - 4]
+push 20
+pop ebx
+pop eax
+add eax, ebx
+push eax
+pop eax
+mov dword ptr [ebp - 8], eax
+push dword ptr [ebp - 8]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push 20
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+pop eax
+mov dword ptr [ebp - 8], eax
+push dword ptr [ebp - 8]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push 20
+pop ebx
+pop eax
+imul ebx
+push eax
+pop eax
+mov dword ptr [ebp - 8], eax
+push dword ptr [ebp - 8]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push 20
+pop ebx
+pop eax
+cdq 
+idiv ebx
+push edx
+pop eax
+mov dword ptr [ebp - 8], eax
+push dword ptr [ebp - 8]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+push dword ptr [ebp - 4]
+push 20
+pop ebx
+pop eax
+cdq 
+idiv ebx
+push eax
+pop eax
+mov dword ptr [ebp - 8], eax
+push dword ptr [ebp - 8]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+mov esp, ebp
+pop ebp
+exit
+end start

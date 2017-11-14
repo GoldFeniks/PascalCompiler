@@ -1,0 +1,18 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 4
+push -10000
+pop dword ptr [ebp - 4]
+push dword ptr [ebp - 4]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+mov esp, ebp
+pop ebp
+exit
+end start

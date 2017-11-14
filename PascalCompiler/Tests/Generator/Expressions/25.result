@@ -1,0 +1,174 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__real@405ee00000000000 dq 405ee00000000000r ;123.5
+__real@0c059200000000000 dq 0c059200000000000r ;-100.5
+.code
+start:
+push ebp
+mov ebp, esp
+sub esp, 38
+push dword ptr [__real@405ee00000000000 + 4]
+push dword ptr [__real@405ee00000000000]
+pop dword ptr [ebp - 8]
+pop dword ptr [ebp - 4]
+push dword ptr [__real@0c059200000000000 + 4]
+push dword ptr [__real@0c059200000000000]
+pop dword ptr [ebp - 16]
+pop dword ptr [ebp - 12]
+push 48
+pop dword ptr [ebp - 20]
+push -23
+pop dword ptr [ebp - 24]
+sub esp, 1
+mov byte ptr [esp], 48
+mov al, byte ptr [esp]
+add esp, 1
+mov byte ptr [ebp - 25], al
+sub esp, 1
+mov byte ptr [esp], -9
+mov al, byte ptr [esp]
+add esp, 1
+mov byte ptr [ebp - 26], al
+push dword ptr [ebp - 20]
+push 2
+push dword ptr [ebp - 24]
+pop ebx
+pop eax
+imul ebx
+push eax
+pop ebx
+pop eax
+add eax, ebx
+push eax
+push 1
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+push 6
+mov ebx, ecx
+pop ecx
+pop eax
+shl eax, cl
+push eax
+mov ecx, ebx
+mov eax, dword ptr [esp]
+sub esp, 4
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+movsd xmm1, qword ptr [esp]
+add esp, 8
+movsd xmm0, qword ptr [esp]
+subsd xmm0, xmm1
+movsd qword ptr [esp], xmm0
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm1, qword ptr [esp]
+add esp, 8
+movsd xmm0, qword ptr [esp]
+addsd xmm0, xmm1
+movsd qword ptr [esp], xmm0
+movsd xmm0, qword ptr [esp]
+movsd qword ptr [ebp - 38], xmm0
+push dword ptr [ebp - 34]
+push dword ptr [ebp - 38]
+mov eax, esp
+printf("%f\n", qword ptr [eax])
+add esp, 8
+mov al, byte ptr [ebp - 26]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+sub esp, 7
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+mov al, byte ptr [ebp - 25]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+sub esp, 3
+mov dword ptr [esp], eax
+mov eax, dword ptr [esp]
+sub esp, 4
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+movsd xmm1, qword ptr [esp]
+add esp, 8
+movsd xmm0, qword ptr [esp]
+subsd xmm0, xmm1
+movsd qword ptr [esp], xmm0
+push 257
+mov eax, dword ptr [esp]
+sub esp, 4
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+movsd xmm1, qword ptr [esp]
+add esp, 8
+movsd xmm0, qword ptr [esp]
+addsd xmm0, xmm1
+movsd qword ptr [esp], xmm0
+cvttsd2si eax, qword ptr [esp]
+add esp, 4
+mov dword ptr [esp], eax
+push 2
+pop ebx
+pop eax
+cdq 
+idiv ebx
+push eax
+push dword ptr [ebp - 20]
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+push dword ptr [ebp - 24]
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+push 11
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+push 6
+mov ebx, ecx
+pop ecx
+pop eax
+shr eax, cl
+push eax
+mov ecx, ebx
+mov eax, dword ptr [esp]
+sub esp, 4
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+push dword ptr [ebp - 4]
+push dword ptr [ebp - 8]
+push dword ptr [ebp - 12]
+push dword ptr [ebp - 16]
+movsd xmm1, qword ptr [esp]
+add esp, 8
+movsd xmm0, qword ptr [esp]
+subsd xmm0, xmm1
+movsd qword ptr [esp], xmm0
+movsd xmm1, qword ptr [esp]
+add esp, 8
+movsd xmm0, qword ptr [esp]
+mulsd xmm0, xmm1
+movsd qword ptr [esp], xmm0
+cvttsd2si eax, qword ptr [esp]
+add esp, 4
+mov dword ptr [esp], eax
+pop eax
+mov dword ptr [ebp - 30], eax
+push dword ptr [ebp - 30]
+mov eax, esp
+printf("%d\n", dword ptr [eax])
+add esp, 4
+mov esp, ebp
+pop ebp
+exit
+end start

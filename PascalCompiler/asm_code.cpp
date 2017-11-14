@@ -6,14 +6,14 @@
 using namespace pascal_compiler;
 using namespace code;
 
-const std::string asm_reg::reg_type_str[] = { "eax", "ebx", "ecx", "edx", "xmm0", "xmm1", "esp", "ebp", "al", "cl", "ah" };
+const std::string asm_reg::reg_type_str[] = { "eax", "ebx", "ecx", "edx", "xmm0", "xmm1", "esp", "ebp", "al", "cl", "ah", "bl" };
 const std::string asm_mem::mem_size_str[] = { "byte", "word", "dword", "qword" };
 const std::string asm_command::type_str[] = { 
     "mov", "push", "pop", "add", "sub", "imul", "idiv", "printf", "movsd", 
     "and", "or", "xor", "mulsd", "addsd", "divsd", "subsd", "neg", "pxor", 
     "not", "cdq", "movsx", "shl", "shr", "cvtsi2sd", "cvttsd2si",
-    "jl", "jle", "jg", "jge", "jne", "je", "cmp", "jmp", "", 
-    "comisd", "ucomisd", "jbe", "jb", "jp", "jnp", "lahf", "test"
+    "setge", "setg", "setle", "setl", "sete", "setne", "cmp", "jmp", "", 
+    "comisd", "ucomisd", "setbe", "setb", "seta", "setae", "jp", "jnp", "lahf", "test"
 };
 
 asm_arg::type asm_arg::get_type() const {

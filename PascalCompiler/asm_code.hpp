@@ -63,7 +63,7 @@ namespace pascal_compiler {
         public:
 
             enum class reg_type {
-                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp, al, cl, ah
+                eax, ebx, ecx, edx, xmm0, xmm1, esp, ebp, al, cl, ah, bl
             };
 
             asm_reg(const reg_type reg) : asm_arg(type::reg), reg_(reg) {}
@@ -112,8 +112,8 @@ namespace pascal_compiler {
                 // ReSharper disable CppInconsistentNaming
                 cvtsi2sd, cvttsd2si,
                 // ReSharper restore CppInconsistentNaming
-                jl, jle, jg, jge, jne, je, cmp, jmp, label, 
-                comisd, ucomisd, jbe, jb, jp, jnp, lahf, test
+                setge, setg, setle, setl, sete, setne, cmp, jmp, label, 
+                comisd, ucomisd, setbe, setb, seta, setae, jp, jnp, lahf, test
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);

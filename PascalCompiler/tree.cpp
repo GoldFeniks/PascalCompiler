@@ -404,16 +404,25 @@ void write_node::to_asm_code(asm_code& code) {
     std::vector<std::shared_ptr<asm_arg>> args;
     std::string f = "";
     long offset = 0;
-    for (const auto& it : children())
-        offset += std::dynamic_pointer_cast<typed>(it)->type()->data_size();
+    for (const auto& it : children()) {
+        const auto t = std::dynamic_pointer_cast<typed>(it)->type();
+        offset += t->category() != type::type_category::character 
+            ? std::dynamic_pointer_cast<typed>(it)->type()->data_size()
+            : 2;
+    }
     for (std::vector<tree_node_p>::const_reverse_iterator it = children().rbegin(); it != children().rend(); ++it) {
         const auto type = std::dynamic_pointer_cast<typed>(*it)->type();
         asm_mem::mem_size size;
         switch (type->category()) {
         case type::type_category::character:
             f += 'c';
-            size = asm_mem::mem_size::byte;
-            break;
+            (*it)->to_asm_code(code);
+            code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"1"} });
+            code.push_back({ asm_command::type::movsx, asm_reg::reg_type::eax, {asm_reg::reg_type::esp, asm_mem::mem_size::byte, 1} });
+            code.push_back({ asm_command::type::mov, {asm_reg::reg_type::esp, asm_mem::mem_size::word}, asm_reg::reg_type::ax });
+            offset -= 2;
+            args.push_back(std::make_shared<asm_reg>(asm_reg::reg_type::eax, asm_mem::mem_size::word, offset));
+            continue;
         case type::type_category::integer:
             f += 'd';
             size = asm_mem::mem_size::dword;

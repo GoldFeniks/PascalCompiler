@@ -6,7 +6,7 @@
 using namespace pascal_compiler;
 using namespace code;
 
-const std::string asm_reg::reg_type_str[] = { "eax", "ebx", "ecx", "edx", "xmm0", "xmm1", "esp", "ebp", "al", "cl", "ah", "bl" };
+const std::string asm_reg::reg_type_str[] = { "eax", "ebx", "ecx", "edx", "xmm0", "xmm1", "esp", "ebp", "al", "cl", "ah", "bl", "ax" };
 const std::string asm_mem::mem_size_str[] = { "byte", "word", "dword", "qword" };
 const std::string asm_command::type_str[] = { 
     "mov", "push", "pop", "add", "sub", "imul", "idiv", "printf", "movsd", 

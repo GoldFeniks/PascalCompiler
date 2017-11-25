@@ -82,7 +82,7 @@ namespace pascal_compiler {
                 node_category category() const;
                 const position_type& position() const;
                 std::string to_string(const std::string& prefix = "", const bool last = true) const;
-                virtual void to_asm_code(code::asm_code& code);
+                virtual void to_asm_code(asm_code& code, bool is_left = false);
 
             private:
 
@@ -127,7 +127,7 @@ namespace pascal_compiler {
                 virtual ~variable_node() {}
 
                 const tree_node_p& value() const;
-                void to_asm_code(asm_code& code) override;
+                void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             private:
 
@@ -160,7 +160,7 @@ namespace pascal_compiler {
                 }
 
                 std::string value_string() const;
-                void to_asm_code(asm_code& code) override;
+                void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             private:
 
@@ -190,7 +190,7 @@ namespace pascal_compiler {
                 const tree_node_p& left() const;
                 const tree_node_p& right() const;
 
-                void to_asm_code(asm_code& code) override;
+                void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             private:
 
@@ -260,6 +260,7 @@ namespace pascal_compiler {
                     applied(variable), index_(index) {}
 
                 const tree_node_p& index() const;
+                void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             private:
 
@@ -295,7 +296,7 @@ namespace pascal_compiler {
             public:
 
                 cast_node(const type_p& type, const tree_node_p& node, const position_type& position);
-                void to_asm_code(code::asm_code& code) override;
+                void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             };// class cast_node
 
@@ -310,7 +311,7 @@ namespace pascal_compiler {
                 explicit write_node(const position_type& position, T... children) 
                    : tree_node("write", node_category::write, position, children...) {}
 
-                void to_asm_code(asm_code& code) override;
+                void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             };
 

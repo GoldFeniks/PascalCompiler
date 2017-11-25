@@ -87,6 +87,7 @@ namespace pascal_compiler {
         public:
 
             asm_imm(const std::string value) : asm_arg(type::imm), value_(value) {}
+            asm_imm(const size_t value) : asm_arg(type::imm), value_(std::to_string(value)) {}
 
             asm_imm(const asm_mem::mem_size size, const std::string value, const long offset)
                 : asm_arg(type::imm), value_(value), offset_(offset), size_(size) {}

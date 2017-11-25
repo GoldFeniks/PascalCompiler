@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "tokenizer.hpp"
 
 namespace pascal_compiler {
 
@@ -114,7 +115,8 @@ namespace pascal_compiler {
                 cvtsi2sd, cvttsd2si,
                 // ReSharper restore CppInconsistentNaming
                 setge, setg, setle, setl, sete, setne, cmp, jmp, label, 
-                comisd, ucomisd, setbe, setb, seta, setae, jp, jnp, lahf, test
+                comisd, ucomisd, setbe, setb, seta, setae, jp, jnp, lahf, test,
+                loop
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);

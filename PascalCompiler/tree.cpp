@@ -81,8 +81,7 @@ void variable_node::to_asm_code(asm_code& code, const bool is_left) {
         code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
         break;
     case type::type_category::array:
-    case type::type_category::record:
-    case type::type_category::function: 
+    case type::type_category::record: 
         throw std::logic_error("Not implemented");
     default: 
         throw std::logic_error("This point should never be reached");
@@ -304,8 +303,8 @@ void operation_node::to_asm_compare(asm_code& code) const {
         comm = f_ops.at(operation_type_);
         if (!is_equ)
             break;
-        const auto label = str(boost::format("$LN%1%AT%2%F@") % position().first % position().second);
-        const auto end_l = str(boost::format("$LN%1%AT%2%E@") % position().first % position().second);
+        const auto label = str(boost::format("$LN%1%AT%2%IFFAIL@") % position().first % position().second);
+        const auto end_l = str(boost::format("$LN%1%AT%2%ENDIF@") % position().first % position().second);
         code.push_back(asm_command::type::lahf);
         code.push_back({ asm_command::type::test, asm_reg::reg_type::ah,{ "68" } });
         code.push_back({ comm,{ label } });
@@ -335,14 +334,67 @@ bool operation_node::is_assign() const {
 
 const tree_node_p& applied::variable() const { return variable_; }
 
+void tree::put_value_on_stack(asm_code& code, const type_p type) {
+    code.push_back({ asm_command::type::pop, asm_reg::reg_type::ebx });
+    const auto t = type->category() == type::type_category::modified
+        ? std::dynamic_pointer_cast<modified_type>(type)->base_type()->category()
+        : type->category();
+    switch (t) {
+    case type::type_category::character:
+        code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::ebx, asm_mem::mem_size::byte } });
+        code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp,{ "1" } });
+        code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte },asm_reg::reg_type::al });
+        break;
+    case type::type_category::integer:
+        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword } });
+        break;
+    case type::type_category::real:
+        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword, 4 } });
+        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword } });
+        break;
+    case type::type_category::array:
+    {
+        //TODO copy array to stack here
+    }
+    case type::type_category::record:
+    {
+        //TODO copy record to stack here
+        throw std::logic_error("Not implemented");
+    }
+    default:
+        throw std::logic_error("This point should never be reached");
+    }    
+}
+
 //class index_node
 const tree_node_p& index_node::index() const { return index_; }
 
 void index_node::to_asm_code(asm_code& code, const bool is_left) {
+    variable()->to_asm_code(code, true);
+    index_->to_asm_code(code, false);
+    code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
+    const auto min = std::dynamic_pointer_cast<array_type>(std::dynamic_pointer_cast<typed>(variable())->type())->min();
+    if (min != 0)
+        code.push_back({ asm_command::type::sub, asm_reg::reg_type::eax, min });
+    code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx, type()->data_size() });
+    code.push_back({ asm_command::type::imul, asm_reg::reg_type::ebx });
+    code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, asm_reg::reg_type::eax });
+    if (is_left) return;
+    put_value_on_stack(code, type());
 }
 
 //class field_access_node
 const variable_node_p& field_access_node::field() const { return field_; }
+
+void field_access_node::to_asm_code(asm_code& code, const bool is_left) {
+    variable()->to_asm_code(code, true);
+    const auto offset = std::dynamic_pointer_cast<record_type>(
+        std::dynamic_pointer_cast<typed>(variable())->type())->get_field_offset(field_->name());
+    if (offset != 0)
+        code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, offset });
+    if (is_left) return;
+    put_value_on_stack(code, type());
+}
 
 //class cast_node
 cast_node::cast_node(const type_p& type, const tree_node_p& node, const position_type& position) : 
@@ -426,7 +478,7 @@ void write_node::to_asm_code(asm_code& code, const bool is_left) {
             ? std::dynamic_pointer_cast<typed>(it)->type()->data_size()
             : 2;
     }
-    auto stack_size = offset;
+    const auto stack_size = offset;
     for (std::vector<tree_node_p>::const_reverse_iterator it = children().rbegin(); it != children().rend(); ++it) {
         const auto type = std::dynamic_pointer_cast<typed>(*it)->type();
         asm_mem::mem_size size;

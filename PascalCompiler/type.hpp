@@ -33,7 +33,7 @@ namespace pascal_compiler {
                 bool is_category(const type_category category) const;
                 bool is_anonymous() const;
                 bool is_scalar() const;
-                size_t data_size() const;
+                virtual size_t data_size() const;
 
                 virtual std::string to_string(const std::string& prefix = "") const;
 
@@ -106,6 +106,7 @@ namespace pascal_compiler {
                 size_t max() const;
                 const type_p& element_type() const;
                 std::string to_string(const std::string& prefix = "") const override;
+                size_t data_size() const override;
 
             private:
 
@@ -121,15 +122,18 @@ namespace pascal_compiler {
 
             public:
 
-                explicit record_type(const std::string& name) : type(name, type_category::record) {};
+                explicit record_type(const std::string& name) : type(name, type_category::record) {}
 
                 void add_field(const std::string& name, const type_p& type);
                 const symbols_table& fields() const;
                 std::string to_string(const std::string& prefix = "") const override;
+                size_t get_field_offset(const std::string name) const;
+                size_t data_size() const override;
 
             private:
 
                 symbols_table fields_;
+                size_t size_ = 0;
 
             };//class record_type
 
@@ -171,6 +175,7 @@ namespace pascal_compiler {
                 modificator_type modificator() const;
                 std::string to_string(const std::string& prefix = "") const override;
                 const type_p& base_type() const;
+                size_t data_size() const override;
 
             private:
 

@@ -42,7 +42,7 @@ std::string type_type::to_string(const std::string& prefix) const {
 }
 
 //class array_type
-size_t array_type::size() const { return max_ - min_; }
+size_t array_type::size() const { return max_ - min_ + 1; }
 
 size_t array_type::min() const { return min_; }
 
@@ -55,8 +55,15 @@ std::string array_type::to_string(const std::string& prefix) const {
     return result + element_type_->to_string(prefix + std::string(result.length(), ' '));
 }
 
+size_t array_type::data_size() const {
+    return size() * element_type_->data_size();
+}
+
 //class record_type
-void record_type::add_field(const std::string& name, const type_p& type) { fields_.add(name, type); }
+void record_type::add_field(const std::string& name, const type_p& type) {
+    fields_.add(name, type);
+    size_ += type->data_size();
+}
 
 const symbols_table& record_type::fields() const { return fields_; }
 
@@ -69,6 +76,20 @@ std::string record_type::to_string(const std::string& prefix) const {
             n_prefix % it.first % it.second.first->to_string(n_prefix));
     }
     return result;
+}
+
+size_t record_type::get_field_offset(const std::string name) const {
+    size_t result = 0;
+    for (const auto it : fields_.vector()) {
+        if (it.first == name)
+            return result;
+        result += it.second.first->data_size();
+    }
+    throw std::logic_error("This point should never be reached");
+}
+
+size_t record_type::data_size() const {
+    return size_;
 }
 
 //class function_type
@@ -100,6 +121,10 @@ std::string modified_type::to_string(const std::string& prefix) const {
 }
 
 const type_p& modified_type::base_type() const { return type_; }
+
+size_t modified_type::data_size() const {
+    return type_->data_size();
+}
 
 //class pointer_type
 const type_p& pointer_type::pointer_to() const { return pointer_to_; }

@@ -13,7 +13,8 @@ const std::string asm_command::type_str[] = {
     "and", "or", "xor", "mulsd", "addsd", "divsd", "subsd", "neg", "pxor", 
     "not", "cdq", "movsx", "shl", "shr", "cvtsi2sd", "cvttsd2si",
     "setge", "setg", "setle", "setl", "sete", "setne", "cmp", "jmp", "", 
-    "comisd", "ucomisd", "setbe", "setb", "seta", "setae", "jp", "jnp", "lahf", "test"
+    "comisd", "ucomisd", "setbe", "setb", "seta", "setae", "jp", "jnp", "lahf", "test",
+    "loop"
 };
 
 asm_arg::type asm_arg::get_type() const {
@@ -155,7 +156,10 @@ void asm_code::add_data(const std::string& name, const symbols_table::symbol_t& 
     offsets_[name] = data_size_;
     if (symbol.second != nullptr) {
         symbol.second->to_asm_code(*this);
-        switch (symbol.first->category()) { 
+        const auto t = symbol.first->category() == type::type_category::modified
+            ? std::dynamic_pointer_cast<modified_type>(symbol.first)->base_type()->category()
+            : symbol.first->category();
+        switch (t) { 
         case type::type_category::character:
             push_back({ asm_command::type::mov, asm_reg::reg_type::al, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
             push_back({ asm_command::type::add, asm_reg::reg_type::esp, {"1"} });
@@ -170,8 +174,6 @@ void asm_code::add_data(const std::string& name, const symbols_table::symbol_t& 
             break;
         case type::type_category::array:
         case type::type_category::record:
-        case type::type_category::function:
-        case type::type_category::modified:
             throw std::logic_error("Not implemented");
         default:
             throw std::logic_error("This point should never be reached");

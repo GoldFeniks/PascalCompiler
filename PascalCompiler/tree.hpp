@@ -247,6 +247,8 @@ namespace pascal_compiler {
 
             };// class call_node
 
+            void put_value_on_stack(asm_code& code, type_p type);
+
             class index_node;
             typedef std::shared_ptr<index_node> index_node_p;
 
@@ -281,6 +283,7 @@ namespace pascal_compiler {
                     typed(get_type(field)), applied(variable), field_(field) {}
 
                 const variable_node_p& field() const;
+                void to_asm_code(asm_code& code, bool is_left) override;
 
             private:
 
@@ -313,7 +316,7 @@ namespace pascal_compiler {
 
                 void to_asm_code(asm_code& code, const bool is_left = false) override;
 
-            };
+            };//class write node
 
         }// namespace tree
 

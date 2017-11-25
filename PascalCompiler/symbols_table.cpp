@@ -65,6 +65,7 @@ std::string symbols_table::to_string(const std::string& prefix) const {
 
 void symbols_table::to_asm_code(asm_code& code) const {
     for (const auto& it : vector_)
-        if (it.second.first->is_scalar())
+        if (it.second.first->category() != type::type_category::type ||
+            it.second.first->category() != type::type_category::function)
             code.add_data(it.first, it.second);
 }

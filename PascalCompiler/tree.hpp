@@ -247,7 +247,7 @@ namespace pascal_compiler {
 
             };// class call_node
 
-            void put_value_on_stack(asm_code& code, type_p type);
+            void put_value_on_stack(asm_code& code, type_p type, const tree_node::position_type position);
 
             class index_node;
             typedef std::shared_ptr<index_node> index_node_p;

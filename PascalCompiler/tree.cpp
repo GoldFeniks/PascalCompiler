@@ -57,35 +57,12 @@ type_p tree::get_type(const tree_node_p& node) {
 const tree_node_p& variable_node::value() const { return value_; }
 
 void variable_node::to_asm_code(asm_code& code, const bool is_left) {
-    //TODO alignment
-    if (is_left) {
-        code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, asm_reg::reg_type::ebp });
-        code.push_back({ asm_command::type::sub, asm_reg::reg_type::eax, code.get_offset(name()) });
-        code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
-        return;
-    }
-    const auto t = type()->category() == type::type_category::modified
-        ? std::dynamic_pointer_cast<modified_type>(type())->base_type()->category()
-        : type()->category();
-    switch (t) { 
-    case type::type_category::character:
-        code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_mem::mem_size::byte, code.get_offset(name()) } });
-        code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"1"} });
-        code.push_back({ asm_command::type::mov,{asm_reg::reg_type::esp, asm_mem::mem_size::byte},asm_reg::reg_type::al });
-        break;
-    case type::type_category::integer: 
-        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
-        break;
-    case type::type_category::real: 
-        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) - 4 } });
-        code.push_back({ asm_command::type::push,{ asm_mem::mem_size::dword, code.get_offset(name()) } });
-        break;
-    case type::type_category::array:
-    case type::type_category::record: 
-        throw std::logic_error("Not implemented");
-    default: 
-        throw std::logic_error("This point should never be reached");
-    }
+    code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, asm_reg::reg_type::ebp });
+    code.push_back({ asm_command::type::sub, asm_reg::reg_type::eax, code.get_offset(name()) });
+    code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
+    if (!is_left)
+        put_value_on_stack(code, type(), position());
+    return;
 }
 
 std::string constant_node::value_string() const {
@@ -102,7 +79,6 @@ std::string constant_node::value_string() const {
 }
 
 void constant_node::to_asm_code(asm_code& code, const bool is_left) {
-    //TODO is_left
     switch (type()->category()) {
     case type::type_category::character:
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"1"} });
@@ -189,15 +165,16 @@ void operation_node::to_asm_assign(asm_code& code) const {
     asm_mem::mem_size mem_size;
     asm_command::type com_type;
     asm_reg::reg_type reg1;
-    if (type() == real()) {
+    const auto t = base_type(type());
+    if (t == real()) {
         reg1 = asm_reg::reg_type::xmm0;
         code.push_back({ asm_command::type::movsd, reg1, { asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
         code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, {"8"} });
         com_type = f_ops.at(operation_type_);
         mem_size = asm_mem::mem_size::qword;
     }
-    else {
-        if (type() == integer()) {
+    else if (t->is_scalar()) {
+        if (t == integer()) {
             reg1 = asm_reg::reg_type::eax;
             code.push_back({ asm_command::type::pop, reg1 });
         }
@@ -208,6 +185,17 @@ void operation_node::to_asm_assign(asm_code& code) const {
         }
         mem_size = type() == integer() ? asm_mem::mem_size::dword : asm_mem::mem_size::byte;
         com_type = ops.at(operation_type_);
+    }
+    else {
+        code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx, {asm_reg::reg_type::esp, asm_mem::mem_size::dword, long(t->data_size()) } });
+        code.push_back({ asm_command::type::mov, asm_reg::reg_type::ecx, t->data_size() / 4 });
+        const auto label = str(boost::format("$LN%1%AT%2%LOOP@") % position().first % position().second);
+        code.push_back({ asm_command::type::label, label });
+        code.push_back({ asm_command::type::pop,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword } });
+        code.push_back({ asm_command::type::add, asm_reg::reg_type::ebx, 4 });
+        code.push_back({ asm_command::type::loop, label });
+        code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, 4 });
+        return;
     }
     if (com_type == asm_command::type::idiv)
         code.push_back({ asm_command::type::cdq });
@@ -310,9 +298,9 @@ void operation_node::to_asm_compare(asm_code& code) const {
         code.push_back({ comm,{ label } });
         code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword},{ "-1" } });
         code.push_back({ asm_command::type::jmp,{ end_l } });
-        code.push_back({ asm_command::type::label,{ label + ':' } });
+        code.push_back({ asm_command::type::label,{ label } });
         code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword},{ "0" } });
-        code.push_back({ asm_command::type::label,{ end_l + ':' } });
+        code.push_back({ asm_command::type::label,{ end_l } });
         return;
     }
     default: 
@@ -334,32 +322,35 @@ bool operation_node::is_assign() const {
 
 const tree_node_p& applied::variable() const { return variable_; }
 
-void tree::put_value_on_stack(asm_code& code, const type_p type) {
-    code.push_back({ asm_command::type::pop, asm_reg::reg_type::ebx });
+void tree::put_value_on_stack(asm_code& code, const type_p type, const tree_node::position_type position) {
+    code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
     const auto t = type->category() == type::type_category::modified
-        ? std::dynamic_pointer_cast<modified_type>(type)->base_type()->category()
-        : type->category();
-    switch (t) {
+        ? std::dynamic_pointer_cast<modified_type>(type)->base_type()
+        : type;
+    switch (t->category()) {
     case type::type_category::character:
-        code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::ebx, asm_mem::mem_size::byte } });
+        code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::eax, asm_mem::mem_size::byte } });
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp,{ "1" } });
         code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte },asm_reg::reg_type::al });
-        break;
+        return;
     case type::type_category::integer:
-        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword } });
-        break;
+        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::eax, asm_mem::mem_size::dword } });
+        return;
     case type::type_category::real:
-        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword, 4 } });
-        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword } });
-        break;
+        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::eax, asm_mem::mem_size::dword, 4 } });
+        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::eax, asm_mem::mem_size::dword } });
+        return;
+    case type::type_category::record:
     case type::type_category::array:
     {
-        //TODO copy array to stack here
-    }
-    case type::type_category::record:
-    {
-        //TODO copy record to stack here
-        throw std::logic_error("Not implemented");
+        code.push_back({ asm_command::type::add, asm_reg::reg_type::eax, t->data_size() - 4 });
+        code.push_back({ asm_command::type::mov, asm_reg::reg_type::ecx, t->data_size() / 4 });
+        const auto label = str(boost::format("$LN%1%AT%2%LOOP@") % position.first % position.second);
+        code.push_back({ asm_command::type::label, label });
+        code.push_back({ asm_command::type::push,{ asm_reg::reg_type::eax, asm_mem::mem_size::dword } });
+        code.push_back({ asm_command::type::sub, asm_reg::reg_type::eax, 4 });
+        code.push_back({ asm_command::type::loop, label });
+        return;
     }
     default:
         throw std::logic_error("This point should never be reached");
@@ -380,7 +371,7 @@ void index_node::to_asm_code(asm_code& code, const bool is_left) {
     code.push_back({ asm_command::type::imul, asm_reg::reg_type::ebx });
     code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, asm_reg::reg_type::eax });
     if (is_left) return;
-    put_value_on_stack(code, type());
+    put_value_on_stack(code, type(), position());
 }
 
 //class field_access_node
@@ -393,7 +384,7 @@ void field_access_node::to_asm_code(asm_code& code, const bool is_left) {
     if (offset != 0)
         code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, offset });
     if (is_left) return;
-    put_value_on_stack(code, type());
+    put_value_on_stack(code, type(), position());
 }
 
 //class cast_node

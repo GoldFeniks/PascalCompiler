@@ -56,7 +56,8 @@ std::string array_type::to_string(const std::string& prefix) const {
 }
 
 size_t array_type::data_size() const {
-    return size() * element_type_->data_size();
+    const auto result = size() * element_type_->data_size();
+    return result + result % 4;
 }
 
 //class record_type
@@ -89,7 +90,7 @@ size_t record_type::get_field_offset(const std::string name) const {
 }
 
 size_t record_type::data_size() const {
-    return size_;
+    return size_ + size_ % 4;
 }
 
 //class function_type

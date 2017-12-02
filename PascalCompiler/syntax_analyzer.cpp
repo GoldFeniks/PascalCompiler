@@ -286,11 +286,11 @@ tree_node_p syntax_analyzer::parse_statement() {
     case pascal_compiler::tokenizer::token::sub_types::break_op:
         require_loop(token->get_sub_type());
         tokenizer_.next();
-        return std::make_shared<tree_node>("break", tree_node::node_category::null, token->get_position());
+        return std::make_shared<break_node>(token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::continue_op:
         require_loop(token->get_sub_type());
         tokenizer_.next();
-        return std::make_shared<tree_node>("continue", tree_node::node_category::null, token->get_position());
+        return std::make_shared<continue_node>(token->get_position());
     case pascal_compiler::tokenizer::token::sub_types::read:
         tokenizer_.next();
         return parse_read_statement();
@@ -324,7 +324,7 @@ tree_node_p syntax_analyzer::parse_compound_statement() {
 }
 
 tree_node_p syntax_analyzer::parse_if_statement() {
-    auto result = std::make_shared<tree_node>("if", tree_node::node_category::null, tokenizer_.current()->get_position());
+    auto result = std::make_shared<if_node>(tokenizer_.current()->get_position());
     tokenizer_.next();
     result->push_back(parse_condition());
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::then);
@@ -339,7 +339,7 @@ tree_node_p syntax_analyzer::parse_if_statement() {
 
 tree_node_p syntax_analyzer::parse_while_statement() {
     ++loops_count_;
-    auto result = std::make_shared<tree_node>("while", tree_node::node_category::null, tokenizer_.current()->get_position());
+    auto result = std::make_shared<while_node>(tokenizer_.current()->get_position());
     tokenizer_.next();
     result->push_back(parse_condition());
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::do_op);
@@ -351,7 +351,7 @@ tree_node_p syntax_analyzer::parse_while_statement() {
 
 tree_node_p syntax_analyzer::parse_for_statement() {
     ++loops_count_;
-    auto result = std::make_shared<tree_node>("for", tree_node::node_category::null, tokenizer_.current()->get_position());
+    auto result = std::make_shared<for_node>(tokenizer_.current()->get_position());
     auto token = tokenizer_.next();
     require(token, pascal_compiler::tokenizer::token::sub_types::identifier);
     const auto var = find_declaration(token).first;
@@ -365,7 +365,8 @@ tree_node_p syntax_analyzer::parse_for_statement() {
     token = tokenizer_.current();
     if (token->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::downto)
         require(token, pascal_compiler::tokenizer::token::sub_types::to);
-    result->push_back(std::make_shared<tree_node>(token->get_value_string(), tree_node::node_category::null, token->get_position()));
+    else
+        result->set_downto(true);
     tokenizer_.next();
     expr = parse_expression();
     require(get_type(expr), type::type_category::integer, expr->position());
@@ -379,11 +380,10 @@ tree_node_p syntax_analyzer::parse_for_statement() {
 
 tree_node_p syntax_analyzer::parse_repeat_statement() {
     ++loops_count_;
-    auto result = std::make_shared<tree_node>("repeat", tree_node::node_category::null, 
-        tokenizer_.current()->get_position(), parse_statements());
+    auto result = std::make_shared<repeat_node>(tokenizer_.current()->get_position(), parse_statements());
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::until);
     tokenizer_.next();
-    result->push_back(parse_condition());
+    result->set_condition(parse_condition());
     --loops_count_;
     return result;
 }

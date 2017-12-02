@@ -14,7 +14,7 @@ const std::string asm_command::type_str[] = {
     "not", "cdq", "movsx", "shl", "shr", "cvtsi2sd", "cvttsd2si",
     "setge", "setg", "setle", "setl", "sete", "setne", "cmp", "jmp", "", 
     "comisd", "ucomisd", "setbe", "setb", "seta", "setae", "jp", "jnp", "lahf", "test",
-    "loop"
+    "loop", "jnz", "jz", "inc", "dec", "jge", "jle"
 };
 
 asm_arg::type asm_arg::get_type() const {
@@ -47,6 +47,34 @@ std::string asm_code::add_double_constant(const double value) {
         result.insert(result.begin(), '0');
     double_const_[value] = result;
     return std::string("__real@") + result;
+}
+
+std::string asm_code::get_label_name(const size_t row, const size_t col, const std::string& suffix) {
+    return str(boost::format("$LN%1%AT%2%%3%@") % row % col % suffix);
+}
+
+void asm_code::add_loop_start(const std::string& value) {
+    loop_starts_.push(value);
+}
+
+void asm_code::add_loop_end(const std::string& value) {
+    loop_ends_.push(value);
+}
+
+void asm_code::pop_loop_start() {
+    loop_starts_.pop();
+}
+
+void asm_code::pop_loop_end() {
+    loop_ends_.pop();
+}
+
+void asm_code::push_break() {
+    push_back({ asm_command::type::jmp, loop_ends_.top() });
+}
+
+void asm_code::push_continue() {
+    push_back({ asm_command::type::jmp, loop_starts_.top() });
 }
 
 asm_reg::reg_type asm_reg::get_reg_type() const {
@@ -152,6 +180,7 @@ void asm_code::push_back(asm_command&& command) {
 }
 
 void asm_code::add_data(const std::string& name, const symbols_table::symbol_t& symbol) {
+    //TODO initialize arrays and records
     data_size_ += symbol.first->data_size();
     offsets_[name] = data_size_;
     if (symbol.second != nullptr) {

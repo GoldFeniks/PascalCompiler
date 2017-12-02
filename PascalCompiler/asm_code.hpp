@@ -4,6 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include "tokenizer.hpp"
+#include <stack>
 
 namespace pascal_compiler {
 
@@ -88,7 +89,7 @@ namespace pascal_compiler {
         public:
 
             asm_imm(const std::string value) : asm_arg(type::imm), value_(value) {}
-            asm_imm(const size_t value) : asm_arg(type::imm), value_(std::to_string(value)) {}
+            asm_imm(const int value) : asm_arg(type::imm), value_(std::to_string(value)) {}
 
             asm_imm(const asm_mem::mem_size size, const std::string value, const long offset)
                 : asm_arg(type::imm), value_(value), offset_(offset), size_(size) {}
@@ -116,7 +117,7 @@ namespace pascal_compiler {
                 // ReSharper restore CppInconsistentNaming
                 setge, setg, setle, setl, sete, setne, cmp, jmp, label, 
                 comisd, ucomisd, setbe, setb, seta, setae, jp, jnp, lahf, test,
-                loop
+                loop, jnz, jz, inc, dec, jge, jle
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);
@@ -156,6 +157,13 @@ namespace pascal_compiler {
             std::string to_string() const;
             size_t get_offset(const std::string& name) const;
             std::string add_double_constant(const double  value);
+            static std::string get_label_name(const size_t row, const size_t col, const std::string& suffix);
+            void add_loop_start(const std::string& value);
+            void add_loop_end(const std::string& value);
+            void pop_loop_start();
+            void pop_loop_end();
+            void push_break();
+            void push_continue();
 
         private:
 
@@ -164,6 +172,8 @@ namespace pascal_compiler {
             std::vector<asm_command> commands_;
             static const std::string data_types_str[];
             std::unordered_map<double, std::string> double_const_;
+            std::stack<std::string> loop_ends_;
+            std::stack<std::string> loop_starts_;
 
         };
        

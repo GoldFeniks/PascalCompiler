@@ -53,7 +53,8 @@ namespace pascal_compiler {
 
                 enum class node_category {
                     variable, constant, typed_constant, operation, procedure,
-                    function, call, index, field_access, null, cast, write
+                    function, call, index, field_access, null, cast, write,
+                    repeat, if_op, while_op, for_op, break_op, continue_op
                 };
 
                 template<typename... C>
@@ -317,6 +318,96 @@ namespace pascal_compiler {
                 void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             };//class write node
+
+            class repeat_node;
+            typedef std::shared_ptr<repeat_node> repeat_node_p;
+
+            class repeat_node : public tree_node {
+
+            public:
+
+                repeat_node(const position_type& position, const tree_node_p statements) 
+                    : tree_node("repeat", node_category::repeat, position, statements) {}
+
+                void set_condition(const tree_node_p condition);
+                void to_asm_code(asm_code& code, const bool is_left = false) override;
+
+            };//class repeat_node
+
+            class for_node;
+            typedef std::shared_ptr<for_node> for_node_p;
+
+            class for_node : public tree_node {
+                
+            public:
+
+                explicit for_node(const position_type& position)
+                    : tree_node("for", node_category::for_op, position) {}
+
+                void set_downto(const bool value);
+                void to_asm_code(asm_code& code, bool is_left) override;
+
+            private:
+
+                bool is_downto_ = false;
+
+            };//class for_node
+
+            class while_node;
+            typedef std::shared_ptr<while_node> while_node_p;
+
+            class while_node : public tree_node {
+                
+            public:
+
+                explicit while_node(const position_type& position)
+                    : tree_node("while", node_category::while_op, position) {}
+
+                void to_asm_code(asm_code& code, bool is_left) override;
+
+            };//class while_node
+
+            class break_node;
+            typedef std::shared_ptr<break_node> break_node_p;
+
+            class break_node : public tree_node {
+                
+            public:
+
+                explicit break_node(const position_type& position) 
+                    : tree_node("break", node_category::break_op, position) {}
+
+                void to_asm_code(asm_code& code, bool is_left) override;
+
+            };// class break_node
+
+            class continue_node;
+            typedef std::shared_ptr<continue_node> continue_node_p;
+
+            class continue_node : public tree_node {
+
+            public:
+
+                explicit continue_node(const position_type& position)
+                    : tree_node("break", node_category::break_op, position) {}
+
+                void to_asm_code(asm_code& code, bool is_left) override;
+
+            };// class continue_node
+
+            class if_node;
+            typedef std::shared_ptr<if_node> if_node_p;
+
+            class if_node : public tree_node {
+                
+            public:
+
+                explicit if_node(const position_type& position)
+                    : tree_node("if", node_category::if_op, position) {}
+
+                void to_asm_code(asm_code& code, bool is_left) override;
+
+            };
 
         }// namespace tree
 

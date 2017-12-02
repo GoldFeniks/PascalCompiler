@@ -549,13 +549,13 @@ void for_node::to_asm_code(asm_code& code, bool is_left) {
     const long offset = code.get_offset(children()[0]->name());
     code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
     code.push_back({ asm_command::type::mov, {asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset}, asm_reg::reg_type::eax });
+    code.push_back({ is_downto_ ? asm_command::type::inc : asm_command::type::dec,{ asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset } });
     code.push_back({ asm_command::type::jmp, cond_label });
     code.push_back({ asm_command::type::label, body_label });
     children()[3]->to_asm_code(code);
     code.push_back({ asm_command::type::label, cond_label });
-    code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, {asm_reg::reg_type::esp, asm_mem::mem_size::dword} });
-    code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx, { asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset } });
     code.push_back({ is_downto_ ? asm_command::type::dec : asm_command::type::inc,{ asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset } });
+    code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, {asm_reg::reg_type::esp, asm_mem::mem_size::dword} });
     code.push_back({ asm_command::type::cmp, {asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset}, asm_reg::reg_type::eax });
     code.push_back({ is_downto_ ? asm_command::type::jge : asm_command::type::jle, body_label });
     code.push_back({ asm_command::type::label, end_label });

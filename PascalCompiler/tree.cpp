@@ -410,7 +410,8 @@ void index_node::to_asm_code(asm_code& code, const bool is_left) {
     variable()->to_asm_code(code, true);
     index_->to_asm_code(code, false);
     code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
-    const auto min = std::dynamic_pointer_cast<array_type>(std::dynamic_pointer_cast<typed>(variable())->type())->min();
+    const auto t = base_type(std::dynamic_pointer_cast<typed>(variable())->type());
+    const auto min = std::dynamic_pointer_cast<array_type>(t)->min();
     if (min != 0)
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::eax, min });
     code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx, type()->data_size() });
@@ -425,8 +426,8 @@ const variable_node_p& field_access_node::field() const { return field_; }
 
 void field_access_node::to_asm_code(asm_code& code, const bool is_left) {
     variable()->to_asm_code(code, true);
-    const auto offset = std::dynamic_pointer_cast<record_type>(
-        std::dynamic_pointer_cast<typed>(variable())->type())->get_field_offset(field_->name());
+    const auto t = base_type(std::dynamic_pointer_cast<typed>(variable())->type());
+    const auto offset = std::dynamic_pointer_cast<record_type>(t)->get_field_offset(field_->name());
     if (offset != 0)
         code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, offset });
     if (is_left) return;
@@ -443,7 +444,7 @@ cast_node::cast_node(const type_p& type, const tree_node_p& node, const position
 
 void cast_node::to_asm_code(asm_code& code, const bool is_left) {
     children()[0]->to_asm_code(code);
-    const auto t = std::dynamic_pointer_cast<typed>(children()[0])->type();
+    const auto t = base_type(std::dynamic_pointer_cast<typed>(children()[0])->type());
     const auto result_type = type();
     switch (result_type->category()) { 
     case type::type_category::character:

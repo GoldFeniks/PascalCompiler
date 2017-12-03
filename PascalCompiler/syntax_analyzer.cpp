@@ -61,7 +61,7 @@ tree_node_p syntax_analyzer::parse_factor() {
         }
         tree_node_p var = std::make_shared<variable_node>(token->get_string_value(), 
             token->get_position(), decl.first, decl.second);
-        switch(decl.first->category()) {
+        switch(base_type(decl.first)->category()) {
         case type::type_category::function:
             return parse_function_call(var);
         case type::type_category::array:
@@ -437,6 +437,11 @@ tree_node_p syntax_analyzer::parse_assignment_statement() {
     auto result_type = find_declaration(token).first;
     tree_node_p node = std::make_shared<variable_node>(token->get_string_value(), token->get_position(), result_type);
     token = tokenizer_.next();
+    if (result_type->category() == type::type_category::modified) {
+        if (std::dynamic_pointer_cast<modified_type>(result_type)->modificator() == modified_type::modificator_type::constant)
+            throw syntax_error("Can't modify const variable", token->get_position());
+        result_type = base_type(result_type);
+    }
     switch (result_type->category()) {
     case type::type_category::array:
         node = parse_index(node);
@@ -444,9 +449,6 @@ tree_node_p syntax_analyzer::parse_assignment_statement() {
     case type::type_category::record:
         node = parse_field_access(node);
         break;
-    case type::type_category::modified:
-        if (std::dynamic_pointer_cast<modified_type>(result_type)->modificator() == modified_type::modificator_type::constant)
-            throw syntax_error("Can't modify const variable", token->get_position());
     default:
         break;
     }

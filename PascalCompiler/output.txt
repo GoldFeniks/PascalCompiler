@@ -1,105 +1,106 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 37, 100, 0
+__real@0c05ec66666666666 dq 0c05ec66666666666r ;-123.1
+__real@405ec66666666666 dq 405ec66666666666r ;123.1
+__string@0 db 37, 100, 37, 99, 37, 102, 37, 99, 0
 .code
-__function@LN4AT1add:
+__function@LN11AT1set_val:
 enter 0, 2
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
+sub eax, -20
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 8]
-sub eax, -8
+sub eax, -16
 push eax
 pop eax
 push dword ptr [eax]
-pop eax
-pop ebx
-add dword ptr [ebx], eax
-leave
-ret 8
-
-__function@LN9AT1mul:
-enter 0, 2
-mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push dword ptr [eax]
-mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push dword ptr [eax]
-pop eax
-push dword ptr [eax]
-mov eax, dword ptr [ebp - 8]
-sub eax, -8
-push eax
-pop eax
-push dword ptr [eax]
-pop ebx
-pop eax
-imul ebx
-push eax
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
-leave
-ret 8
-
-__function@LN14AT1addmul:
-enter 0, 2
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
+sub eax, -20
 push dword ptr [eax]
+add dword ptr [esp], 4
 mov eax, dword ptr [ebp - 8]
 sub eax, -8
 push eax
 pop eax
+push dword ptr [eax + 4]
 push dword ptr [eax]
-call __function@LN4AT1add
-mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push dword ptr [eax]
-mov eax, dword ptr [ebp - 8]
-sub eax, -8
-push eax
-pop eax
-push dword ptr [eax]
-call __function@LN9AT1mul
+movsd xmm0, qword ptr [esp]
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
 leave
-ret 8
+ret 16
 
 __function@LN0AT0test:
-enter 8, 1
+enter 24, 1
 mov eax, dword ptr [ebp - 4]
-sub eax, 12
+sub eax, 16
 push eax
 push 10
-pop eax
-pop ebx
-mov dword ptr [ebx], eax
+push dword ptr [__real@405ec66666666666 + 4]
+push dword ptr [__real@405ec66666666666]
+call __function@LN11AT1set_val
 mov eax, dword ptr [ebp - 4]
-sub eax, 8
+sub eax, 28
 push eax
-push 100
-pop eax
-pop ebx
-mov dword ptr [ebx], eax
+push 11
+push dword ptr [__real@0c05ec66666666666 + 4]
+push dword ptr [__real@0c05ec66666666666]
+call __function@LN11AT1set_val
+sub esp, 1
+mov byte ptr [esp], 10
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 8
+sub eax, 16
 push eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 12
-push eax
+add dword ptr [esp], 4
 pop eax
+push dword ptr [eax + 4]
 push dword ptr [eax]
-call __function@LN14AT1addmul
+sub esp, 1
+mov byte ptr [esp], 32
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 8
+sub eax, 16
 push eax
 pop eax
 push dword ptr [eax]
 push offset __string@0
 call crt_printf
-add esp, 8
+add esp, 24
+sub esp, 1
+mov byte ptr [esp], 10
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+add dword ptr [esp], 4
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+sub esp, 1
+mov byte ptr [esp], 32
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 24
 leave
 ret 0
 

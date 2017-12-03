@@ -49,6 +49,14 @@ std::string asm_code::add_double_constant(const double value) {
     return std::string("__real@") + result;
 }
 
+std::string asm_code::add_string_constant(const std::string& value) {
+    const std::unordered_map<std::string, size_t>::const_iterator it = string_const_.find(value);
+    if (it != string_const_.end())
+        return std::string("__string@") + std::to_string(it->second);
+    string_const_[value] = strings_++;
+    return std::string("__string@") + std::to_string(string_const_[value]);
+}
+
 std::string asm_code::get_label_name(const size_t row, const size_t col, const std::string& suffix) {
     return str(boost::format("$LN%1%AT%2%%3%@") % row % col % suffix);
 }
@@ -74,7 +82,7 @@ void asm_code::push_break() {
 }
 
 void asm_code::push_continue() {
-    push_back({ asm_command::type::jmp, loop_starts_.top() });
+    push_back({ asm_command::type::jmp, loop_starts_.top() });  
 }
 
 void asm_code::start_function(const std::string& name, const size_t row, const size_t col, const symbols_table& data_table, const symbols_table& param_table) {
@@ -209,6 +217,14 @@ std::string asm_code::to_string() const {
     std::string result = "include c:\\masm32\\include\\masm32rt.inc\n.xmm\n.const\n";
     for (const auto& it : double_const_)
         result += str(boost::format("__real\@%1% dq %1%r ;%2%\n") % it.second % it.first);
+    for (const auto& it : string_const_) {
+        result += "__string@";
+        result += std::to_string(it.second);
+        result += " db ";
+        for (const auto& c : it.first)
+            result += std::to_string(int(c)) + ", ";
+        result += "0\n";
+    }
     result += ".code\n";
     for (size_t i = 0; i < commands_.size(); ++i) {
         result += commands_[i].first + ":\n";

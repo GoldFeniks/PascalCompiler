@@ -89,6 +89,7 @@ namespace pascal_compiler {
         public:
 
             asm_imm(const std::string value) : asm_arg(type::imm), value_(value) {}
+            asm_imm(const std::string value1, const std::string value2) : asm_arg(type::imm), value_(value1 + ' ' + value2) {}
             asm_imm(const int value) : asm_arg(type::imm), value_(std::to_string(value)) {}
 
             asm_imm(const asm_mem::mem_size size, const std::string value, const long offset)
@@ -136,7 +137,7 @@ namespace pascal_compiler {
         private:
 
             void add(const std::shared_ptr<asm_arg> arg1, const std::shared_ptr<asm_arg> arg2);
-            void add(const std::shared_ptr<asm_arg>arg1);
+            void add(const std::shared_ptr<asm_arg> arg1);
 
             static const std::string type_str[];
             std::vector<std::shared_ptr<asm_arg>> args_;
@@ -156,6 +157,7 @@ namespace pascal_compiler {
             std::string to_string() const;
             std::pair<long long, long long> get_offset(const std::string& name) const;
             std::string add_double_constant(const double  value);
+            std::string add_string_constant(const std::string& value);
             static std::string get_label_name(const size_t row, const size_t col, const std::string& suffix);
             void add_loop_start(const std::string& value);
             void add_loop_end(const std::string& value);
@@ -168,12 +170,15 @@ namespace pascal_compiler {
             std::string get_function_label(const std::string&) const;
             static std::string wrap_function_name(const std::string& name, const size_t row, const size_t col);
 
+
         private:
 
             std::vector<std::pair<std::string, std::vector<asm_command>>> commands_;
             std::vector<symbols_table> data_tables_, param_tables_;
             static const std::string data_types_str[];
             std::unordered_map<double, std::string> double_const_;
+            std::unordered_map<std::string, size_t> string_const_;
+            size_t strings_ = 0;
             std::stack<std::string> loop_ends_;
             std::stack<std::string> loop_starts_;
             int64_t index_ = -1;

@@ -73,6 +73,8 @@ std::string constant_node::value_string() const {
         return std::to_string(static_cast<double>(value_));
     case type::type_category::character:
         return std::to_string(static_cast<char*>(value_)[0]);
+    case type::type_category::string:
+        return std::string(static_cast<char*>(value_));
     default:
         throw std::logic_error("This point should be unreachable");
     }
@@ -488,59 +490,46 @@ void cast_node::to_asm_code(asm_code& code, const bool is_left) {
 }
 
 void write_node::to_asm_code(asm_code& code, const bool is_left) {
-    std::vector<std::shared_ptr<asm_arg>> args;
     std::string f = "";
-    long offset = 0;
-    for (const auto& it : children()) {
-        const auto t = std::dynamic_pointer_cast<typed>(it)->type();
-        offset += t->category() != type::type_category::character 
-            ? std::dynamic_pointer_cast<typed>(it)->type()->data_size()
-            : 2;
-    }
-    const auto stack_size = offset;
-    for (std::vector<tree_node_p>::const_reverse_iterator it = children().rbegin(); it != children().rend(); ++it) {
+    long long size = 0;
+    for (auto it = children().rbegin(); it != children().rend(); ++it) {
         const auto type = std::dynamic_pointer_cast<typed>(*it)->type();
-        asm_mem::mem_size size;
         switch (type->category()) {
         case type::type_category::character:
-            f += 'c';
+            f += "c%";
             (*it)->to_asm_code(code);
-            code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"1"} });
-            code.push_back({ asm_command::type::movsx, asm_reg::reg_type::eax, {asm_reg::reg_type::esp, asm_mem::mem_size::byte, 1} });
-            code.push_back({ asm_command::type::mov, {asm_reg::reg_type::esp, asm_mem::mem_size::word}, asm_reg::reg_type::ax });
-            offset -= 2;
-            args.push_back(std::make_shared<asm_reg>(asm_reg::reg_type::eax, asm_mem::mem_size::word, offset));
-            continue;
+            code.push_back({ asm_command::type::movsx, asm_reg::reg_type::eax, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, 1 });
+            code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
+            size += 4;
+            break;
         case type::type_category::integer:
-            f += 'd';
-            size = asm_mem::mem_size::dword;
+            f += "d%";
+            (*it)->to_asm_code(code);
+            size += 4;
             break;
         case type::type_category::real:
-            f += 'f';
-            size = asm_mem::mem_size::qword;
+            f += "f%";
+            (*it)->to_asm_code(code);
+            size += 8;
             break;
         case type::type_category::string:
-            f += 's';
-            args.push_back(std::make_shared<asm_imm>(std::string("\"") + (*it)->name() + "\""));
-            continue;
+        {
+            f += "s%";
+            const auto str = std::dynamic_pointer_cast<constant_node>(*it);
+            const auto s = code.add_string_constant(std::dynamic_pointer_cast<constant_node>(*it)->value_string());
+            code.push_back({ asm_command::type::push, {"offset", s}});
+            break;
+        }
         default:
             throw std::logic_error("This point should never be reached");
         }
-        (*it)->to_asm_code(code);
-        offset -= type->data_size();
-        args.push_back(std::make_shared<asm_reg>(asm_reg::reg_type::eax, size, offset));
     }
-    reverse(args.begin(), args.end());
     reverse(f.begin(), f.end());
-    std::string format = "\"";
-    for (const auto& it : f) {
-        format += '%'; 
-        format += it;
-    }
-    code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, asm_reg::reg_type::esp });
-    args.insert(args.begin(), std::make_shared<asm_imm>( format + "\\n\"" ));
-    code.push_back({ asm_command::type::printf, args });
-    code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, std::to_string(stack_size) });
+    const auto s = code.add_string_constant(f);
+    code.push_back({ asm_command::type::push,{ "offset", s } });
+    code.push_back({ asm_command::type::call, {"crt_printf"} });
+    code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, size + 4 });
 }
 
 void repeat_node::set_condition(const tree_node_p condition) { push_back(condition); }

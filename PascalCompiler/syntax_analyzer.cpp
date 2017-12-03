@@ -23,6 +23,7 @@ void syntax_analyzer::to_asm_code(asm_code& code) {
     code.start_function(func.first, 0, 0, func_t->table(), func_t->parameters());
     func_t->table().to_asm_code(code);
     func_v->to_asm_code(code);
+    code.end_function();
 }
 
 void syntax_analyzer::parse() {
@@ -177,7 +178,7 @@ tree_node_p syntax_analyzer::parse_actual_parameter_list(const function_type_p& 
     for (; i < args.size(); ++i) {
         if (i == type->parameters().size())
             throw syntax_error("Illegal parameters count", args[i]->position());
-        const auto tl = type->parameters().get_type(i), tr = get_type(args[i]);
+        const auto tl = base_type(type->parameters().get_type(i)), tr = get_type(args[i]);
         require_types_compatibility(tl, tr, result->position());
         if (tl != tr)
             result->push_back(std::make_shared<cast_node>(tl, args[i], args[i]->position()));
@@ -804,12 +805,16 @@ void syntax_analyzer::require(const type_p type, const type::type_category categ
 
 void syntax_analyzer::require_types_compatibility(const type_p& left, const type_p& right,
     const tree_node::position_type& position) {
-    //check for modificator
-    if (!left->is_category(type::type_category::type) && !right->is_category(type::type_category::type) &&
-        (left == right ||
-        left->is_category(type::type_category::real) && right->is_category(type::type_category::integer)))
+    type_p lt = left, rt = right;
+    if (lt->category() == type::type_category::modified)
+        lt = base_type(lt);
+    if (rt->category() == type::type_category::modified)
+        rt = base_type(lt);
+    if (!lt->is_category(type::type_category::type) && !rt->is_category(type::type_category::type) &&
+        (lt == rt ||
+        lt->is_category(type::type_category::real) && rt->is_category(type::type_category::integer)))
         return;
-    throw syntax_error(incompatible_types(left, right).what(), position);
+    throw syntax_error(incompatible_types(lt, rt).what(), position);
 }
 
 void syntax_analyzer::require_constant(const tree_node_p& node) {
@@ -831,6 +836,7 @@ tree_node_p syntax_analyzer::get_constant(const tree_node_p& node) {
         const auto var = std::static_pointer_cast<variable_node>(node);
         if (var->type()->category() == type::type_category::modified &&
             std::dynamic_pointer_cast<modified_type>(var->type())->modificator() == modified_type::modificator_type::constant &&
+            var->value() != nullptr &&
             var->value()->category() == tree_node::node_category::constant)
             return var->value();
         return var;

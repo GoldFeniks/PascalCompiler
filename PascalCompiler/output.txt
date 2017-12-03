@@ -1,70 +1,105 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 115, 104, 111, 117, 108, 100, 32, 112, 114, 105, 110, 116, 32, 50, 48, 58, 32, 10, 0
-__string@1 db 115, 104, 111, 117, 108, 100, 32, 112, 114, 105, 110, 116, 32, 49, 48, 58, 32, 10, 0
-__string@2 db 37, 115, 37, 100, 37, 99, 37, 115, 37, 100, 0
+__string@0 db 37, 100, 0
 .code
+__function@LN4AT1add:
+enter 0, 2
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+pop ebx
+add dword ptr [ebx], eax
+leave
+ret 8
+
+__function@LN9AT1mul:
+enter 0, 2
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push dword ptr [eax]
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+pop ebx
+pop eax
+imul ebx
+push eax
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+leave
+ret 8
+
+__function@LN14AT1addmul:
+enter 0, 2
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+call __function@LN4AT1add
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+call __function@LN9AT1mul
+leave
+ret 8
+
 __function@LN0AT0test:
 enter 8, 1
 mov eax, dword ptr [ebp - 4]
 sub eax, 12
 push eax
-push 1
-pop eax
-sub eax, 1
-mov ebx, 4
-imul ebx
-add dword ptr [esp], eax
 push 10
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 12
+sub eax, 8
 push eax
-push 2
-pop eax
-sub eax, 1
-mov ebx, 4
-imul ebx
-add dword ptr [esp], eax
-push 20
+push 100
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 12
-push eax
-push 2
-pop eax
-sub eax, 1
-mov ebx, 4
-imul ebx
-add dword ptr [esp], eax
-pop eax
-push dword ptr [eax]
-push offset __string@0
-sub esp, 1
-mov byte ptr [esp], 10
-movsx eax, byte ptr [esp]
-add esp, 1
+sub eax, 8
 push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 12
 push eax
-push 1
-pop eax
-sub eax, 1
-mov ebx, 4
-imul ebx
-add dword ptr [esp], eax
 pop eax
 push dword ptr [eax]
-push offset __string@1
-push offset __string@2
+call __function@LN14AT1addmul
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
 call crt_printf
-add esp, 16
+add esp, 8
 leave
 ret 0
 

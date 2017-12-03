@@ -50,7 +50,7 @@ type_p tree::get_type(const tree_node_p& node) {
     const auto type = std::dynamic_pointer_cast<typed>(node);
     if (!type)
         throw std::logic_error("This point should never be reached");
-    return type->type();
+    return base_type(type->type());
 }
 
 //class variable_node
@@ -60,7 +60,15 @@ void variable_node::to_asm_code(asm_code& code, const bool is_left) {
     const auto offset = code.get_offset(name());
     code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax, {asm_reg::reg_type::ebp, asm_mem::mem_size::dword, offset.first} });
     code.push_back({ asm_command::type::sub, asm_reg::reg_type::eax, offset.second });
-    code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
+    if (type()->category() == type::type_category::modified) {
+        const auto t = std::dynamic_pointer_cast<modified_type>(type());
+        if (t->modificator() == modified_type::modificator_type::var)
+            code.push_back({ asm_command::type::push, {asm_reg::reg_type::eax, asm_mem::mem_size::dword} });
+        else
+            code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
+    }
+    else
+        code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
     if (!is_left)
         put_value_on_stack(code, type(), position());
 }
@@ -326,8 +334,16 @@ const tree_node_p& applied::variable() const { return variable_; }
 
 void call_node::to_asm_code(asm_code& code, bool is_left) {
     const auto func = std::dynamic_pointer_cast<function_type>(std::dynamic_pointer_cast<typed>(variable())->type());
-    children()[1]->to_asm_code(code);
-    for (auto i = children()[1]->children().size(); i < func->parameters().size(); ++i)
+    size_t i = 0;
+    for (; i < children()[1]->children().size(); ++i) {
+        const auto t = func->parameters().vector()[i].second.first;
+        if (t->category() == type::type_category::modified)
+            children()[1]->children()[i]->to_asm_code(code,
+                std::dynamic_pointer_cast<modified_type>(t)->modificator() == modified_type::modificator_type::var);
+        else
+            children()[1]->children()[i]->to_asm_code(code);
+    }
+    for (; i < func->parameters().size(); ++i)
         func->parameters().vector()[i].second.second->to_asm_code(code);
     if (func->parameters().get_data_size() % 4 != 0)
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, func->parameters().get_data_size() % 4 });
@@ -493,7 +509,10 @@ void write_node::to_asm_code(asm_code& code, const bool is_left) {
     std::string f = "";
     long long size = 0;
     for (auto it = children().rbegin(); it != children().rend(); ++it) {
-        const auto type = std::dynamic_pointer_cast<typed>(*it)->type();
+        auto type = std::dynamic_pointer_cast<typed>(*it)->type();
+        type = type->category() == type::type_category::modified
+            ? std::dynamic_pointer_cast<modified_type>(type)->base_type()
+            : type;
         switch (type->category()) {
         case type::type_category::character:
             f += "c%";
@@ -516,7 +535,6 @@ void write_node::to_asm_code(asm_code& code, const bool is_left) {
         case type::type_category::string:
         {
             f += "s%";
-            const auto str = std::dynamic_pointer_cast<constant_node>(*it);
             const auto s = code.add_string_constant(std::dynamic_pointer_cast<constant_node>(*it)->value_string());
             code.push_back({ asm_command::type::push, {"offset", s}});
             break;

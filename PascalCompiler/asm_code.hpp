@@ -175,13 +175,14 @@ namespace pascal_compiler {
 
             std::vector<std::pair<std::string, std::vector<asm_command>>> commands_;
             std::vector<symbols_table> data_tables_, param_tables_;
+            std::string main_func_name_;
             static const std::string data_types_str[];
             std::unordered_map<double, std::string> double_const_;
             std::unordered_map<std::string, size_t> string_const_;
             size_t strings_ = 0;
             std::stack<std::string> loop_ends_;
             std::stack<std::string> loop_starts_;
-            int64_t index_ = -1;
+            std::string func_string_ = "";
 
         };
        

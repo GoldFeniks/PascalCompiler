@@ -128,7 +128,7 @@ std::string modified_type::to_string(const std::string& prefix) const {
 const type_p& modified_type::base_type() const { return type_; }
 
 size_t modified_type::data_size() const {
-    return type_->data_size();
+    return modificator_ == modificator_type::var ? 4 : base_type()->data_size();
 }
 
 //class pointer_type

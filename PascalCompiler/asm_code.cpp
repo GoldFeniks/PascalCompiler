@@ -86,25 +86,32 @@ void asm_code::push_continue() {
 }
 
 void asm_code::start_function(const std::string& name, const size_t row, const size_t col, const symbols_table& data_table, const symbols_table& param_table) {
+    if (commands_.size() == 0)
+        main_func_name_ = wrap_function_name(name, row, col);
     data_tables_.push_back(data_table);
     param_tables_.push_back(param_table);
     commands_.emplace_back(wrap_function_name(name, row, col), std::vector<asm_command>());
-    ++index_;
 }
 
 void asm_code::end_function() {
-    --index_;
-    
+    func_string_ += commands_.back().first + ":\n";
+    func_string_ += str(boost::format("enter %1%, %2%\n") % data_tables_.back().get_data_size() % commands_.size());
+    for (const auto com : commands_.back().second)
+        func_string_ += com.to_string() + '\n';
+    func_string_ += "leave\n";
+    func_string_ += str(boost::format("ret %1%\n\n") % param_tables_.back().get_data_size());
+    data_tables_.pop_back();
+    param_tables_.pop_back();
+    commands_.pop_back();
 }
 
 std::string asm_code::get_function_label(const std::string& name) const {
-    for (auto i = index_; i >= 0; --i) {
+    for (auto i = commands_.size() - 1; i >= 0; --i) {
         const auto val = data_tables_[i].table().find(name);
         if (val != data_tables_[i].table().end())
             return wrap_function_name(name, val->second.second->position().first, val->second.second->position().second);
     }
     throw std::logic_error("This point should never be reached");
-
 }
 
 std::string asm_code::wrap_function_name(const std::string& name, const size_t row, const size_t col) {
@@ -206,11 +213,11 @@ void asm_command::add(const std::shared_ptr<asm_arg> arg1, const std::shared_ptr
 void asm_command::add(const std::shared_ptr<asm_arg> arg1) { args_.push_back(arg1); }
 
 void asm_code::push_back(const asm_command& command) {
-    commands_[index_].second.push_back(command);
+    commands_.back().second.push_back(command);
 }
 
 void asm_code::push_back(asm_command&& command) {
-    commands_[index_].second.push_back(std::move(command));
+    commands_.back().second.push_back(std::move(command));
 }
 
 std::string asm_code::to_string() const {
@@ -226,21 +233,14 @@ std::string asm_code::to_string() const {
         result += "0\n";
     }
     result += ".code\n";
-    for (size_t i = 0; i < commands_.size(); ++i) {
-        result += commands_[i].first + ":\n";
-        result += str(boost::format("enter %1%, %2%\n") % data_tables_[i].get_data_size() % (i + 1));
-        for (const auto com : commands_[i].second)
-            result += com.to_string() + '\n';
-        result += "leave\n";
-        result += str(boost::format("ret %1%\n\n") % param_tables_[i].get_data_size());
-    }
+    result += func_string_;
     result += "start:\n";
-    result += str(boost::format("call %1%\n") % commands_[0].first);
+    result += str(boost::format("call %1%\n") % main_func_name_);
     return result + "exit\nend start";    
 }
 
 std::pair<long long, long long> asm_code::get_offset(const std::string& name) const {
-    for (auto i = index_; i >= 0; --i) {
+    for (auto i = commands_.size() - 1; i >= 0; --i) {
         auto val = data_tables_[i].table().find(name);
         if (val != data_tables_[i].table().end())
             return std::make_pair((i + 1) * -4, data_tables_[i].get_offset(name) + 4 * (i + 1));

@@ -100,6 +100,10 @@ const symbols_table& function_type::table() const { return table_; }
 
 const type_p& function_type::return_type() const { return return_type_; }
 
+void function_type::set_table(const symbols_table& table) {
+    table_ = table;
+}
+
 std::string function_type::to_string(const std::string& prefix) const {
     std::string result = "function (";
     for (const auto it : parameters_.vector()) {

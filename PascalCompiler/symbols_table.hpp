@@ -52,6 +52,7 @@ namespace pascal_compiler {
                 typedef std::pair<type_p, tree_node_p> symbol_t;
                 typedef std::map<std::string, symbol_t> table_t;
                 typedef std::vector<std::pair<std::string, symbol_t>> vector_t;
+                typedef std::map<std::string, long long> offsets_t;
 
                 symbols_table() {}
 
@@ -68,12 +69,17 @@ namespace pascal_compiler {
                 const vector_t& vector() const;
                 std::string to_string(const std::string& prefix = "") const;
                 void to_asm_code(asm_code& code) const;
+                void calculate_offsets();
+                long long get_offset(const std::string& name) const;
+                long long get_data_size() const;
 
             private:
 
                 table_t table_;
                 vector_t vector_;
+                offsets_t offsets_;
                 size_t index_ = 0;
+                long long size_ = 0;
 
         };        
 

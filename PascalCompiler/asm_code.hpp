@@ -69,7 +69,7 @@ namespace pascal_compiler {
             };
 
             asm_reg(const reg_type reg) : asm_arg(type::reg), reg_(reg) {}
-            asm_reg(const reg_type reg, const asm_mem::mem_size size, const long offset = 0) 
+            asm_reg(const reg_type reg, const asm_mem::mem_size size, const long long offset = 0) 
                 : asm_arg(type::reg), reg_(reg), typed_(true), size_(size), offset_(offset) {}
             reg_type get_reg_type() const;
             std::string to_string() const override;
@@ -79,7 +79,7 @@ namespace pascal_compiler {
             reg_type reg_;
             bool typed_ = false;
             const asm_mem::mem_size size_ = asm_mem::mem_size::dword;
-            const long offset_ = 0;
+            const long long offset_ = 0;
             static const std::string reg_type_str[];
 
         };
@@ -117,7 +117,7 @@ namespace pascal_compiler {
                 // ReSharper restore CppInconsistentNaming
                 setge, setg, setle, setl, sete, setne, cmp, jmp, label, 
                 comisd, ucomisd, setbe, setb, seta, setae, jp, jnp, lahf, test,
-                loop, jnz, jz, inc, dec, jge, jle
+                loop, jnz, jz, inc, dec, jge, jle, call, lea
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);
@@ -153,9 +153,8 @@ namespace pascal_compiler {
 
             void push_back(const asm_command& command);
             void push_back(asm_command&& command);
-            void add_data(const std::string& name, const symbols_table::symbol_t& symbol);
             std::string to_string() const;
-            size_t get_offset(const std::string& name) const;
+            std::pair<long long, long long> get_offset(const std::string& name) const;
             std::string add_double_constant(const double  value);
             static std::string get_label_name(const size_t row, const size_t col, const std::string& suffix);
             void add_loop_start(const std::string& value);
@@ -164,16 +163,20 @@ namespace pascal_compiler {
             void pop_loop_end();
             void push_break();
             void push_continue();
+            void start_function(const std::string& name, const size_t row, const size_t col, const symbols_table& data_table, const symbols_table& param_table);
+            void end_function();
+            std::string get_function_label(const std::string&) const;
+            static std::string wrap_function_name(const std::string& name, const size_t row, const size_t col);
 
         private:
 
-            std::unordered_map<std::string, size_t> offsets_;
-            size_t data_size_ = 0;
-            std::vector<asm_command> commands_;
+            std::vector<std::pair<std::string, std::vector<asm_command>>> commands_;
+            std::vector<symbols_table> data_tables_, param_tables_;
             static const std::string data_types_str[];
             std::unordered_map<double, std::string> double_const_;
             std::stack<std::string> loop_ends_;
             std::stack<std::string> loop_starts_;
+            int64_t index_ = -1;
 
         };
        

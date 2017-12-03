@@ -64,8 +64,48 @@ std::string symbols_table::to_string(const std::string& prefix) const {
 }
 
 void symbols_table::to_asm_code(asm_code& code) const {
-    for (const auto& it : vector_)
-        if (it.second.first->category() != type::type_category::type ||
-            it.second.first->category() != type::type_category::function)
-            code.add_data(it.first, it.second);
+    for (auto it : vector_)
+        if (it.second.first->category() == type::type_category::function) {
+            const auto f = std::dynamic_pointer_cast<function_type>(it.second.first);
+            code.start_function(it.first, it.second.second->position().first, it.second.second->position().second,
+                f->table(), f->parameters());
+            f->table().to_asm_code(code);
+            it.second.second->to_asm_code(code);
+            const auto offset = code.get_offset("result");
+            switch (f->return_type()->category()) { 
+            case type::type_category::character: 
+                code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::ebp, asm_mem::mem_size::byte, -offset.second} });
+                break;
+            case type::type_category::integer: 
+                code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax,{ asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset.second } });
+                break;
+            case type::type_category::real: 
+                code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm0,{ asm_reg::reg_type::ebp, asm_mem::mem_size::qword, -offset.second } });
+                break;
+            case type::type_category::nil:
+                goto end;
+            case type::type_category::array:
+            case type::type_category::record:
+                throw std::logic_error("Not implemented");
+            default: 
+                throw std::logic_error("This point should never be reached!");
+            }
+            end:
+            code.end_function();
+        }
+}
+
+void symbols_table::calculate_offsets() {
+    long long offset = 0;
+    for (const auto it : vector_)
+        offsets_[it.first] = offset += it.second.first->data_size();
+    size_ = offset;
+}
+
+long long symbols_table::get_offset(const std::string& name) const {
+    return offsets_.at(name);
+}
+
+long long symbols_table::get_data_size() const {
+    return size_;
 }

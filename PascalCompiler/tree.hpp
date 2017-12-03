@@ -246,6 +246,8 @@ namespace pascal_compiler {
                     typed(std::dynamic_pointer_cast<function_type>(get_type(function))->return_type()),
                     applied(function) {}
 
+                void to_asm_code(asm_code& code, bool is_left) override;
+
             };// class call_node
 
             void put_value_on_stack(asm_code& code, type_p type, const tree_node::position_type position);

@@ -14,7 +14,7 @@ const std::string asm_command::type_str[] = {
     "not", "cdq", "movsx", "shl", "shr", "cvtsi2sd", "cvttsd2si",
     "setge", "setg", "setle", "setl", "sete", "setne", "cmp", "jmp", "", 
     "comisd", "ucomisd", "setbe", "setb", "seta", "setae", "jp", "jnp", "lahf", "test",
-    "loop", "jnz", "jz", "inc", "dec", "jge", "jle"
+    "loop", "jnz", "jz", "inc", "dec", "jge", "jle", "call", "lea"
 };
 
 asm_arg::type asm_arg::get_type() const {
@@ -75,6 +75,32 @@ void asm_code::push_break() {
 
 void asm_code::push_continue() {
     push_back({ asm_command::type::jmp, loop_starts_.top() });
+}
+
+void asm_code::start_function(const std::string& name, const size_t row, const size_t col, const symbols_table& data_table, const symbols_table& param_table) {
+    data_tables_.push_back(data_table);
+    param_tables_.push_back(param_table);
+    commands_.emplace_back(wrap_function_name(name, row, col), std::vector<asm_command>());
+    ++index_;
+}
+
+void asm_code::end_function() {
+    --index_;
+    
+}
+
+std::string asm_code::get_function_label(const std::string& name) const {
+    for (auto i = index_; i >= 0; --i) {
+        const auto val = data_tables_[i].table().find(name);
+        if (val != data_tables_[i].table().end())
+            return wrap_function_name(name, val->second.second->position().first, val->second.second->position().second);
+    }
+    throw std::logic_error("This point should never be reached");
+
+}
+
+std::string asm_code::wrap_function_name(const std::string& name, const size_t row, const size_t col) {
+    return str(boost::format("__function@LN%1%AT%2%%3%") % row % col % name);
 }
 
 asm_reg::reg_type asm_reg::get_reg_type() const {
@@ -172,56 +198,39 @@ void asm_command::add(const std::shared_ptr<asm_arg> arg1, const std::shared_ptr
 void asm_command::add(const std::shared_ptr<asm_arg> arg1) { args_.push_back(arg1); }
 
 void asm_code::push_back(const asm_command& command) {
-    commands_.push_back(command);
+    commands_[index_].second.push_back(command);
 }
 
 void asm_code::push_back(asm_command&& command) {
-    commands_.push_back(std::move(command));
-}
-
-void asm_code::add_data(const std::string& name, const symbols_table::symbol_t& symbol) {
-    //TODO initialize arrays and records
-    data_size_ += symbol.first->data_size();
-    offsets_[name] = data_size_;
-    if (symbol.second != nullptr) {
-        symbol.second->to_asm_code(*this);
-        const auto t = symbol.first->category() == type::type_category::modified
-            ? std::dynamic_pointer_cast<modified_type>(symbol.first)->base_type()->category()
-            : symbol.first->category();
-        switch (t) { 
-        case type::type_category::character:
-            push_back({ asm_command::type::mov, asm_reg::reg_type::al, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
-            push_back({ asm_command::type::add, asm_reg::reg_type::esp, {"1"} });
-            push_back({ asm_command::type::mov, {asm_mem::mem_size::byte, get_offset(name)}, asm_reg::reg_type::al });
-            break;
-        case type::type_category::integer:
-            push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) } });
-            break;
-        case type::type_category::real:
-            push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) } });
-            push_back({ asm_command::type::pop,{ asm_mem::mem_size::dword, get_offset(name) - 4 } });
-            break;
-        case type::type_category::array:
-        case type::type_category::record:
-            throw std::logic_error("Not implemented");
-        default:
-            throw std::logic_error("This point should never be reached");
-        }
-    }
+    commands_[index_].second.push_back(std::move(command));
 }
 
 std::string asm_code::to_string() const {
     std::string result = "include c:\\masm32\\include\\masm32rt.inc\n.xmm\n.const\n";
     for (const auto& it : double_const_)
         result += str(boost::format("__real\@%1% dq %1%r ;%2%\n") % it.second % it.first);
-    result += ".code\nstart:\n";
-    result += str(boost::format("push ebp\nmov ebp, esp\nsub esp, %1%\n") % data_size_);
-    for (const auto& it : commands_)
-        result += it.to_string() + '\n';
-    result += "mov esp, ebp\npop ebp\n";
+    result += ".code\n";
+    for (size_t i = 0; i < commands_.size(); ++i) {
+        result += commands_[i].first + ":\n";
+        result += str(boost::format("enter %1%, %2%\n") % data_tables_[i].get_data_size() % (i + 1));
+        for (const auto com : commands_[i].second)
+            result += com.to_string() + '\n';
+        result += "leave\n";
+        result += str(boost::format("ret %1%\n\n") % param_tables_[i].get_data_size());
+    }
+    result += "start:\n";
+    result += str(boost::format("call %1%\n") % commands_[0].first);
     return result + "exit\nend start";    
 }
 
-size_t asm_code::get_offset(const std::string& name) const {
-    return offsets_.at(name);
+std::pair<long long, long long> asm_code::get_offset(const std::string& name) const {
+    for (auto i = index_; i >= 0; --i) {
+        auto val = data_tables_[i].table().find(name);
+        if (val != data_tables_[i].table().end())
+            return std::make_pair((i + 1) * -4, data_tables_[i].get_offset(name) + 4 * (i + 1));
+        val = param_tables_[i].table().find(name);
+        if (val != param_tables_[i].table().end())
+            return std::make_pair((i + 1) * -4, +param_tables_[i].get_offset(name) - 8 - param_tables_[i].get_data_size());
+    }
+    throw std::logic_error("This point should never be reached");
 }

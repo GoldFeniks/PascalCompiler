@@ -20,6 +20,7 @@ void syntax_analyzer::to_asm_code(asm_code& code) {
     const auto func = tables_.back().vector()[3];
     const auto func_t = std::dynamic_pointer_cast<function_type>(func.second.first);
     const auto func_v = func.second.second;
+    code.start_function(func.first, 0, 0, func_t->table(), func_t->parameters());
     func_t->table().to_asm_code(code);
     func_v->to_asm_code(code);
 }
@@ -546,6 +547,7 @@ void syntax_analyzer::parse_program() {
     tables_.push_back(symbols_table());
     tables_.back().add("result", nil());
     const auto block = parse_block();
+    tables_.back().calculate_offsets();
     tables_[0].add(token->get_string_value(), 
         std::make_shared<function_type>(token->get_string_value(), symbols_table(), tables_.back()), block);
     tables_.pop_back();
@@ -675,6 +677,7 @@ void syntax_analyzer::parse_function_declaration() {
     tables_.push_back(symbols_table());
     tokenizer_.next();
     parse_formal_parameter_list();
+    tables_.back().calculate_offsets();
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::colon);
     const auto rt = tokenizer_.next();
     require(rt, pascal_compiler::tokenizer::token::sub_types::identifier);
@@ -682,14 +685,16 @@ void syntax_analyzer::parse_function_declaration() {
     require(result_type, type::type_category::type, rt->get_position());
     result_type = base_type(result_type);
     require(tokenizer_.next(), pascal_compiler::tokenizer::token::sub_types::semicolon);
+    auto func = std::make_shared<function_type>(token->get_string_value(), tables_.back(), symbols_table(), result_type);
+    tables_[tables_.size() - 2].add(token->get_string_value(), func, nullptr);
     tokenizer_.next();
     tables_.push_back(symbols_table());
     tables_.back().add("result", result_type);
     const auto block = parse_block();
-    const auto vars = tables_.back(); tables_.pop_back();
-    const auto args = tables_.back(); tables_.pop_back();
-    tables_.back().add(token->get_string_value(), 
-        std::make_shared<function_type>(token->get_string_value(), args, vars, result_type), block);
+    tables_.back().calculate_offsets();
+    const auto vars = tables_.back(); tables_.pop_back(); tables_.pop_back();
+    func->set_table(vars);
+    tables_.back().change_last(std::make_pair(func, block));
     require(pascal_compiler::tokenizer::token::sub_types::semicolon);
     tokenizer_.next();
 }
@@ -700,15 +705,18 @@ void syntax_analyzer::parse_procedure_declaration() {
     tables_.push_back(symbols_table());
     tokenizer_.next();
     parse_formal_parameter_list();
+    tables_.back().calculate_offsets();
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::semicolon);
+    auto func = std::make_shared<function_type>(token->get_string_value(), tables_.back(), symbols_table(), nil());
+    tables_[tables_.size() - 2].add(token->get_string_value(), func, nullptr);
     tokenizer_.next();
     tables_.push_back(symbols_table());
     tables_.back().add("result", nil());
     const auto block = parse_block();
-    const auto vars = tables_.back(); tables_.pop_back();
-    const auto args = tables_.back(); tables_.pop_back();
-    tables_.back().add(token->get_string_value(),
-        std::make_shared<function_type>(token->get_string_value(), args, vars), block);
+    tables_.back().calculate_offsets();
+    const auto vars = tables_.back(); tables_.pop_back(); tables_.pop_back();   
+    func->set_table(vars);
+    tables_.back().change_last(std::make_pair(func, block));
     require(pascal_compiler::tokenizer::token::sub_types::semicolon);
     tokenizer_.next();
 }

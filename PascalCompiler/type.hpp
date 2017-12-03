@@ -151,6 +151,7 @@ namespace pascal_compiler {
                 const symbols_table& parameters() const;
                 const symbols_table& table() const;
                 const type_p& return_type() const;
+                void set_table(const symbols_table& table);
                 std::string to_string(const std::string& prefix = "") const override;
 
             private:

@@ -171,7 +171,7 @@ void operation_node::to_asm_code(asm_code& code, const bool is_left) {
 
 void operation_node::to_asm_assign(asm_code& code) const {
     left_->to_asm_code(code, true);
-    right_->to_asm_code(code);
+    right_->to_asm_code(code, !type()->is_scalar());
     asm_mem::mem_size mem_size;
     asm_command::type com_type;
     asm_reg::reg_type reg1;
@@ -197,14 +197,16 @@ void operation_node::to_asm_assign(asm_code& code) const {
         com_type = ops.at(operation_type_);
     }
     else {
-        code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx, {asm_reg::reg_type::esp, asm_mem::mem_size::dword, long(t->data_size()) } });
+        code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
+        code.push_back({ asm_command::type::pop, asm_reg::reg_type::ebx });
         code.push_back({ asm_command::type::mov, asm_reg::reg_type::ecx, t->data_size() / 4 });
         const auto label = code.get_label_name(position().first, position().second, "COPYSTRUCT");
         code.push_back({ asm_command::type::label, label });
-        code.push_back({ asm_command::type::pop,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword } });
+        code.push_back({ asm_command::type::mov,asm_reg::reg_type::edx, { asm_reg::reg_type::eax, asm_mem::mem_size::dword } });
+        code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword }, asm_reg::reg_type::edx });
+        code.push_back({ asm_command::type::add, asm_reg::reg_type::eax, 4 });
         code.push_back({ asm_command::type::add, asm_reg::reg_type::ebx, 4 });
         code.push_back({ asm_command::type::loop, label });
-        code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, 4 });
         return;
     }
     if (com_type == asm_command::type::idiv)
@@ -538,6 +540,7 @@ void write_node::to_asm_code(asm_code& code, const bool is_left) {
             f += "s%";
             const auto s = code.add_string_constant(std::dynamic_pointer_cast<constant_node>(*it)->value_string());
             code.push_back({ asm_command::type::push, {"offset", s}});
+            size += 4;
             break;
         }
         default:
@@ -545,7 +548,7 @@ void write_node::to_asm_code(asm_code& code, const bool is_left) {
         }
     }
     reverse(f.begin(), f.end());
-    const auto s = code.add_string_constant(f);
+    const auto s = code.add_string_constant(f + '\n');
     code.push_back({ asm_command::type::push,{ "offset", s } });
     code.push_back({ asm_command::type::call, {"crt_printf"} });
     code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, size + 4 });

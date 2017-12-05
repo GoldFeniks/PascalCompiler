@@ -647,3 +647,52 @@ void if_node::to_asm_code(asm_code& code, bool is_left) {
         children()[2]->to_asm_code(code);
     code.push_back({ asm_command::type::label, end_label });
 }
+
+void exit_node::to_asm_code(asm_code& code, bool is_left) {
+    const auto f = code.get_current_function_result_type();
+    if (children().size()) {
+        children()[0]->to_asm_code(code);
+        switch (f->category()) {
+        case type::type_category::character:
+            code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, 1 });
+            break;
+        case type::type_category::integer:
+            code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
+            break;
+        case type::type_category::real:
+            code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm0,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
+            break;
+        case type::type_category::nil:
+            break;
+        case type::type_category::array:
+        case type::type_category::record:
+            throw std::logic_error("Not implemented");
+        default:
+            throw std::logic_error("This point should never be reached!");
+        }
+    }
+    else {
+        const auto offset = code.get_offset("result");
+        switch (f->category()) {
+        case type::type_category::character:
+            code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::ebp, asm_mem::mem_size::byte, -offset.second } });
+            break;
+        case type::type_category::integer:
+            code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax,{ asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset.second } });
+            break;
+        case type::type_category::real:
+            code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm0,{ asm_reg::reg_type::ebp, asm_mem::mem_size::qword, -offset.second } });
+            break;
+        case type::type_category::nil:
+            break;
+        case type::type_category::array:
+        case type::type_category::record:
+            throw std::logic_error("Not implemented");
+        default:
+            throw std::logic_error("This point should never be reached!");
+        }
+    }
+    code.push_back({ asm_command::type::leave });
+    code.push_back({ asm_command::type::ret, code.get_current_function_param_size() });
+}

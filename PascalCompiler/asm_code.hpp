@@ -118,7 +118,7 @@ namespace pascal_compiler {
                 // ReSharper restore CppInconsistentNaming
                 setge, setg, setle, setl, sete, setne, cmp, jmp, label, 
                 comisd, ucomisd, setbe, setb, seta, setae, jp, jnp, lahf, test,
-                loop, jnz, jz, inc, dec, jge, jle, call, lea
+                loop, jnz, jz, inc, dec, jge, jle, call, lea, leave, ret
             };
 
             asm_command(const type type, const asm_mem& arg1, const asm_mem& arg2);
@@ -169,7 +169,8 @@ namespace pascal_compiler {
             void end_function();
             std::string get_function_label(const std::string&) const;
             static std::string wrap_function_name(const std::string& name, const size_t row, const size_t col);
-
+            type_p get_current_function_result_type() const;
+            size_t get_current_function_param_size() const;
 
         private:
 

@@ -326,6 +326,8 @@ jle $LN13AT5LOOPBODY@
 $LN13AT5LOOPEND@:
 add esp, 4
 movsd xmm0, qword ptr [ebp - 16]
+leave 
+ret 4
 leave
 ret 4
 

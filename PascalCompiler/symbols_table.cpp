@@ -71,26 +71,6 @@ void symbols_table::to_asm_code(asm_code& code) const {
                 f->table(), f->parameters());
             f->table().to_asm_code(code);
             it.second.second->to_asm_code(code);
-            const auto offset = code.get_offset("result");
-            switch (f->return_type()->category()) { 
-            case type::type_category::character: 
-                code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::ebp, asm_mem::mem_size::byte, -offset.second} });
-                break;
-            case type::type_category::integer: 
-                code.push_back({ asm_command::type::mov, asm_reg::reg_type::eax,{ asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset.second } });
-                break;
-            case type::type_category::real: 
-                code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm0,{ asm_reg::reg_type::ebp, asm_mem::mem_size::qword, -offset.second } });
-                break;
-            case type::type_category::nil:
-                goto end;
-            case type::type_category::array:
-            case type::type_category::record:
-                throw std::logic_error("Not implemented");
-            default: 
-                throw std::logic_error("This point should never be reached!");
-            }
-            end:
             code.end_function();
         }
 }

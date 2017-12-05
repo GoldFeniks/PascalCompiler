@@ -254,16 +254,19 @@ tree_node_p syntax_analyzer::parse_statements() {
 }
 
 tree_node_p syntax_analyzer::parse_exit_statement() {
-    auto result = std::make_shared<tree_node>("exit", tree_node::node_category::null, tokenizer_.current()->get_position());
-    auto expr_type = nil();
-    tree_node_p expr;
-    if (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::open_parenthesis)
+    auto result = std::make_shared<exit_node>(tokenizer_.current()->get_position());
+    type_p expr_type = nil();
+    tree_node_p expr = nullptr;
+    if (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::open_parenthesis) {
         if (tokenizer_.next()->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::close_parenthesis) {
             expr = parse_expression();
             expr_type = base_type(get_type(expr));
-            require(pascal_compiler::tokenizer::token::sub_types::close_parenthesis);
             tokenizer_.next();
         }
+        require(pascal_compiler::tokenizer::token::sub_types::close_parenthesis);
+    }
+    if (expr == nullptr)
+        return result;
     const auto result_type = tables().back().get_type("result");
     require_types_compatibility(result_type, expr_type, result->position());
     if (expr_type != result_type)
@@ -693,7 +696,8 @@ void syntax_analyzer::parse_function_declaration() {
     tokenizer_.next();
     tables_.push_back(symbols_table());
     tables_.back().add("result", result_type);
-    const auto block = parse_block();
+    auto block = parse_block();
+    block->push_back(std::make_shared<exit_node>(tokenizer_.current()->get_position()));
     tables_.back().calculate_offsets();
     const auto vars = tables_.back(); tables_.pop_back(); tables_.pop_back();
     func->set_table(vars);
@@ -715,7 +719,8 @@ void syntax_analyzer::parse_procedure_declaration() {
     tokenizer_.next();
     tables_.push_back(symbols_table());
     tables_.back().add("result", nil());
-    const auto block = parse_block();
+    auto block = parse_block();
+    block->push_back(std::make_shared<exit_node>(tokenizer_.current()->get_position()));
     tables_.back().calculate_offsets();
     const auto vars = tables_.back(); tables_.pop_back(); tables_.pop_back();   
     func->set_table(vars);

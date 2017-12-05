@@ -14,7 +14,7 @@ const std::string asm_command::type_str[] = {
     "not", "cdq", "movsx", "shl", "shr", "cvtsi2sd", "cvttsd2si",
     "setge", "setg", "setle", "setl", "sete", "setne", "cmp", "jmp", "", 
     "comisd", "ucomisd", "setbe", "setb", "seta", "setae", "jp", "jnp", "lahf", "test",
-    "loop", "jnz", "jz", "inc", "dec", "jge", "jle", "call", "lea"
+    "loop", "jnz", "jz", "inc", "dec", "jge", "jle", "call", "lea", "leave", "ret"
 };
 
 asm_arg::type asm_arg::get_type() const {
@@ -116,6 +116,14 @@ std::string asm_code::get_function_label(const std::string& name) const {
 
 std::string asm_code::wrap_function_name(const std::string& name, const size_t row, const size_t col) {
     return str(boost::format("__function@LN%1%AT%2%%3%") % row % col % name);
+}
+
+type_p asm_code::get_current_function_result_type() const {
+    return data_tables_.back().get_type("result");
+}
+
+size_t asm_code::get_current_function_param_size() const {
+    return param_tables_.back().get_data_size();
 }
 
 asm_reg::reg_type asm_reg::get_reg_type() const {

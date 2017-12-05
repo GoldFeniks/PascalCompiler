@@ -54,7 +54,7 @@ namespace pascal_compiler {
                 enum class node_category {
                     variable, constant, typed_constant, operation, procedure,
                     function, call, index, field_access, null, cast, write,
-                    repeat, if_op, while_op, for_op, break_op, continue_op
+                    repeat, if_op, while_op, for_op, break_op, continue_op, exit
                 };
 
                 template<typename... C>
@@ -406,6 +406,20 @@ namespace pascal_compiler {
 
                 explicit if_node(const position_type& position)
                     : tree_node("if", node_category::if_op, position) {}
+
+                void to_asm_code(asm_code& code, bool is_left) override;
+
+            };// class if_node
+
+            class exit_node;
+            typedef std::shared_ptr<exit_node> exit_node_p;
+
+            class exit_node : public tree_node {
+
+            public:
+
+                explicit exit_node(const position_type& position)
+                    : tree_node("exit", node_category::exit, position) {}
 
                 void to_asm_code(asm_code& code, bool is_left) override;
 

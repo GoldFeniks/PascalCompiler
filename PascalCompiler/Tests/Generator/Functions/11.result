@@ -23,35 +23,39 @@ dec dword ptr [ebx - 52]
 jmp $LN12AT5LOOPCOND@
 $LN12AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 8]
-sub eax, 48
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 0
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 8]
@@ -75,31 +79,35 @@ pop eax
 test eax, -1
 jz $LN15AT9IFFAIL@
 mov eax, dword ptr [ebp - 8]
-sub eax, 48
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 56
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
-mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push eax
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop eax
@@ -157,18 +165,20 @@ dec dword ptr [ebx - 48]
 jmp $LN28AT5LOOPCOND@
 $LN28AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
@@ -219,18 +229,20 @@ dec dword ptr [ebx - 48]
 jmp $LN31AT5LOOPCOND@
 $LN31AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@0

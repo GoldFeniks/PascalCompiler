@@ -20,9 +20,6 @@ pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
 pop eax
@@ -32,19 +29,21 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 10
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
 pop eax
@@ -63,35 +62,39 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 5
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 2
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 4052
 push eax
@@ -107,21 +110,20 @@ pop eax
 cdq 
 idiv ebx
 push edx
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 1
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 4044
-push eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
@@ -132,16 +134,18 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
@@ -161,47 +165,53 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 4044
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 100
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 4044
-push eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 4052
 push eax
@@ -217,11 +227,16 @@ pop eax
 cdq 
 idiv ebx
 push edx
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop ebx
@@ -233,36 +248,37 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 4044
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push -100
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 4044
-push eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 4052
 push eax
@@ -278,11 +294,16 @@ pop eax
 cdq 
 idiv ebx
 push edx
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop ebx
@@ -294,11 +315,16 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 4044
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 sub esp, 1
@@ -307,12 +333,6 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 4044
-push eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
 pop eax
@@ -322,16 +342,18 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 4048
 push eax
@@ -351,22 +373,32 @@ pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop ebx
 pop eax
 imul ebx
 push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 4044
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@0

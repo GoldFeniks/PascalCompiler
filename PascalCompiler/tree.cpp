@@ -413,8 +413,9 @@ void tree::put_value_on_stack(asm_code& code, const type_p type, const tree_node
 const tree_node_p& index_node::index() const { return index_; }
 
 void index_node::to_asm_code(asm_code& code, const bool is_left) {
-    variable()->to_asm_code(code, true);
     index_->to_asm_code(code, false);
+    variable()->to_asm_code(code, true);
+    code.push_back({ asm_command::type::pop, asm_reg::reg_type::ecx });
     code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
     const auto t = base_type(std::dynamic_pointer_cast<typed>(variable())->type());
     const auto min = std::dynamic_pointer_cast<array_type>(t)->min();
@@ -422,7 +423,8 @@ void index_node::to_asm_code(asm_code& code, const bool is_left) {
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::eax, min });
     code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx, type()->data_size() });
     code.push_back({ asm_command::type::imul, asm_reg::reg_type::ebx });
-    code.push_back({ asm_command::type::add,{ asm_reg::reg_type::esp, asm_mem::mem_size::dword }, asm_reg::reg_type::eax });
+    code.push_back({ asm_command::type::add, asm_reg::reg_type::ecx, asm_reg::reg_type::eax });
+    code.push_back({ asm_command::type::push, asm_reg::reg_type::ecx });
     if (is_left) return;
     put_value_on_stack(code, type(), position());
 }

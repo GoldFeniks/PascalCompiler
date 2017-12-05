@@ -29,18 +29,20 @@ push dword ptr [eax]
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 12
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop ebx
@@ -74,18 +76,20 @@ dec dword ptr [ebx - 48]
 jmp $LN23AT5LOOPCOND@
 $LN23AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax

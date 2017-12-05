@@ -59,28 +59,32 @@ push 7
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
+push 5
 mov eax, dword ptr [ebp - 4]
 sub eax, 52
 push eax
-push 5
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 23
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
+push 3
 mov eax, dword ptr [ebp - 4]
 sub eax, 52
 push eax
-push 3
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 1
 pop eax
 pop ebx
@@ -114,26 +118,30 @@ push eax
 pop eax
 push dword ptr [eax]
 call __function@LN4AT1print_sum
+push 5
 mov eax, dword ptr [ebp - 4]
 sub eax, 52
 push eax
-push 5
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
+push 3
 mov eax, dword ptr [ebp - 4]
 sub eax, 52
 push eax
-push 3
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 call __function@LN4AT1print_sum

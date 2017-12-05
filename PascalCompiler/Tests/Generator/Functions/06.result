@@ -24,36 +24,40 @@ mov eax, dword ptr [ebp - 8]
 sub eax, 16
 push eax
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push dword ptr [eax]
-mov eax, dword ptr [ebp - 8]
 sub eax, 12
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push dword ptr [eax]
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push dword ptr [eax]
-mov eax, dword ptr [ebp - 8]
 sub eax, 12
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push dword ptr [eax]
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 8]
 sub eax, -8
 push dword ptr [eax]
@@ -106,18 +110,20 @@ dec dword ptr [ebx - 48]
 jmp $LN28AT5LOOPCOND@
 $LN28AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
@@ -163,18 +169,20 @@ dec dword ptr [ebx - 48]
 jmp $LN32AT5LOOPCOND@
 $LN32AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@0

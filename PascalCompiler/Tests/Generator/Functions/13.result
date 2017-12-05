@@ -23,35 +23,39 @@ dec dword ptr [ebx - 52]
 jmp $LN16AT5LOOPCOND@
 $LN16AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 8]
-sub eax, 48
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 0
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 8]
@@ -75,31 +79,35 @@ pop eax
 test eax, -1
 jz $LN19AT9IFFAIL@
 mov eax, dword ptr [ebp - 8]
-sub eax, 48
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 56
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
-mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push eax
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop eax
@@ -194,18 +202,20 @@ dec dword ptr [ebx - 56]
 jmp $LN33AT5LOOPCOND@
 $LN33AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 56
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push 0
@@ -229,18 +239,20 @@ add dword ptr [esp], 40
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 8]
-sub eax, -12
-push eax
-mov eax, dword ptr [ebp - 8]
 sub eax, 56
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop ebx
@@ -286,31 +298,35 @@ dec dword ptr [ebx - 52]
 jmp $LN42AT5LOOPCOND@
 $LN42AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
 sub eax, -16
 push eax
+pop ecx
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
-pop eax
-sub eax, 1
-mov ebx, 4
-imul ebx
-add dword ptr [esp], eax
 mov eax, dword ptr [ebp - 8]
 sub eax, -16
 push eax
-mov eax, dword ptr [ebp - 8]
-sub eax, 52
-push eax
-pop eax
-push dword ptr [eax]
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 8]
@@ -326,31 +342,35 @@ pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
 sub eax, -16
 push eax
+pop ecx
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 8]
 sub eax, 52
 push eax
 pop eax
 push dword ptr [eax]
-pop eax
-sub eax, 1
-mov ebx, 4
-imul ebx
-add dword ptr [esp], eax
 mov eax, dword ptr [ebp - 8]
 sub eax, -16
 push eax
-mov eax, dword ptr [ebp - 8]
-sub eax, 52
-push eax
-pop eax
-push dword ptr [eax]
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 8]
@@ -412,18 +432,20 @@ dec dword ptr [ebx - 48]
 jmp $LN55AT5LOOPCOND@
 $LN55AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
@@ -463,6 +485,7 @@ $LN57AT50COPYSTRUCT@:
 push dword ptr [eax]
 sub eax, 4
 loop $LN57AT50COPYSTRUCT@
+push 5
 mov eax, dword ptr [ebp - 4]
 sub eax, 44
 push eax
@@ -476,12 +499,13 @@ loop $LN57AT70COPYSTRUCT@
 push 2
 call __function@LN14AT1pick_if_divides
 push offset __temp@var
-push 5
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push 123
@@ -505,18 +529,20 @@ dec dword ptr [ebx - 48]
 jmp $LN58AT5LOOPCOND@
 $LN58AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@0

@@ -48,26 +48,25 @@ add esp, 1
 pop ebx
 mov byte ptr [ebx], al
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 60
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 318
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 60
 push eax
 add dword ptr [esp], 4
@@ -77,19 +76,21 @@ push dword ptr [eax]
 cvttsd2si eax, qword ptr [esp]
 add esp, 4
 mov dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 221
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 60
 push eax
 add dword ptr [esp], 12
@@ -100,19 +101,21 @@ mov byte ptr [esp], al
 movsx eax, byte ptr [esp]
 sub esp, 3
 mov dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push -9033
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 60
 push eax
 add dword ptr [esp], 12
@@ -123,11 +126,16 @@ mov byte ptr [esp], al
 movsx eax, byte ptr [esp]
 sub esp, 3
 mov dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 4]
@@ -140,9 +148,6 @@ sub esp, 1
 mov byte ptr [esp], al
 movsx eax, byte ptr [esp]
 add esp, 1
-push eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 44
 push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 60
@@ -154,11 +159,16 @@ push dword ptr [eax]
 cvttsd2si eax, qword ptr [esp]
 add esp, 4
 mov dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 4]
@@ -173,18 +183,20 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 44
-push eax
-mov eax, dword ptr [ebp - 4]
 sub eax, 60
 push eax
 pop eax
 push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop ecx
 pop eax
 sub eax, 1
 mov ebx, 4
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@0

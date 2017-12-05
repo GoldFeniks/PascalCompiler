@@ -9,28 +9,32 @@ __string@1 db 37, 102, 37, 115, 37, 102, 10, 0
 .code
 __function@LN0AT0test:
 enter 64, 1
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 push 42
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 4
 push dword ptr [__real@40c80b0000000000 + 4]
 push dword ptr [__real@40c80b0000000000]
@@ -38,15 +42,17 @@ movsd xmm0, qword ptr [esp]
 add esp, 8
 pop ebx
 movsd qword ptr [ebx], xmm0
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 12
 sub esp, 1
 mov byte ptr [esp], 102
@@ -54,25 +60,29 @@ mov al, byte ptr [esp]
 add esp, 1
 pop ebx
 mov byte ptr [ebx], al
-mov eax, dword ptr [ebp - 4]
-sub eax, 36
-push eax
 push 101
-pop eax
-sub eax, 100
-mov ebx, 16
-imul ebx
-add dword ptr [esp], eax
-add dword ptr [esp], 12
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
+add dword ptr [esp], 12
+push 100
+mov eax, dword ptr [ebp - 4]
+sub eax, 36
+push eax
+pop ecx
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 pop eax
@@ -82,24 +92,28 @@ mov al, byte ptr [esp]
 add esp, 1
 pop ebx
 mov byte ptr [ebx], al
-mov eax, dword ptr [ebp - 4]
-sub eax, 36
-push eax
 push 101
-pop eax
-sub eax, 100
-mov ebx, 16
-imul ebx
-add dword ptr [esp], eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
+push 100
+mov eax, dword ptr [ebp - 4]
+sub eax, 36
+push eax
+pop ecx
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add ecx, eax
+push ecx
 add dword ptr [esp], 4
 pop eax
 push dword ptr [eax + 4]
@@ -110,25 +124,29 @@ mov dword ptr [esp], eax
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 36
-push eax
 push 101
-pop eax
-sub eax, 100
-mov ebx, 16
-imul ebx
-add dword ptr [esp], eax
-add dword ptr [esp], 4
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
+add dword ptr [esp], 4
+push 100
+mov eax, dword ptr [ebp - 4]
+sub eax, 36
+push eax
+pop ecx
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add ecx, eax
+push ecx
 add dword ptr [esp], 12
 pop eax
 mov al, byte ptr [eax]
@@ -157,29 +175,33 @@ mov dword ptr [ebx], edx
 add eax, 4
 add ebx, 4
 loop $LN21AT7COPYSTRUCT@
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 68
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 4
 pop eax
 push dword ptr [eax + 4]
 push dword ptr [eax]
 push offset __string@0
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 4
 pop eax
 push dword ptr [eax + 4]
@@ -187,29 +209,33 @@ push dword ptr [eax]
 push offset __string@1
 call crt_printf
 add esp, 24
+push 101
 mov eax, dword ptr [ebp - 4]
 sub eax, 68
 push eax
-push 101
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 4
 pop eax
 push dword ptr [eax + 4]
 push dword ptr [eax]
 push offset __string@0
+push 101
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 101
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 4
 pop eax
 push dword ptr [eax + 4]
@@ -217,15 +243,17 @@ push dword ptr [eax]
 push offset __string@1
 call crt_printf
 add esp, 24
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 68
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 12
 pop eax
 mov al, byte ptr [eax]
@@ -235,15 +263,17 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 push offset __string@0
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 12
 pop eax
 mov al, byte ptr [eax]
@@ -255,15 +285,17 @@ push eax
 push offset __string@2
 call crt_printf
 add esp, 16
+push 101
 mov eax, dword ptr [ebp - 4]
 sub eax, 68
 push eax
-push 101
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 12
 pop eax
 mov al, byte ptr [eax]
@@ -273,15 +305,17 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 push offset __string@0
+push 101
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 101
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 add dword ptr [esp], 12
 pop eax
 mov al, byte ptr [eax]
@@ -293,53 +327,61 @@ push eax
 push offset __string@2
 call crt_printf
 add esp, 16
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 68
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@0
+push 100
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 100
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@3
 call crt_printf
 add esp, 16
+push 101
 mov eax, dword ptr [ebp - 4]
 sub eax, 68
 push eax
-push 101
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@0
+push 101
 mov eax, dword ptr [ebp - 4]
 sub eax, 36
 push eax
-push 101
+pop ecx
 pop eax
 sub eax, 100
 mov ebx, 16
 imul ebx
-add dword ptr [esp], eax
+add ecx, eax
+push ecx
 pop eax
 push dword ptr [eax]
 push offset __string@3

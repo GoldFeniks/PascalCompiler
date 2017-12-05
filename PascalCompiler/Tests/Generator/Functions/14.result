@@ -1,0 +1,177 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 37, 100, 10, 0
+.data
+__temp@var byte 44 dup (?) 
+.code
+__function@LN13AT1foo:
+enter 44, 2
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 8]
+mov dword ptr [ebx - 52], eax
+dec dword ptr [ebx - 52]
+jmp $LN14AT5LOOPCOND@
+$LN14AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+pop ecx
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add ecx, eax
+push ecx
+mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+$LN14AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 8]
+inc dword ptr [ebx - 52]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 52], eax
+jle $LN14AT5LOOPBODY@
+$LN14AT5LOOPEND@:
+add esp, 4
+lea ebx, __temp@var
+lea eax, dword ptr [ebp - 48]
+mov ecx, 10
+$LN16AT4COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN16AT4COPYSTRUCT@
+leave 
+ret 0
+leave
+ret 0
+
+__function@LN21AT1foo1:
+enter 48, 2
+push 20
+push 11
+pop eax
+mov ebx, dword ptr [ebp - 8]
+mov dword ptr [ebx - 56], eax
+dec dword ptr [ebx - 56]
+jmp $LN22AT5LOOPCOND@
+$LN22AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 8]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+push 10
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop ecx
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add ecx, eax
+push ecx
+mov eax, dword ptr [ebp - 8]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+$LN22AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 8]
+inc dword ptr [ebx - 56]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 56], eax
+jle $LN22AT5LOOPBODY@
+$LN22AT5LOOPEND@:
+add esp, 4
+lea ebx, __temp@var
+lea eax, dword ptr [ebp - 52]
+mov ecx, 11
+$LN24AT4COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN24AT4COPYSTRUCT@
+leave 
+ret 0
+leave
+ret 0
+
+__function@LN0AT0test:
+enter 4, 1
+push 1
+push 10
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 8], eax
+inc dword ptr [ebx - 8]
+jmp $LN30AT5LOOPCOND@
+$LN30AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+call __function@LN13AT1foo
+push offset __temp@var
+pop ecx
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add ecx, eax
+push ecx
+pop eax
+push dword ptr [eax]
+call __function@LN21AT1foo1
+push offset __temp@var
+pop ecx
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add ecx, eax
+push ecx
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+$LN30AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+dec dword ptr [ebx - 8]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 8], eax
+jge $LN30AT5LOOPBODY@
+$LN30AT5LOOPEND@:
+add esp, 4
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

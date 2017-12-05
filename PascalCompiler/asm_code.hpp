@@ -171,6 +171,7 @@ namespace pascal_compiler {
             static std::string wrap_function_name(const std::string& name, const size_t row, const size_t col);
             type_p get_current_function_result_type() const;
             size_t get_current_function_param_size() const;
+            static std::string get_temp_var_name();
 
         private:
 
@@ -184,6 +185,7 @@ namespace pascal_compiler {
             std::stack<std::string> loop_ends_;
             std::stack<std::string> loop_starts_;
             std::string func_string_ = "";
+            size_t temp_var_size_ = 0;
 
         };
        

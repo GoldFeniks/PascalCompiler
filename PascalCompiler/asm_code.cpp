@@ -88,6 +88,9 @@ void asm_code::push_continue() {
 void asm_code::start_function(const std::string& name, const size_t row, const size_t col, const symbols_table& data_table, const symbols_table& param_table) {
     if (commands_.size() == 0)
         main_func_name_ = wrap_function_name(name, row, col);
+    const auto t = data_table.get_type("result");
+    if (!t->is_scalar())
+        temp_var_size_ = std::max(temp_var_size_, t->data_size());
     data_tables_.push_back(data_table);
     param_tables_.push_back(param_table);
     commands_.emplace_back(wrap_function_name(name, row, col), std::vector<asm_command>());
@@ -125,6 +128,8 @@ type_p asm_code::get_current_function_result_type() const {
 size_t asm_code::get_current_function_param_size() const {
     return param_tables_.back().get_data_size();
 }
+
+std::string asm_code::get_temp_var_name() { return "__temp@var"; }
 
 asm_reg::reg_type asm_reg::get_reg_type() const {
     return reg_;
@@ -240,6 +245,8 @@ std::string asm_code::to_string() const {
             result += std::to_string(int(c)) + ", ";
         result += "0\n";
     }
+    if (temp_var_size_)
+        result += std::string(".data\n") + get_temp_var_name() + " byte " + std::to_string(temp_var_size_) + " dup (?) \n";
     result += ".code\n";
     result += func_string_;
     result += "start:\n";

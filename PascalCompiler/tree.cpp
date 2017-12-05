@@ -354,14 +354,18 @@ void call_node::to_asm_code(asm_code& code, bool is_left) {
     case type::type_category::character:
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, 1 });
         code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte }, asm_reg::reg_type::al });
-        break;
+        return;
     case type::type_category::integer: 
         code.push_back({ asm_command::type::push, asm_reg::reg_type::eax });
-        break;
+        return;
     case type::type_category::real: 
         code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, 8 });
         code.push_back({ asm_command::type::movsd, {asm_reg::reg_type::esp, asm_mem::mem_size::qword}, asm_reg::reg_type::xmm0 });
-        break;
+        return;
+    case type::type_category::array:
+    case type::type_category::record:
+        code.push_back({ asm_command::type::push, {"offset", code.get_temp_var_name()} });
+        return;
     case type::type_category::nil:
         return;
     default: 
@@ -651,7 +655,7 @@ void if_node::to_asm_code(asm_code& code, bool is_left) {
 void exit_node::to_asm_code(asm_code& code, bool is_left) {
     const auto f = code.get_current_function_result_type();
     if (children().size()) {
-        children()[0]->to_asm_code(code);
+        children()[0]->to_asm_code(code, !f->is_scalar());
         switch (f->category()) {
         case type::type_category::character:
             code.push_back({ asm_command::type::mov, asm_reg::reg_type::al,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte} });
@@ -667,7 +671,20 @@ void exit_node::to_asm_code(asm_code& code, bool is_left) {
             break;
         case type::type_category::array:
         case type::type_category::record:
-            throw std::logic_error("Not implemented");
+        {
+            code.push_back({ asm_command::type::lea, asm_reg::reg_type::ebx,code.get_temp_var_name() });
+            const auto offset = code.get_offset("result");
+            code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
+            code.push_back({ asm_command::type::mov, asm_reg::reg_type::ecx, f->data_size() / 4 });
+            const auto label = code.get_label_name(position().first, position().second, "COPYSTRUCT");
+            code.push_back({ asm_command::type::label, label });
+            code.push_back({ asm_command::type::mov,asm_reg::reg_type::edx,{ asm_reg::reg_type::eax, asm_mem::mem_size::dword } });
+            code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword }, asm_reg::reg_type::edx });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::eax, 4 });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::ebx, 4 });
+            code.push_back({ asm_command::type::loop, label });
+            break;
+        }
         default:
             throw std::logic_error("This point should never be reached!");
         }
@@ -688,7 +705,19 @@ void exit_node::to_asm_code(asm_code& code, bool is_left) {
             break;
         case type::type_category::array:
         case type::type_category::record:
-            throw std::logic_error("Not implemented");
+        {
+            code.push_back({ asm_command::type::lea, asm_reg::reg_type::ebx,code.get_temp_var_name() });
+            code.push_back({ asm_command::type::lea, asm_reg::reg_type::eax,{ asm_reg::reg_type::ebp, asm_mem::mem_size::dword, -offset.second } });
+            code.push_back({ asm_command::type::mov, asm_reg::reg_type::ecx, f->data_size() / 4 });
+            const auto label = code.get_label_name(position().first, position().second, "COPYSTRUCT");
+            code.push_back({ asm_command::type::label, label });
+            code.push_back({ asm_command::type::mov,asm_reg::reg_type::edx,{ asm_reg::reg_type::eax, asm_mem::mem_size::dword } });
+            code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword }, asm_reg::reg_type::edx });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::eax, 4 });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::ebx, 4 });
+            code.push_back({ asm_command::type::loop, label });
+            break;
+        }
         default:
             throw std::logic_error("This point should never be reached!");
         }

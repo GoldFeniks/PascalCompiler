@@ -261,9 +261,9 @@ tree_node_p syntax_analyzer::parse_exit_statement() {
         if (tokenizer_.next()->get_sub_type() != pascal_compiler::tokenizer::token::sub_types::close_parenthesis) {
             expr = parse_expression();
             expr_type = base_type(get_type(expr));
-            tokenizer_.next();
         }
         require(pascal_compiler::tokenizer::token::sub_types::close_parenthesis);
+        tokenizer_.next();
     }
     if (expr == nullptr)
         return result;

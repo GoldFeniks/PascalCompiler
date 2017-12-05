@@ -1,0 +1,38 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 37, 100, 10, 0
+.code
+__function@LN0AT0test:
+enter 4, 1
+push 11
+push 10
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 8], eax
+inc dword ptr [ebx - 8]
+jmp $LN5AT5LOOPCOND@
+$LN5AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+$LN5AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+dec dword ptr [ebx - 8]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 8], eax
+jge $LN5AT5LOOPBODY@
+$LN5AT5LOOPEND@:
+add esp, 4
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

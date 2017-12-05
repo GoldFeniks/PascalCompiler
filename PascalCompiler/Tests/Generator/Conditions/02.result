@@ -1,0 +1,75 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 37, 100, 10, 0
+__string@1 db 37, 102, 10, 0
+.code
+__function@LN0AT0test:
+enter 4, 1
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+push 10
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push 10
+pop ebx
+cmp dword ptr [esp], ebx
+sete al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+test eax, -1
+jz $LN6AT5IFFAIL@
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push 2
+pop ebx
+pop eax
+imul ebx
+push eax
+push offset __string@0
+call crt_printf
+add esp, 8
+jmp $LN6AT5IFEND@
+$LN6AT5IFFAIL@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [esp]
+sub esp, 4
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+push 2
+mov eax, dword ptr [esp]
+sub esp, 4
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+movsd xmm1, qword ptr [esp]
+add esp, 8
+movsd xmm0, qword ptr [esp]
+divsd xmm0, xmm1
+movsd qword ptr [esp], xmm0
+push offset __string@1
+call crt_printf
+add esp, 12
+$LN6AT5IFEND@:
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

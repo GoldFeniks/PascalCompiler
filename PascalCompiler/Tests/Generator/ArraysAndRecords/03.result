@@ -5,16 +5,16 @@ __real@404535c28f5c28f6 dq 404535c28f5c28f6r ;42.42
 __string@0 db 37, 99, 37, 99, 37, 102, 37, 99, 37, 100, 37, 99, 37, 99, 37, 99, 37, 100, 37, 99, 37, 99, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 99, 37, 99, 10, 0
 .code
 __function@LN0AT0test:
-enter 34, 1
+enter 36, 1
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 push 10
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 sub esp, 1
 mov byte ptr [esp], 99
@@ -23,7 +23,7 @@ add esp, 1
 pop ebx
 mov byte ptr [ebx], al
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 add dword ptr [esp], 1
 sub esp, 1
@@ -33,7 +33,7 @@ add esp, 1
 pop ebx
 mov byte ptr [ebx], al
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 add dword ptr [esp], 2
 push 100
@@ -41,7 +41,7 @@ pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 add dword ptr [esp], 8
 push dword ptr [__real@404535c28f5c28f6 + 4]
@@ -51,7 +51,7 @@ add esp, 8
 pop ebx
 movsd qword ptr [ebx], xmm0
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 add dword ptr [esp], 10
 push -10
@@ -59,7 +59,7 @@ pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 add dword ptr [esp], 4
 push -100
@@ -67,7 +67,7 @@ pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 add dword ptr [esp], 6
 push 42
@@ -75,7 +75,7 @@ pop eax
 pop ebx
 mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 add dword ptr [esp], 16
 sub esp, 1
@@ -90,7 +90,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 add dword ptr [esp], 16
 pop eax
@@ -106,7 +106,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 add dword ptr [esp], 6
 pop eax
@@ -117,7 +117,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 add dword ptr [esp], 4
 pop eax
@@ -128,7 +128,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 add dword ptr [esp], 1
 pop eax
@@ -144,7 +144,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 add dword ptr [esp], 2
 pop eax
@@ -155,7 +155,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 38
+sub eax, 40
 push eax
 pop eax
 mov al, byte ptr [eax]
@@ -170,7 +170,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 pop eax
 push dword ptr [eax]
@@ -180,7 +180,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 add dword ptr [esp], 8
 pop eax
@@ -192,7 +192,7 @@ movsx eax, byte ptr [esp]
 add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
-sub eax, 22
+sub eax, 24
 push eax
 add dword ptr [esp], 16
 pop eax

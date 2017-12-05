@@ -1,0 +1,432 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__real@40c80b0000000000 dq 40c80b0000000000r ;12310
+__string@0 db 32, 61, 61, 32, 0
+__string@3 db 37, 99, 37, 115, 37, 99, 10, 0
+__string@2 db 37, 102, 37, 115, 37, 102, 10, 0
+__string@1 db 37, 100, 37, 115, 37, 100, 10, 0
+.code
+__function@LN0AT0test:
+enter 80, 1
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 36
+sub esp, 1
+mov byte ptr [esp], 123
+mov al, byte ptr [esp]
+add esp, 1
+pop ebx
+mov byte ptr [ebx], al
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+push 42
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+push dword ptr [__real@40c80b0000000000 + 4]
+push dword ptr [__real@40c80b0000000000]
+movsd xmm0, qword ptr [esp]
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 12
+sub esp, 1
+mov byte ptr [esp], 102
+mov al, byte ptr [esp]
+add esp, 1
+pop ebx
+mov byte ptr [ebx], al
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 12
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub esp, 1
+mov byte ptr [esp], al
+mov al, byte ptr [esp]
+add esp, 1
+pop ebx
+mov byte ptr [ebx], al
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+cvttsd2si eax, qword ptr [esp]
+add esp, 4
+mov dword ptr [esp], eax
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 12
+pop eax
+mov al, byte ptr [eax]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+sub esp, 7
+cvtsi2sd xmm0, eax
+movsd qword ptr [esp], xmm0
+movsd xmm0, qword ptr [esp]
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+push -123456789
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop eax
+pop ebx
+mov ecx, 10
+$LN29AT7COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN29AT7COPYSTRUCT@
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@1
+call crt_printf
+add esp, 16
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+push offset __string@2
+call crt_printf
+add esp, 24
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+push offset __string@2
+call crt_printf
+add esp, 24
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 12
+pop eax
+mov al, byte ptr [eax]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 12
+pop eax
+mov al, byte ptr [eax]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@3
+call crt_printf
+add esp, 16
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 12
+pop eax
+mov al, byte ptr [eax]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 12
+pop eax
+mov al, byte ptr [eax]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@3
+call crt_printf
+add esp, 16
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 100
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+push offset __string@1
+call crt_printf
+add esp, 16
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 4
+push 101
+pop eax
+sub eax, 100
+mov ebx, 16
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+push offset __string@1
+call crt_printf
+add esp, 16
+mov eax, dword ptr [ebp - 4]
+sub eax, 84
+push eax
+add dword ptr [esp], 36
+pop eax
+mov al, byte ptr [eax]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@0
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+add dword ptr [esp], 36
+pop eax
+mov al, byte ptr [eax]
+sub esp, 1
+mov byte ptr [esp], al
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@3
+call crt_printf
+add esp, 16
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

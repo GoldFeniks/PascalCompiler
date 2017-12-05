@@ -1,0 +1,117 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 119, 114, 111, 110, 103, 32, 105, 110, 112, 117, 116, 0
+__string@1 db 37, 115, 10, 0
+__string@2 db 37, 100, 10, 0
+.code
+__function@LN4AT1factorial:
+enter 4, 2
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+push 0
+pop ebx
+cmp dword ptr [esp], ebx
+setge al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+test eax, -1
+jz $LN5AT5IFFAIL@
+push offset __string@0
+push offset __string@1
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 8]
+sub eax, 12
+push eax
+push -1
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+jmp $LN5AT5IFEND@
+$LN5AT5IFFAIL@:
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+push 0
+pop ebx
+cmp dword ptr [esp], ebx
+setne al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+test eax, -1
+jz $LN10AT10IFFAIL@
+mov eax, dword ptr [ebp - 8]
+sub eax, 12
+push eax
+push 1
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+jmp $LN10AT10IFEND@
+$LN10AT10IFFAIL@:
+mov eax, dword ptr [ebp - 8]
+sub eax, 12
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+push 1
+pop ebx
+pop eax
+sub eax, ebx
+push eax
+call __function@LN4AT1factorial
+push eax
+pop ebx
+pop eax
+imul ebx
+push eax
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+$LN10AT10IFEND@:
+$LN5AT5IFEND@:
+mov eax, dword ptr [ebp - 12]
+leave 
+ret 4
+leave
+ret 4
+
+__function@LN0AT0test:
+enter 0, 1
+push -1
+call __function@LN4AT1factorial
+push eax
+push offset __string@2
+call crt_printf
+add esp, 8
+push 8
+call __function@LN4AT1factorial
+push eax
+push offset __string@2
+call crt_printf
+add esp, 8
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

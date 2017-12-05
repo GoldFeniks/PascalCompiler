@@ -5,14 +5,49 @@ __string@0 db 37, 100, 10, 0
 .code
 __function@LN0AT0test:
 enter 4, 1
-push 1
 push 10
+push 1
 pop eax
 mov ebx, dword ptr [ebp - 4]
 mov dword ptr [ebx - 8], eax
-inc dword ptr [ebx - 8]
+dec dword ptr [ebx - 8]
 jmp $LN5AT5LOOPCOND@
 $LN5AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push 5
+pop ebx
+cmp dword ptr [esp], ebx
+setle al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push 7
+pop ebx
+cmp dword ptr [esp], ebx
+setg al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop ebx
+pop eax
+and eax, ebx
+push eax
+pop eax
+test eax, -1
+jz $LN7AT9IFFAIL@
+jmp $LN5AT5LOOPCOND@
+jmp $LN7AT9IFEND@
+$LN7AT9IFFAIL@:
+$LN7AT9IFEND@:
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -23,10 +58,10 @@ call crt_printf
 add esp, 8
 $LN5AT5LOOPCOND@:
 mov ebx, dword ptr [ebp - 4]
-dec dword ptr [ebx - 8]
+inc dword ptr [ebx - 8]
 mov eax, dword ptr [esp]
 cmp dword ptr [ebx - 8], eax
-jge $LN5AT5LOOPBODY@
+jle $LN5AT5LOOPBODY@
 $LN5AT5LOOPEND@:
 add esp, 4
 leave

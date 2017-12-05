@@ -1,0 +1,138 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 37, 100, 10, 0
+.code
+__function@LN11AT1sum:
+enter 4, 2
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push dword ptr [eax]
+push 0
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 8]
+mov dword ptr [ebx - 12], eax
+dec dword ptr [ebx - 12]
+jmp $LN13AT5LOOPCOND@
+$LN13AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push dword ptr [eax]
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+pop ebx
+pop eax
+add eax, ebx
+push eax
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+$LN13AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 8]
+inc dword ptr [ebx - 12]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 12], eax
+jle $LN13AT5LOOPBODY@
+$LN13AT5LOOPEND@:
+add esp, 4
+leave 
+ret 44
+leave
+ret 44
+
+__function@LN0AT0test:
+enter 48, 1
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 48], eax
+dec dword ptr [ebx - 48]
+jmp $LN23AT5LOOPCOND@
+$LN23AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 48
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 48
+push eax
+pop eax
+push dword ptr [eax]
+push 2
+pop ebx
+pop eax
+imul ebx
+push eax
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+$LN23AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+inc dword ptr [ebx - 48]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 48], eax
+jle $LN23AT5LOOPBODY@
+$LN23AT5LOOPEND@:
+add esp, 4
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop eax
+add eax, 36
+mov ecx, 10
+$LN25AT9COPYSTRUCT@:
+push dword ptr [eax]
+sub eax, 4
+loop $LN25AT9COPYSTRUCT@
+mov eax, dword ptr [ebp - 4]
+sub eax, 52
+push eax
+call __function@LN11AT1sum
+mov eax, dword ptr [ebp - 4]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

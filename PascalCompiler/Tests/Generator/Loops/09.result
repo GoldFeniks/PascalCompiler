@@ -1,0 +1,190 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__real@4024333333333333 dq 4024333333333333r ;10.1
+__real@403419999999999a dq 403419999999999ar ;20.1
+__string@0 db 37, 100, 10, 0
+__string@1 db 37, 102, 10, 0
+.code
+__function@LN0AT0test:
+enter 52, 1
+mov eax, dword ptr [ebp - 4]
+sub eax, 56
+push eax
+push 1
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+push 1
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+push dword ptr [__real@4024333333333333 + 4]
+push dword ptr [__real@4024333333333333]
+movsd xmm0, qword ptr [esp]
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+push 1
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+push 10
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+push 2
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+push dword ptr [__real@403419999999999a + 4]
+push dword ptr [__real@403419999999999a]
+movsd xmm0, qword ptr [esp]
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+push 2
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+push 20
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+jmp $LN14AT5WHILECOND@
+$LN14AT5WHILEBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 52
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+pop eax
+pop ebx
+mov ecx, 3
+$LN16AT14COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN16AT14COPYSTRUCT@
+mov eax, dword ptr [ebp - 4]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 56
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+push 1
+pop ebx
+pop eax
+add eax, ebx
+push eax
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+$LN14AT5WHILECOND@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+push 2
+pop ebx
+cmp dword ptr [esp], ebx
+setg al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+test eax, -1
+jnz $LN14AT5WHILEBODY@
+$LN14AT5WHILEEND@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 52
+push eax
+push 1
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 52
+push eax
+push 2
+pop eax
+sub eax, 1
+mov ebx, 12
+imul ebx
+add dword ptr [esp], eax
+add dword ptr [esp], 4
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+push offset __string@1
+call crt_printf
+add esp, 12
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

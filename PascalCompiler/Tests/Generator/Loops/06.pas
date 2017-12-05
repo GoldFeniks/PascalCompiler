@@ -2,8 +2,10 @@ program test;
 var
     i: integer;
 begin
-    for i := 10 downto 1 do
+    for i := 1 to 10 do
     begin
-        write(i)
+        if (i > 5) and (i <= 7) then
+            continue;
+        write(i);
     end;
 end.

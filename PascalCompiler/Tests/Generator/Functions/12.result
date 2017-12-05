@@ -1,0 +1,298 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 37, 100, 10, 0
+.data
+__temp@var byte 40 dup (?) 
+.code
+__function@LN13AT1pick_if_divides:
+enter 48, 2
+mov eax, dword ptr [ebp - 8]
+sub eax, 56
+push eax
+push 1
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 8]
+mov dword ptr [ebx - 52], eax
+dec dword ptr [ebx - 52]
+jmp $LN15AT5LOOPCOND@
+$LN15AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+push 0
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+pop ebx
+pop eax
+cdq 
+idiv ebx
+push edx
+push 0
+pop ebx
+cmp dword ptr [esp], ebx
+setne al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+test eax, -1
+jz $LN18AT9IFFAIL@
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 52
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 56
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, 56
+push eax
+pop eax
+push dword ptr [eax]
+push 1
+pop ebx
+pop eax
+add eax, ebx
+push eax
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+jmp $LN18AT9IFEND@
+$LN18AT9IFFAIL@:
+$LN18AT9IFEND@:
+$LN15AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 8]
+inc dword ptr [ebx - 52]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 52], eax
+jle $LN15AT5LOOPBODY@
+$LN15AT5LOOPEND@:
+add esp, 4
+lea ebx, __temp@var
+lea eax, dword ptr [ebp - 48]
+mov ecx, 10
+$LN24AT4COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN24AT4COPYSTRUCT@
+leave 
+ret 44
+leave
+ret 44
+
+__function@LN27AT1pick_if_divides_store:
+enter 40, 2
+mov eax, dword ptr [ebp - 8]
+sub eax, 48
+push eax
+mov eax, dword ptr [ebp - 8]
+sub eax, -12
+push eax
+pop eax
+add eax, 36
+mov ecx, 10
+$LN28AT33COPYSTRUCT@:
+push dword ptr [eax]
+sub eax, 4
+loop $LN28AT33COPYSTRUCT@
+mov eax, dword ptr [ebp - 8]
+sub eax, -8
+push eax
+pop eax
+push dword ptr [eax]
+call __function@LN13AT1pick_if_divides
+push offset __temp@var
+pop eax
+pop ebx
+mov ecx, 10
+$LN28AT14COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN28AT14COPYSTRUCT@
+lea ebx, __temp@var
+lea eax, dword ptr [ebp - 48]
+mov ecx, 10
+$LN29AT4COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN29AT4COPYSTRUCT@
+leave 
+ret 44
+leave
+ret 44
+
+__function@LN0AT0test:
+enter 84, 1
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 48], eax
+dec dword ptr [ebx - 48]
+jmp $LN37AT5LOOPCOND@
+$LN37AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 48
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 48
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+$LN37AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+inc dword ptr [ebx - 48]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 48], eax
+jle $LN37AT5LOOPBODY@
+$LN37AT5LOOPEND@:
+add esp, 4
+mov eax, dword ptr [ebp - 4]
+sub eax, 88
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 44
+push eax
+pop eax
+add eax, 36
+mov ecx, 10
+$LN39AT32COPYSTRUCT@:
+push dword ptr [eax]
+sub eax, 4
+loop $LN39AT32COPYSTRUCT@
+push 2
+call __function@LN27AT1pick_if_divides_store
+push offset __temp@var
+pop eax
+pop ebx
+mov ecx, 10
+$LN39AT7COPYSTRUCT@:
+mov edx, dword ptr [eax]
+mov dword ptr [ebx], edx
+add eax, 4
+add ebx, 4
+loop $LN39AT7COPYSTRUCT@
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 48], eax
+dec dword ptr [ebx - 48]
+jmp $LN40AT5LOOPCOND@
+$LN40AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 88
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 48
+push eax
+pop eax
+push dword ptr [eax]
+pop eax
+sub eax, 1
+mov ebx, 4
+imul ebx
+add dword ptr [esp], eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+$LN40AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+inc dword ptr [ebx - 48]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 48], eax
+jle $LN40AT5LOOPBODY@
+$LN40AT5LOOPEND@:
+add esp, 4
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

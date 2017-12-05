@@ -1,6 +1,7 @@
 program test;
 var 
-    a: Integer = -10000;
+    a: Integer;
 begin
+    a := -10000;
     write(a);
 end.

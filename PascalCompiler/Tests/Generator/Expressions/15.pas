@@ -1,9 +1,9 @@
 program test;
 var 
-    a: integer = 10;
-    b: integer = 20;
-    c: integer;
+    a, b, c: integer;
 begin
+    a := 10;
+    b := 20;
     c := a < b;
     write(c);
     c := a > b;

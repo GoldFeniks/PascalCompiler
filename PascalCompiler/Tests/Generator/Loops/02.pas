@@ -4,8 +4,9 @@ var
         i: integer;
         j: real;
     end;
-    i: integer = 2;
+    i: integer;
 begin
+    i := 2;
     a[1].j := 10.1;
     a[1].i := 10;
     a[2].j := 20.1;

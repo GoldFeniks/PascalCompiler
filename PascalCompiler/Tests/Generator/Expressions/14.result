@@ -3,38 +3,64 @@ include c:\masm32\include\masm32rt.inc
 .const
 __real@4025000000000000 dq 4025000000000000r ;10.5
 __real@4034800000000000 dq 4034800000000000r ;20.5
+__string@0 db 37, 102, 37, 99, 37, 102, 37, 99, 37, 102, 37, 99, 37, 102, 37, 99, 37, 102, 10, 0
 .code
-start:
-push ebp
-mov ebp, esp
-sub esp, 32
+__function@LN0AT0test:
+enter 32, 1
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
 push dword ptr [__real@4025000000000000 + 4]
 push dword ptr [__real@4025000000000000]
 movsd xmm0, qword ptr [esp]
-movsd qword ptr [ebp - 8], xmm0
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
+mov eax, dword ptr [ebp - 4]
+sub eax, 20
+push eax
 push dword ptr [__real@4034800000000000 + 4]
 push dword ptr [__real@4034800000000000]
 movsd xmm0, qword ptr [esp]
-movsd qword ptr [ebp - 16], xmm0
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
 push 2
 mov eax, dword ptr [esp]
 sub esp, 4
 cvtsi2sd xmm0, eax
 movsd qword ptr [esp], xmm0
 movsd xmm0, qword ptr [esp]
-movsd qword ptr [ebp - 24], xmm0
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+add esp, 8
+pop ebx
+movsd qword ptr [ebx], xmm0
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
 xor byte ptr [esp + 7], 128
 sub esp, 1
 mov byte ptr [esp], 10
-sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-push dword ptr [ebp - 12]
-push dword ptr [ebp - 16]
-push dword ptr [ebp - 20]
-push dword ptr [ebp - 24]
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 20
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
 movsd xmm1, qword ptr [esp]
 add esp, 8
 movsd xmm0, qword ptr [esp]
@@ -42,13 +68,21 @@ mulsd xmm0, xmm1
 movsd qword ptr [esp], xmm0
 sub esp, 1
 mov byte ptr [esp], 10
-sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
-push dword ptr [ebp - 20]
-push dword ptr [ebp - 24]
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 28
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
 movsd xmm1, qword ptr [esp]
 add esp, 8
 movsd xmm0, qword ptr [esp]
@@ -56,13 +90,21 @@ divsd xmm0, xmm1
 movsd qword ptr [esp], xmm0
 sub esp, 1
 mov byte ptr [esp], 10
-sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
-push dword ptr [ebp - 12]
-push dword ptr [ebp - 16]
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 20
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
 movsd xmm1, qword ptr [esp]
 add esp, 8
 movsd xmm0, qword ptr [esp]
@@ -70,22 +112,33 @@ subsd xmm0, xmm1
 movsd qword ptr [esp], xmm0
 sub esp, 1
 mov byte ptr [esp], 10
-sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
-push dword ptr [ebp - 12]
-push dword ptr [ebp - 16]
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 20
+push eax
+pop eax
+push dword ptr [eax + 4]
+push dword ptr [eax]
 movsd xmm1, qword ptr [esp]
 add esp, 8
 movsd xmm0, qword ptr [esp]
 addsd xmm0, xmm1
 movsd qword ptr [esp], xmm0
-mov eax, esp
-printf("%f%c%f%c%f%c%f%c%f\n", qword ptr [eax], word ptr [eax + 8], qword ptr [eax + 10], word ptr [eax + 18], qword ptr [eax + 20], word ptr [eax + 28], qword ptr [eax + 30], word ptr [eax + 38], qword ptr [eax + 40])
-add esp, 48
-mov esp, ebp
-pop ebp
+push offset __string@0
+call crt_printf
+add esp, 60
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
 exit
 end start

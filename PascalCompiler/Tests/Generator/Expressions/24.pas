@@ -1,13 +1,15 @@
 program test;
 var 
-    r: real = 123.45;
-    r1: real = -100.5;
-    i: integer = 48;
-    j: integer = -23;
-    c: char = '0';
-    c1: char = #247;
-    b: integer;
+    r, r1: real;
+    i, j, b: integer;
+    c, c1: char;
 begin
+    r := 123.45;
+    r1 := -100.5;
+    i := 48;
+    j := -23;
+    c := '0';
+    c1 := #247;
     b := (c > c1) and (r1 < r);
     write(b);
     b := (i > j) or (r1 > r) xor (c1 <> c);

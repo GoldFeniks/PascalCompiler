@@ -1,40 +1,65 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
+__string@3 db 37, 115, 37, 102, 37, 99, 37, 115, 37, 100, 37, 99, 37, 115, 37, 99, 10, 0
+__string@2 db 105, 110, 116, 32, 116, 111, 32, 114, 101, 97, 108, 32, 0
+__string@0 db 105, 110, 116, 32, 116, 111, 32, 99, 104, 97, 114, 32, 0
+__string@1 db 105, 110, 116, 32, 116, 111, 32, 105, 110, 116, 32, 0
 .code
-start:
-push ebp
-mov ebp, esp
-sub esp, 4
+__function@LN0AT0test:
+enter 4, 1
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
 push 98
-pop dword ptr [ebp - 4]
-push dword ptr [ebp - 4]
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
 pop eax
 sub esp, 1
 mov byte ptr [esp], al
-sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-sub esp, 1
-mov byte ptr [esp], 10
-sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-push dword ptr [ebp - 4]
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@0
 sub esp, 1
 mov byte ptr [esp], 10
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@1
 sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-push dword ptr [ebp - 4]
+mov byte ptr [esp], 10
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
 mov eax, dword ptr [esp]
 sub esp, 4
 cvtsi2sd xmm0, eax
 movsd qword ptr [esp], xmm0
-mov eax, esp
-printf("%s%f%c%s%d%c%s%c\n", "int to real ", qword ptr [eax], word ptr [eax + 8], "int to int ", dword ptr [eax + 10], word ptr [eax + 14], "int to char ", word ptr [eax + 16])
-add esp, 18
-mov esp, ebp
-pop ebp
+push offset __string@2
+push offset __string@3
+call crt_printf
+add esp, 40
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
 exit
 end start

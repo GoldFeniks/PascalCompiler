@@ -1,17 +1,37 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
+__string@0 db 37, 100, 10, 0
 .code
-start:
-push ebp
-mov ebp, esp
-sub esp, 12
+__function@LN0AT0test:
+enter 12, 1
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
 push 10
-pop dword ptr [ebp - 4]
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
 push 20
-pop dword ptr [ebp - 8]
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 setge al
@@ -19,13 +39,29 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 setle al
@@ -33,13 +69,29 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 setg al
@@ -47,13 +99,29 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 setl al
@@ -61,13 +129,29 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 push 10
 pop ebx
 pop eax
@@ -80,18 +164,34 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
 push 11
 pop ebx
 pop eax
 add eax, ebx
 push eax
-push dword ptr [ebp - 8]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 setl al
@@ -99,13 +199,29 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 setne al
@@ -113,13 +229,29 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 sete al
@@ -127,13 +259,29 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-push dword ptr [ebp - 4]
-push dword ptr [ebp - 8]
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+mov eax, dword ptr [ebp - 4]
+sub eax, 12
+push eax
+pop eax
+push dword ptr [eax]
 pop ebx
 cmp dword ptr [esp], ebx
 setne al
@@ -142,12 +290,20 @@ movsx eax, al
 mov dword ptr [esp], eax
 not dword ptr [esp]
 pop eax
-mov dword ptr [ebp - 12], eax
-push dword ptr [ebp - 12]
-mov eax, esp
-printf("%d\n", dword ptr [eax])
-add esp, 4
-mov esp, ebp
-pop ebp
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 16
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
 exit
 end start

@@ -1,8 +1,9 @@
 program test;
 var 
-    a: Integer = 10;
+    a: Integer;
     b: Integer;
 begin
+    a := 10;
     b := a + 20;
     write(b);
     b := a - 20;

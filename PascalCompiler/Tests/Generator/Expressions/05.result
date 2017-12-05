@@ -1,26 +1,36 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
+__string@0 db 37, 99, 10, 0
 .code
-start:
-push ebp
-mov ebp, esp
-sub esp, 1
+__function@LN0AT0test:
+enter 1, 1
+mov eax, dword ptr [ebp - 4]
+sub eax, 5
+push eax
 sub esp, 1
 mov byte ptr [esp], 99
 mov al, byte ptr [esp]
 add esp, 1
-mov byte ptr [ebp - 1], al
-mov al, byte ptr [ebp - 1]
+pop ebx
+mov byte ptr [ebx], al
+mov eax, dword ptr [ebp - 4]
+sub eax, 5
+push eax
+pop eax
+mov al, byte ptr [eax]
 sub esp, 1
 mov byte ptr [esp], al
-sub esp, 1
-movsx eax, byte ptr [esp + 1]
-mov word ptr [esp], ax
-mov eax, esp
-printf("%c\n", word ptr [eax])
-add esp, 2
-mov esp, ebp
-pop ebp
+movsx eax, byte ptr [esp]
+add esp, 1
+push eax
+push offset __string@0
+call crt_printf
+add esp, 8
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
 exit
 end start

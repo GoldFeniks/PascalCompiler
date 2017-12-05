@@ -1,10 +1,10 @@
 program test;
 var 
-    a: Integer = 2;
-    b: Integer = 5;
-    c: Integer = 64;
-    d: Integer;
+    a, b, c, d: integer;
 begin
+    a := 2;
+    b := 5;
+    c := 64;
     d := a << b;
     write(d);
     d := c >> b;

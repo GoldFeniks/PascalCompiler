@@ -2,17 +2,19 @@ include c:\masm32\include\masm32rt.inc
 .xmm
 .const
 __real@4037000000000000 dq 4037000000000000r ;23
+__string@0 db 37, 102, 10, 0
 .code
-start:
-push ebp
-mov ebp, esp
-sub esp, 0
+__function@LN0AT0test:
+enter 0, 1
 push dword ptr [__real@4037000000000000 + 4]
 push dword ptr [__real@4037000000000000]
-mov eax, esp
-printf("%f\n", qword ptr [eax])
-add esp, 8
-mov esp, ebp
-pop ebp
+push offset __string@0
+call crt_printf
+add esp, 12
+leave
+ret 0
+
+start:
+call __function@LN0AT0test
 exit
 end start

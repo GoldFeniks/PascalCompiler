@@ -1,7 +1,8 @@
 program test;
 var 
-    a: Integer = 10;
+    a: Integer;
     b: Integer;
 begin
-    write(a + 20, a - 20, a * 20, a / 20, a mod 20, a div 20);
+    a := 10;
+    write(a + 20, ' ', a - 20, ' ', a * 20, ' ', a / 20, ' ', a mod 20, ' ', a div 20);
 end.

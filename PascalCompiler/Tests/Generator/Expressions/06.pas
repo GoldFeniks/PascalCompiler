@@ -1,6 +1,7 @@
 program test;
 var 
-    a: char = 'h';
+    a: char;
 begin
-    write(a);
+    a := 'h';
+    write(a, a);
 end.

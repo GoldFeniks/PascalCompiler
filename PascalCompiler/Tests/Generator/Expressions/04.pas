@@ -1,6 +1,7 @@
 program test;
 var 
-    a: real = -123.45;
+    a: real;
 begin
+    a := -123.45;
     write(a);
 end.

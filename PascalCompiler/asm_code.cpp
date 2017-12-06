@@ -240,10 +240,17 @@ std::string asm_code::to_string() const {
     for (const auto& it : string_const_) {
         result += "__string@";
         result += std::to_string(it.second);
-        result += " db ";
-        for (const auto& c : it.first)
-            result += std::to_string(int(c)) + ", ";
-        result += "0\n";
+        for (size_t i = 0; i <= it.first.size() / 32; ++i) {
+            result += " db ";
+            size_t j = i * 32;
+            for (; j < std::min(32 * (i + 1), it.first.size()); ++j)
+                result += std::to_string(int(it.first[j])) + ",";
+            if (j == it.first.size())
+                result += "0\n";
+            else {
+                result[result.size() - 1] = '\n';
+            }
+        }
     }
     if (temp_var_size_)
         result += std::string(".data\n") + get_temp_var_name() + " byte " + std::to_string(temp_var_size_) + " dup (?) \n";

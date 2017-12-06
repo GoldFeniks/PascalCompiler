@@ -1,7 +1,7 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 10, 0
+__string@0 db 37,100,32,37,100,32,37,100,32,37,100,32,37,100,32,37,100,32,37,100,32,37,100,10,0
 .code
 __function@LN0AT0test:
 enter 16, 1
@@ -32,11 +32,6 @@ push eax
 pop eax
 push dword ptr [eax]
 not dword ptr [esp]
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -50,11 +45,6 @@ push dword ptr [eax]
 pop ebx
 pop eax
 xor eax, ebx
-push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
@@ -70,11 +60,6 @@ pop ebx
 pop eax
 or eax, ebx
 push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -89,11 +74,6 @@ pop ebx
 pop eax
 and eax, ebx
 push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 16
 push eax
@@ -106,11 +86,6 @@ pop eax
 shr eax, cl
 push eax
 mov ecx, ebx
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -123,11 +98,6 @@ pop eax
 shl eax, cl
 push eax
 mov ecx, ebx
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 16
 push eax
@@ -144,11 +114,6 @@ pop eax
 shr eax, cl
 push eax
 mov ecx, ebx
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -167,7 +132,7 @@ push eax
 mov ecx, ebx
 push offset __string@0
 call crt_printf
-add esp, 64
+add esp, 36
 leave
 ret 0
 

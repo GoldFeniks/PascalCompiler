@@ -1,8 +1,8 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 37, 100, 37, 99, 37, 100, 10, 0
-__string@1 db 37, 102, 10, 0
+__string@0 db 37,100,32,37,100,10,0
+__string@1 db 37,102,10,0
 .code
 __function@LN14AT1prod:
 enter 12, 2
@@ -105,11 +105,6 @@ push ecx
 add dword ptr [esp], 4
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 8]
 sub eax, 20
 push eax
@@ -129,7 +124,7 @@ pop eax
 push dword ptr [eax]
 push offset __string@0
 call crt_printf
-add esp, 16
+add esp, 12
 $LN16AT5LOOPCOND@:
 mov ebx, dword ptr [ebp - 8]
 inc dword ptr [ebx - 20]

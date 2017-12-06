@@ -2,7 +2,7 @@ include c:\masm32\include\masm32rt.inc
 .xmm
 .const
 __real@404535c28f5c28f6 dq 404535c28f5c28f6r ;42.42
-__string@0 db 37, 99, 37, 99, 37, 102, 37, 99, 37, 100, 37, 99, 37, 99, 37, 99, 37, 100, 37, 99, 37, 99, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 99, 37, 99, 10, 0
+__string@0 db 37,99,32,37,102,32,37,100,32,37,99,32,37,100,32,37,99,32,37,100,32,37,100,32,37,99,32,10,0
 .code
 __function@LN0AT0test:
 enter 36, 1
@@ -84,11 +84,6 @@ mov al, byte ptr [esp]
 add esp, 1
 pop ebx
 mov byte ptr [ebx], al
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 24
 push eax
@@ -100,33 +95,18 @@ mov byte ptr [esp], al
 movsx eax, byte ptr [esp]
 add esp, 1
 push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 40
 push eax
 add dword ptr [esp], 6
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 24
 push eax
 add dword ptr [esp], 4
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 40
 push eax
@@ -138,22 +118,12 @@ mov byte ptr [esp], al
 movsx eax, byte ptr [esp]
 add esp, 1
 push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 40
 push eax
 add dword ptr [esp], 2
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 40
 push eax
@@ -164,21 +134,11 @@ mov byte ptr [esp], al
 movsx eax, byte ptr [esp]
 add esp, 1
 push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 24
 push eax
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 24
 push eax
@@ -186,11 +146,6 @@ add dword ptr [esp], 8
 pop eax
 push dword ptr [eax + 4]
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 24
 push eax
@@ -204,7 +159,7 @@ add esp, 1
 push eax
 push offset __string@0
 call crt_printf
-add esp, 80
+add esp, 44
 leave
 ret 0
 

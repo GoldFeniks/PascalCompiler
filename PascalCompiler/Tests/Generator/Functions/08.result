@@ -1,10 +1,10 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 37, 100, 10, 0
-__string@1 db 97, 32, 105, 115, 32, 101, 113, 117, 97, 108, 32, 116, 111, 32, 98, 0
-__string@2 db 37, 115, 10, 0
-__string@3 db 37, 102, 10, 0
+__string@0 db 37,100,10,0
+__string@1 db 97,32,105,115,32,101,113,117,97,108,32,116,111,32,98,0
+__string@2 db 37,115,10,0
+__string@3 db 37,102,10,0
 .code
 __function@LN4AT1print_biggest:
 enter 0, 2

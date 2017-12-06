@@ -1,7 +1,7 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 102, 37, 99, 37, 100, 37, 99, 37, 100, 10, 0
+__string@0 db 37,100,32,37,100,32,37,100,32,37,102,32,37,100,32,37,100,10,0
 .code
 __function@LN0AT0test:
 enter 8, 1
@@ -23,11 +23,6 @@ pop eax
 cdq 
 idiv ebx
 push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -39,11 +34,6 @@ pop eax
 cdq 
 idiv ebx
 push edx
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -63,11 +53,6 @@ add esp, 8
 movsd xmm0, qword ptr [esp]
 divsd xmm0, xmm1
 movsd qword ptr [esp], xmm0
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -78,11 +63,6 @@ pop ebx
 pop eax
 imul ebx
 push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -92,11 +72,6 @@ push 20
 pop ebx
 pop eax
 sub eax, ebx
-push eax
-sub esp, 1
-mov byte ptr [esp], 32
-movsx eax, byte ptr [esp]
-add esp, 1
 push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
@@ -110,7 +85,7 @@ add eax, ebx
 push eax
 push offset __string@0
 call crt_printf
-add esp, 52
+add esp, 32
 leave
 ret 0
 

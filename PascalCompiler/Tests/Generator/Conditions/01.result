@@ -1,9 +1,9 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@1 db 101, 110, 100, 0
-__string@0 db 37, 100, 10, 0
-__string@2 db 37, 115, 10, 0
+__string@1 db 101,110,100,0
+__string@0 db 37,100,10,0
+__string@2 db 37,115,10,0
 .code
 __function@LN0AT0test:
 enter 4, 1

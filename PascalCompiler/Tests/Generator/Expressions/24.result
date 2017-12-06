@@ -3,7 +3,7 @@ include c:\masm32\include\masm32rt.inc
 .const
 __real@405edccccccccccd dq 405edccccccccccdr ;123.45
 __real@0c059200000000000 dq 0c059200000000000r ;-100.5
-__string@0 db 37, 100, 10, 0
+__string@0 db 37,100,10,0
 .code
 __function@LN0AT0test:
 enter 30, 1

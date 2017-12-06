@@ -405,7 +405,10 @@ tree_node_p syntax_analyzer::parse_write_statement() {
             token = tokenizer_.next();
         }
         else {
-            result->push_back(parse_expression());
+            const auto t = parse_expression();
+            if (!get_type(t)->is_scalar())
+                throw syntax_error("Can't print non scalar variable", tokenizer_.current()->get_position());
+            result->push_back(t);
             token = tokenizer_.current();
         }
         if (token->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::close_parenthesis)

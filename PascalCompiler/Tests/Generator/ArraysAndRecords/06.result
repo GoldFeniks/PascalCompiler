@@ -1,7 +1,7 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 10, 0
+__string@0 db 37,100,10,37,100,10,37,100,10,37,100,10,0
 .code
 __function@LN0AT0test:
 enter 48, 1
@@ -151,11 +151,6 @@ add ecx, eax
 push ecx
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 10
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
@@ -173,11 +168,6 @@ add ecx, eax
 push ecx
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 10
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
@@ -209,11 +199,6 @@ add ecx, eax
 push ecx
 pop eax
 push dword ptr [eax]
-sub esp, 1
-mov byte ptr [esp], 10
-movsx eax, byte ptr [esp]
-add esp, 1
-push eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 48
 push eax
@@ -238,7 +223,7 @@ pop eax
 push dword ptr [eax]
 push offset __string@0
 call crt_printf
-add esp, 32
+add esp, 20
 leave
 ret 0
 

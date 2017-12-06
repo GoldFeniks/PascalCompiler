@@ -2,7 +2,7 @@ include c:\masm32\include\masm32rt.inc
 .xmm
 .const
 __real@3ff8000000000000 dq 3ff8000000000000r ;1.5
-__string@0 db 37, 100, 37, 99, 37, 100, 37, 99, 37, 100, 10, 0
+__string@0 db 37,100,37,99,37,100,37,99,37,100,10,0
 .code
 __function@LN0AT0test:
 enter 64, 1

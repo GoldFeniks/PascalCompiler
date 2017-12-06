@@ -524,6 +524,10 @@ void write_node::to_asm_code(asm_code& code, const bool is_left) {
             : type;
         switch (type->category()) {
         case type::type_category::character:
+            if ((*it)->category() == node_category::constant) {
+                f += std::dynamic_pointer_cast<constant_node>(*it)->get_value<char>();
+                break;
+            }
             f += "c%";
             (*it)->to_asm_code(code);
             code.push_back({ asm_command::type::movsx, asm_reg::reg_type::eax, {asm_reg::reg_type::esp, asm_mem::mem_size::byte} });

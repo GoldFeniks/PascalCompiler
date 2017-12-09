@@ -26,8 +26,13 @@ void syntax_analyzer::to_asm_code(asm_code& code) {
     code.end_function();
 }
 
+void syntax_analyzer::set_optimizer(const std::shared_ptr<basic_optimizer> optimizer) {
+    optimizer_ = optimizer;
+}
+
 void syntax_analyzer::parse() {
     parse_program();
+    optimizer_->optimize(tables_.back());
 }
 
 const std::vector<symbols_table>& syntax_analyzer::tables() const { return tables_; }
@@ -334,10 +339,10 @@ tree_node_p syntax_analyzer::parse_if_statement() {
     result->push_back(parse_condition());
     require(tokenizer_.current(), pascal_compiler::tokenizer::token::sub_types::then);
     tokenizer_.next();
-    result->push_back(parse_statement());
+    result->set_then_branch(parse_statement());
     if (tokenizer_.current()->get_sub_type() == pascal_compiler::tokenizer::token::sub_types::else_op) {
         tokenizer_.next();
-        result->push_back(parse_statement());
+        result->set_else_branch(parse_statement());
     }
     return result;
 }

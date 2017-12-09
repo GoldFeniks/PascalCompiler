@@ -4,6 +4,7 @@
 #include "syntax_analyzer.hpp"
 #include "exceptions.hpp"
 #include "asm_code.hpp"
+#include "operations.hpp"
 
 void tokenizer_output(const std::string in_file, const std::string out_file) {
     std::ofstream out(out_file);
@@ -33,9 +34,11 @@ void syntax_analyzer_output(const std::string in_file, const std::string out_fil
     }
 }
 
-void generator_output(const std::string in_file, const std::string out_file) {
+void generator_output(const std::string in_file, const std::string out_file, bool optimize = false) {
     std::ofstream out(out_file);
     pascal_compiler::syntax_analyzer::syntax_analyzer syntax_analyzer(in_file);
+    if (optimize)
+        syntax_analyzer.set_optimizer(std::make_shared<pascal_compiler::optimizer::unreachable_code_optimizer>());
     try {
         syntax_analyzer.parse();
         pascal_compiler::code::asm_code code;
@@ -68,6 +71,9 @@ int main(const int argc, char* argv[]) {
         syntax_analyzer_output(argv[2], in_file);
     else if (key == "-g")
         generator_output(argv[2], in_file);
+    else if (key == "-o") {
+        generator_output(argv[2], in_file, true);
+    }
     else
         std::cout << "Unknown key " << key;
 	return 0;

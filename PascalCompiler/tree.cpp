@@ -41,7 +41,8 @@ std::string tree_node::to_string(const std::string& prefix, const bool last) con
 
 void tree_node::to_asm_code(asm_code& code, const bool is_left) {
     for (const auto& it : children_)
-        it->to_asm_code(code, is_left);
+        if (it)
+            it->to_asm_code(code, is_left);
 }
 
 const type_p& typed::type() const { return type_; }
@@ -91,7 +92,7 @@ std::string constant_node::value_string() const {
 void constant_node::to_asm_code(asm_code& code, const bool is_left) {
     switch (type()->category()) {
     case type::type_category::character:
-        code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, {"1"} });
+        code.push_back({ asm_command::type::sub, asm_reg::reg_type::esp, 1 });
         code.push_back({ asm_command::type::mov,{ asm_reg::reg_type::esp, asm_mem::mem_size::byte },
             { std::to_string(static_cast<char>(value_)) } });
         break;
@@ -566,6 +567,14 @@ void write_node::to_asm_code(asm_code& code, const bool is_left) {
 
 void repeat_node::set_condition(const tree_node_p condition) { push_back(condition); }
 
+tree_node_p repeat_node::condition() const {
+    return children().back();
+}
+
+tree_node_p repeat_node::body() const {
+    return children().front();
+}
+
 void repeat_node::to_asm_code(asm_code& code, const bool is_left) {
     const auto body_label = code.get_label_name(position().first, position().second, "REPEATBODY");
     const auto cond_label = code.get_label_name(position().first, position().second, "REPEATCOND");
@@ -577,7 +586,7 @@ void repeat_node::to_asm_code(asm_code& code, const bool is_left) {
     code.push_back({ asm_command::type::label, cond_label });
     children()[1]->to_asm_code(code);
     code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
-    code.push_back({ asm_command::type::test, asm_reg::reg_type::eax, -1 });
+    code.push_back({ asm_command::type::test, asm_reg::reg_type::eax, asm_reg::reg_type::eax });
     code.push_back({ asm_command::type::jz, body_label });
     code.push_back({ asm_command::type::label, end_label });
     code.pop_loop_start();
@@ -586,6 +595,22 @@ void repeat_node::to_asm_code(asm_code& code, const bool is_left) {
 
 void for_node::set_downto(const bool value) {
     is_downto_ = value;
+}
+
+bool for_node::is_downto() const {
+    return is_downto_;
+}
+
+tree_node_p for_node::from() const {
+    return children()[1];
+}
+
+tree_node_p for_node::to() const {
+    return children()[2];
+}
+
+tree_node_p for_node::body() const {
+    return children().back();
 }
 
 void for_node::to_asm_code(asm_code& code, bool is_left) {
@@ -603,7 +628,8 @@ void for_node::to_asm_code(asm_code& code, bool is_left) {
     code.push_back({ is_downto_ ? asm_command::type::inc : asm_command::type::dec,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword, -offset.second } });
     code.push_back({ asm_command::type::jmp, cond_label });
     code.push_back({ asm_command::type::label, body_label });
-    children()[3]->to_asm_code(code);
+    if (children().size() == 4)
+        children()[3]->to_asm_code(code);
     code.push_back({ asm_command::type::label, cond_label });
     code.push_back({ asm_command::type::mov, asm_reg::reg_type::ebx,{ asm_reg::reg_type::ebp, asm_mem::mem_size::dword, offset.first } });
     code.push_back({ is_downto_ ? asm_command::type::dec : asm_command::type::inc,{ asm_reg::reg_type::ebx, asm_mem::mem_size::dword, -offset.second } });
@@ -628,11 +654,19 @@ void while_node::to_asm_code(asm_code& code, bool is_left) {
     code.push_back({ asm_command::type::label, cond_label });
     children()[0]->to_asm_code(code);
     code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
-    code.push_back({ asm_command::type::test, asm_reg::reg_type::eax, -1 });
+    code.push_back({ asm_command::type::test, asm_reg::reg_type::eax, asm_reg::reg_type::eax });
     code.push_back({ asm_command::type::jnz, body_label });
     code.push_back({ asm_command::type::label, end_label });
     code.pop_loop_start();
     code.pop_loop_end();
+}
+
+tree_node_p while_node::condition() const {
+    return children().front();
+}
+
+tree_node_p while_node::body() const {
+    return children().back();
 }
 
 void break_node::to_asm_code(asm_code& code, bool is_left) {
@@ -648,14 +682,35 @@ void if_node::to_asm_code(asm_code& code, bool is_left) {
     const auto end_label = code.get_label_name(position().first, position().second, "IFEND");
     children()[0]->to_asm_code(code);
     code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
-    code.push_back({ asm_command::type::test, asm_reg::reg_type::eax, -1 });
+    code.push_back({ asm_command::type::test, asm_reg::reg_type::eax, asm_reg::reg_type::eax });
     code.push_back({ asm_command::type::jz, else_label });
-    children()[1]->to_asm_code(code);
+    if (then_branch())
+        then_branch()->to_asm_code(code);
     code.push_back({ asm_command::type::jmp, end_label });
     code.push_back({ asm_command::type::label, else_label });
-    if (children().size() == 3)
-        children()[2]->to_asm_code(code);
+    if (else_branch())
+        else_branch()->to_asm_code(code);
     code.push_back({ asm_command::type::label, end_label });
+}
+
+tree_node_p if_node::condition() const {
+    return children().front();
+}
+
+void if_node::set_then_branch(const tree_node_p node) {
+    children_.push_back(node);
+}
+
+void if_node::set_else_branch(const tree_node_p node) {
+    children_.push_back(node);
+}
+
+tree_node_p if_node::then_branch() const {
+    return children_[1];
+}
+
+tree_node_p if_node::else_branch() const {
+    return children_.size() >= 3 ? children_[2] : nullptr;
 }
 
 void exit_node::to_asm_code(asm_code& code, bool is_left) {
@@ -672,6 +727,7 @@ void exit_node::to_asm_code(asm_code& code, bool is_left) {
             break;
         case type::type_category::real:
             code.push_back({ asm_command::type::movsd, asm_reg::reg_type::xmm0,{ asm_reg::reg_type::esp, asm_mem::mem_size::qword } });
+            code.push_back({ asm_command::type::add, asm_reg::reg_type::esp, 8 });
             break;
         case type::type_category::nil:
             break;
@@ -679,7 +735,6 @@ void exit_node::to_asm_code(asm_code& code, bool is_left) {
         case type::type_category::record:
         {
             code.push_back({ asm_command::type::lea, asm_reg::reg_type::ebx,code.get_temp_var_name() });
-            const auto offset = code.get_offset("result");
             code.push_back({ asm_command::type::pop, asm_reg::reg_type::eax });
             code.push_back({ asm_command::type::mov, asm_reg::reg_type::ecx, f->data_size() / 4 });
             const auto label = code.get_label_name(position().first, position().second, "COPYSTRUCT");

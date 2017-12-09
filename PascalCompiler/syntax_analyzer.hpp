@@ -8,6 +8,7 @@
 #include "symbols_table.hpp"
 #include "exceptions.hpp"
 #include "boost/format.hpp"
+#include "optimizer.hpp"
 
 namespace pascal_compiler {
 
@@ -16,6 +17,7 @@ namespace pascal_compiler {
         using namespace tree;
         using namespace operations;
         using namespace code;
+        using namespace optimizer;
 
         class syntax_error : public exception {
             
@@ -73,9 +75,9 @@ namespace pascal_compiler {
             
         public:
 
-            explicit syntax_analyzer(tokenizer&& tokenizer) : tokenizer_(std::move(tokenizer)) {};
-            explicit syntax_analyzer(const std::string file) : tokenizer_(tokenizer(file)) {};
-            explicit syntax_analyzer(std::ifstream&& file) : tokenizer_(move(file)) {};
+            explicit syntax_analyzer(tokenizer&& tokenizer) : tokenizer_(std::move(tokenizer)) {}
+            explicit syntax_analyzer(const std::string file) : tokenizer_(tokenizer(file)) {}
+            explicit syntax_analyzer(std::ifstream&& file) : tokenizer_(move(file)) {}
 
             syntax_analyzer(const syntax_analyzer&) = delete;
             syntax_analyzer(syntax_analyzer&& other) noexcept : tokenizer_(std::move(other.tokenizer_)) 
@@ -84,7 +86,7 @@ namespace pascal_compiler {
             syntax_analyzer& operator=(const syntax_analyzer&) = delete;
             syntax_analyzer& operator=(syntax_analyzer&& other) noexcept;
             void to_asm_code(asm_code& code);
-
+            void set_optimizer(std::shared_ptr<basic_optimizer> optimizer);
             void parse();
             const std::vector<symbols_table>& tables() const;
 
@@ -94,6 +96,7 @@ namespace pascal_compiler {
             tree_node_p root_;
             std::vector<symbols_table> tables_;
             size_t loops_count_ = 0;
+            std::shared_ptr<basic_optimizer> optimizer_ = std::make_shared<basic_optimizer>();
 
             void parse_program();
 

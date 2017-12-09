@@ -11,6 +11,13 @@
 
 namespace pascal_compiler {
 
+    namespace optimizer {
+
+        class basic_optimizer;
+        class unreachable_code_optimizer;
+
+    }// namespace optimizer
+
     namespace syntax_analyzer {
 
         using namespace types;
@@ -86,6 +93,10 @@ namespace pascal_compiler {
                 virtual void to_asm_code(asm_code& code, bool is_left = false);
 
             private:
+
+                friend class optimizer::basic_optimizer;
+                friend class optimizer::unreachable_code_optimizer;
+                friend class if_node;
 
                 nodes_vector children_;
                 std::string name_;
@@ -332,6 +343,8 @@ namespace pascal_compiler {
                     : tree_node("repeat", node_category::repeat, position, statements) {}
 
                 void set_condition(const tree_node_p condition);
+                tree_node_p condition() const;
+                tree_node_p body() const;
                 void to_asm_code(asm_code& code, const bool is_left = false) override;
 
             };//class repeat_node
@@ -347,6 +360,10 @@ namespace pascal_compiler {
                     : tree_node("for", node_category::for_op, position) {}
 
                 void set_downto(const bool value);
+                bool is_downto() const;
+                tree_node_p from() const;
+                tree_node_p to() const;
+                tree_node_p body() const;
                 void to_asm_code(asm_code& code, bool is_left) override;
 
             private:
@@ -366,6 +383,8 @@ namespace pascal_compiler {
                     : tree_node("while", node_category::while_op, position) {}
 
                 void to_asm_code(asm_code& code, bool is_left) override;
+                tree_node_p condition() const;
+                tree_node_p body() const;
 
             };//class while_node
 
@@ -408,6 +427,11 @@ namespace pascal_compiler {
                     : tree_node("if", node_category::if_op, position) {}
 
                 void to_asm_code(asm_code& code, bool is_left) override;
+                tree_node_p condition() const;
+                void set_then_branch(tree_node_p node);
+                void set_else_branch(tree_node_p node);
+                tree_node_p then_branch() const;
+                tree_node_p else_branch() const;
 
             };// class if_node
 

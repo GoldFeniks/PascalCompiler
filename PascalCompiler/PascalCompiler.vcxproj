@@ -23,6 +23,7 @@
     <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="operations.cpp" />
+    <ClCompile Include="optimizer.cpp" />
     <ClCompile Include="symbols_table.cpp" />
     <ClCompile Include="syntax_analyzer.cpp" />
     <ClCompile Include="tokenizer.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="exceptions.hpp" />
     <ClInclude Include="finite_automata.hpp" />
     <ClInclude Include="operations.hpp" />
+    <ClInclude Include="optimizer.hpp" />
     <ClInclude Include="symbols_table.hpp" />
     <ClInclude Include="syntax_analyzer.hpp" />
     <ClInclude Include="tokenizer.hpp" />

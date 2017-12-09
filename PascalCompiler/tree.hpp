@@ -198,6 +198,11 @@ namespace pascal_compiler {
                     typed(get_type(left)), operation_type_(token->get_sub_type()),
                     left_(left) {}
 
+                operation_node(const tokenizer::token::sub_types type, const position_type& position, const type_p& result_type,
+                    const tree_node_p& left, const tree_node_p& right, const std::string& name) :
+                    tree_node(name, node_category::operation, position, left, right),
+                    typed(result_type), operation_type_(type), left_(left), right_(right) {}
+
                 tokenizer::token::sub_types operation_type() const;
                 const tree_node_p& left() const;
                 const tree_node_p& right() const;

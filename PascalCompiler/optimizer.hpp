@@ -37,6 +37,9 @@ namespace pascal_compiler {
             tree_node_p optimize_repeat(const repeat_node_p node);
             tree_node_p optimize_while(const while_node_p node);
             tree_node_p optimize_if(const if_node_p node);
+            tree_node_p optimize_loop_body(const tree_node_p node, const tree_node_p body);
+            tree_node_p remove_break_continue(const tree_node_p node) const;
+            if_node_p make_if_from_loop(const tree_node_p loop_node) const;
 
         };
 

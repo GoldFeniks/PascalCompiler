@@ -103,8 +103,11 @@ tree_node_p unreachable_code_optimizer::optimize_loop_body(const tree_node_p loo
         if (body->category() == tree_node::node_category::continue_op ||
             body->category() == tree_node::node_category::break_op)
             return nullptr;
-        if (body->category() == tree_node::node_category::exit)
+        if (body->category() == tree_node::node_category::exit) {
+            if (loop_node->category() == tree_node::node_category::repeat)
+                return body;
             return optimize_if(make_if_from_loop(loop_node));
+        }
         return loop_node;
     }
     if (body->children_.front()->category() == tree_node::node_category::continue_op ||
@@ -119,6 +122,8 @@ tree_node_p unreachable_code_optimizer::optimize_loop_body(const tree_node_p loo
         body->children_.pop_back();
         return body;
     case tree_node::node_category::exit:
+        if(loop_node->category() == tree_node::node_category::repeat)
+            return body;
         return optimize_if(make_if_from_loop(loop_node));
     default:
         return loop_node;
@@ -156,10 +161,6 @@ if_node_p unreachable_code_optimizer::make_if_from_loop(const tree_node_p loop_n
     case tree_node::node_category::while_op:
         if_n->push_back(loop_node->children_.front());
         if_n->set_then_branch(loop_node->children_.back());
-        break;
-    case tree_node::node_category::repeat:
-        if_n->push_back(loop_node->children_.back());
-        if_n->set_then_branch(loop_node->children_.front());
         break;
     default:
         throw std::logic_error("This point should never be reached!");

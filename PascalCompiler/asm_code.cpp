@@ -208,14 +208,13 @@ asm_command::asm_command(const type type, const std::vector<std::shared_ptr<asm_
 std::string asm_command::to_string() const {
     if (type_ == type::label)
         return args_[0]->to_string() + ':';
-    auto result = type_str[static_cast<unsigned char>(type_)]
-        + (type_ == type::printf ? "(" : " ");
+    auto result = type_str[static_cast<unsigned char>(type_)];
     if (args_.size() > 0) {
         result += args_[0]->to_string();
         for (auto i = 1; i < args_.size(); ++i)
             result += std::string(", ") + args_[i]->to_string();
     }
-    return type_ == type::printf ? result + ")" : result;
+    return result;
 }
 
 void asm_command::add(const std::shared_ptr<asm_arg> arg1, const std::shared_ptr<asm_arg> arg2) {

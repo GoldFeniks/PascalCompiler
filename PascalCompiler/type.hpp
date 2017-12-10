@@ -5,6 +5,13 @@
 
 namespace pascal_compiler {
 
+    namespace optimizer {
+
+        class basic_optimizer;
+        class unreachable_code_optimizer;
+
+    }// namespace optimizer
+
     namespace syntax_analyzer {
 
         namespace types {
@@ -156,6 +163,7 @@ namespace pascal_compiler {
 
             private:
 
+                friend class optimizer::unreachable_code_optimizer;
                 symbols_table parameters_, table_;
                 type_p return_type_;
 

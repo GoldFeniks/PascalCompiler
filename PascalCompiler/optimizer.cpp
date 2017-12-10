@@ -27,6 +27,14 @@ void unreachable_code_optimizer::optimize(const tree_node_p node) {
         case tree_node::node_category::exit:
             node->children_.resize(i + 1);
             break;
+        case tree_node::node_category::variable:
+            used_symbols_.insert(node->children_[i]->name());
+            break;
+        case tree_node::node_category::index:
+        case tree_node::node_category::function:
+        case tree_node::node_category::field_access:
+            used_symbols_.insert(std::dynamic_pointer_cast<applied>(node->children_[i])->variable()->name());
+            break;
         default:
             optimize(node->children_[i]);
         }
@@ -35,8 +43,18 @@ void unreachable_code_optimizer::optimize(const tree_node_p node) {
 
 void unreachable_code_optimizer::optimize(symbols_table& table) {
     for (const auto it : table.vector())
-        if (it.second.first->is_category(type::type_category::function))
+        if (it.second.first->is_category(type::type_category::function)) {
+            used_symbols_.clear();
+            auto t = std::dynamic_pointer_cast<function_type>(it.second.first);
             optimize(it.second.second);
+            for (auto& v : t->table_.vector_)
+                if (used_symbols_.find(v.first) == used_symbols_.end() && v.first != "result") {
+                    v.second = make_pair(nil(), nullptr);
+                    t->table_.table_[v.first] = v.second;
+                }
+            t->table_.calculate_offsets();
+            optimize(t->table_);
+        }
 }
 
 bool unreachable_code_optimizer::get_int_value(tree_node_p node, long long& value) {

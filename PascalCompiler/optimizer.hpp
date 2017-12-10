@@ -2,6 +2,9 @@
 #include "tree.hpp"
 #include "symbols_table.hpp"
 
+#include <unordered_set>
+#include <string>
+
 namespace pascal_compiler {
 
     using namespace tree;
@@ -31,6 +34,8 @@ namespace pascal_compiler {
             void optimize(symbols_table& table) override;
 
         private:
+
+            std::unordered_set<std::string> used_symbols_;
 
             static bool get_int_value(const tree_node_p node, long long& value);
             tree_node_p optimize_for(const for_node_p node);

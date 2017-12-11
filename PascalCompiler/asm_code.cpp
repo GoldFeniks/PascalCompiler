@@ -101,8 +101,7 @@ void asm_code::end_function() {
     func_string_ += str(boost::format("enter %1%, %2%\n") % data_tables_.back().get_data_size() % commands_.size());
     for (const auto com : commands_.back().second)
         func_string_ += com.to_string() + '\n';
-    func_string_ += "leave\n";
-    func_string_ += str(boost::format("ret %1%\n\n") % param_tables_.back().get_data_size());
+    func_string_ += '\n';
     data_tables_.pop_back();
     param_tables_.pop_back();
     commands_.pop_back();

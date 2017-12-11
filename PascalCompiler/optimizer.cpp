@@ -15,7 +15,7 @@ void unreachable_code_optimizer::optimize(const tree_node_p node) {
 
 void unreachable_code_optimizer::optimize(symbols_table& table) {
     used_symbols_tables_.emplace_back();
-    for (const auto it : table.vector())
+    for (const auto& it : table.vector())
         if (it.second.first->is_category(type::type_category::function)) {
             auto t = std::dynamic_pointer_cast<function_type>(it.second.first);
             used_symbols_ = used_symbols_t();
@@ -39,6 +39,7 @@ void unreachable_code_optimizer::optimize(symbols_table& table) {
                     }
                     v.second = make_pair(nil(), nullptr);
                     t->table_.table_[v.first] = v.second;
+                    remove_assignments(v.first, it.second.second, t->table_);
                 }
                 else
                     used_symbols.erase(v.first);
@@ -109,6 +110,20 @@ void unreachable_code_optimizer::optimization_switch(const tree_node_p node, con
     default:
         optimize(node->children_[i]);
     }
+}
+
+void unreachable_code_optimizer::remove_assignments(const std::string name, const tree_node_p node, const symbols_table& table) const {
+    for (size_t i = 0; i < node->children_.size(); ++i)
+        if (node->children_[i] && node->children_[i]->category() == tree_node::node_category::operation) {
+            const auto op = std::dynamic_pointer_cast<operation_node>(node->children_[i]);
+            if (op->left()->name() == name)
+                node->children_[i] = nullptr;
+        }
+    for (const auto it : table.vector())
+        if (it.second.first->is_category(type::type_category::function)) {
+            const auto f = std::dynamic_pointer_cast<function_type>(it.second.first);
+            remove_assignments(name, it.second.second, f->table());
+        }
 }
 
 tree_node_p unreachable_code_optimizer::optimize_for(const for_node_p node) {

@@ -561,6 +561,7 @@ void syntax_analyzer::parse_program() {
     tables_.push_back(symbols_table());
     tables_.back().add("result", nil());
     const auto block = parse_block();
+    block->push_back(std::make_shared<exit_node>(token->get_position()));
     tables_.back().calculate_offsets();
     tables_[0].add(token->get_string_value(), 
         std::make_shared<function_type>(token->get_string_value(), symbols_table(), tables_.back()), block);

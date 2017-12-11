@@ -35,6 +35,8 @@ void unreachable_code_optimizer::optimize(const tree_node_p node) {
         case tree_node::node_category::field_access:
             used_symbols_.insert(std::dynamic_pointer_cast<applied>(node->children_[i])->variable()->name());
             break;
+        case tree_node::node_category::operation:
+
         default:
             optimize(node->children_[i]);
         }
@@ -42,19 +44,46 @@ void unreachable_code_optimizer::optimize(const tree_node_p node) {
 }
 
 void unreachable_code_optimizer::optimize(symbols_table& table) {
+    used_symbols_tables_.emplace_back();
     for (const auto it : table.vector())
         if (it.second.first->is_category(type::type_category::function)) {
-            used_symbols_.clear();
             auto t = std::dynamic_pointer_cast<function_type>(it.second.first);
+            used_symbols_ = used_symbols_t();
             optimize(it.second.second);
-            for (auto& v : t->table_.vector_)
-                if (used_symbols_.find(v.first) == used_symbols_.end() && v.first != "result") {
+            auto used_symbols = move(used_symbols_);
+            optimize(t->table_);
+            auto used = move(used_symbols_tables_.back()); used_symbols_tables_.pop_back();
+            for (auto& u : used)
+                if (used_symbols.find(u.first) == used_symbols.end())
+                    u.second.clear();
+            for (auto& v : t->table_.vector_) {
+                if (used_symbols.find(v.first) == used_symbols.end() && v.first != "result") {
+                    if (used.find(v.first) != used.end())
+                        used.erase(v.first);
+                    else {
+                        for (auto& u : used)
+                            if (u.second.find(v.first) != u.second.end()) {
+                                u.second.erase(v.first);
+                                goto end;
+                            }
+                    }
                     v.second = make_pair(nil(), nullptr);
                     t->table_.table_[v.first] = v.second;
                 }
+                else
+                    used_symbols.erase(v.first);
+            end:;
+            }
             t->table_.calculate_offsets();
-            optimize(t->table_);
+            for (const auto& u : used)
+                for (const auto& v : u.second)
+                    used_symbols.insert(v);
+            for (const auto v : t->parameters_.vector_)
+                used_symbols.erase(v.first);
+            used_symbols_tables_.back()[it.first] = used_symbols;
         }
+    if (used_symbols_tables_.size() == 1)
+        used_symbols_tables_.pop_back();
 }
 
 bool unreachable_code_optimizer::get_int_value(tree_node_p node, long long& value) {

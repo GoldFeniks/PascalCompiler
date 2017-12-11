@@ -1,8 +1,8 @@
 #pragma once
 #include "tree.hpp"
 #include "symbols_table.hpp"
-
 #include <unordered_set>
+#include <unordered_map>
 #include <string>
 
 namespace pascal_compiler {
@@ -35,7 +35,11 @@ namespace pascal_compiler {
 
         private:
 
-            std::unordered_set<std::string> used_symbols_;
+            typedef std::unordered_set<std::string> used_symbols_t;
+            typedef std::unordered_map<std::string, used_symbols_t> used_symbols_table_t;
+
+            std::vector<used_symbols_table_t> used_symbols_tables_;
+            used_symbols_t used_symbols_;
 
             static bool get_int_value(const tree_node_p node, long long& value);
             tree_node_p optimize_for(const for_node_p node);

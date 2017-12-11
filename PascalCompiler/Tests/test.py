@@ -7,6 +7,7 @@ import os
 parser = argparse.ArgumentParser(description='Compiler tests')
 parser.add_argument('dir', metavar='dir', type=str, help='Tests path');
 parser.add_argument('-co', '--check_output', help='Check exe output', action='store_true')
+parser.add_argument('-go', '--generate_output', help="Don't check anything. Just get output", action='store_true')
 parser.add_argument('argument', metavar='argument', type=str, help='An argument for compiler');
 args = parser.parse_args()
 
@@ -15,20 +16,30 @@ f = re.compile(r'(?P<name>[^.]+)$')
 c, w = 0, 0
 devnull = open(os.devnull, 'w')
 
+def run(d, name):
+    subprocess.call(['ml.exe', '/c', '/coff', 'output.txt'], stdout=devnull, stderr=devnull)
+    subprocess.call(['link.exe', '/subsystem:console', 'output.obj'], stdout=devnull, stderr=devnull)
+    return subprocess.check_output(['output.exe']).decode('cp1251').replace('\r\n', '\n')
+
 def test(d):
     global c, w
     for i in listdir(d):
         name = r.match(i)
         if name:
-            subprocess.call(['../../x64/Debug/PascalCompiler.exe', '-' + args.argument, d + '/' + i, 'output.txt'])
+            subprocess.call(['../../x64/Debug/PascalCompiler.exe', '-' + args.argument, d + '/' + i, 'output.txt']) 
             a, b = '', ''
             if args.check_output:
+                b = run(d, name.group('name'))
+                if args.generate_output:
+                    print(b, file=open(d + '/{}.output'.format(name.group('name')), 'w'), end='')
+                    continue   
                 a = open(d + '/{}.output'.format(name.group('name'))).read()
-                subprocess.call(['ml.exe', '/c', '/coff', 'output.txt'], stdout=devnull, stderr=devnull)
-                subprocess.call(['link.exe', '/subsystem:console', 'output.obj'], stdout=devnull, stderr=devnull)
-                b = subprocess.check_output(['output.exe']).decode('cp1251').replace('\r\n', '\n')
             else:
-                a, b = open(d + '/{}.result'.format(name.group('name'))).read(), open('output.txt').read()
+                b = open('output.txt').read()
+                if args.generate_output:
+                    print(b, file=open(d + '/{}.result'.format(name.group('name')), 'w'), end='')
+                    continue
+                a = open(d + '/{}.result'.format(name.group('name'))).read()
             if a != b:
                 print('Test {}/{} failed'.format(d, i))
                 if args.check_output:
@@ -47,7 +58,8 @@ def test(d):
 
 test(args.dir)
 
-print("{} tests passed. {} tests failed".format(c, w))
+if not args.generate_output:
+    print("\n{} tests passed. {} tests failed".format(c, w))
 
 os.remove('output.txt')
 if args.check_output:

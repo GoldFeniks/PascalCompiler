@@ -9,37 +9,7 @@ void unreachable_code_optimizer::optimize(const tree_node_p node) {
     for (size_t i = 0; i < node->children_.size(); ++i) {
         if (!node->children_[i])
             continue;
-        switch (node->children_[i]->category()) { 
-        case tree_node::node_category::if_op: 
-            node->children_[i] = optimize_if(std::dynamic_pointer_cast<if_node>(node->children_[i]));
-            continue;
-        case tree_node::node_category::while_op: 
-            node->children_[i] = optimize_while(std::dynamic_pointer_cast<while_node>(node->children_[i])); 
-            continue;
-        case tree_node::node_category::for_op:
-            node->children_[i] = optimize_for(std::dynamic_pointer_cast<for_node>(node->children_[i]));
-            continue;
-        case tree_node::node_category::repeat:
-            node->children_[i] = optimize_repeat(std::dynamic_pointer_cast<repeat_node>(node->children_[i]));
-            continue;
-        case tree_node::node_category::continue_op:
-        case tree_node::node_category::break_op:
-        case tree_node::node_category::exit:
-            node->children_.resize(i + 1);
-            break;
-        case tree_node::node_category::variable:
-            used_symbols_.insert(node->children_[i]->name());
-            break;
-        case tree_node::node_category::index:
-        case tree_node::node_category::function:
-        case tree_node::node_category::field_access:
-            used_symbols_.insert(std::dynamic_pointer_cast<applied>(node->children_[i])->variable()->name());
-            break;
-        case tree_node::node_category::operation:
-
-        default:
-            optimize(node->children_[i]);
-        }
+        optimization_switch(node, i);
     }
 }
 
@@ -99,6 +69,46 @@ bool unreachable_code_optimizer::get_int_value(tree_node_p node, long long& valu
         return true;
     }
     return false;
+}
+
+void unreachable_code_optimizer::optimization_switch(const tree_node_p node, const size_t i) {
+    switch (node->children_[i]->category()) {
+    case tree_node::node_category::if_op:
+        node->children_[i] = optimize_if(std::dynamic_pointer_cast<if_node>(node->children_[i]));
+        return;
+    case tree_node::node_category::while_op:
+        node->children_[i] = optimize_while(std::dynamic_pointer_cast<while_node>(node->children_[i]));
+        return;
+    case tree_node::node_category::for_op:
+        node->children_[i] = optimize_for(std::dynamic_pointer_cast<for_node>(node->children_[i]));
+        return;
+    case tree_node::node_category::repeat:
+        node->children_[i] = optimize_repeat(std::dynamic_pointer_cast<repeat_node>(node->children_[i]));
+        return;
+    case tree_node::node_category::continue_op:
+    case tree_node::node_category::break_op:
+    case tree_node::node_category::exit:
+        node->children_.resize(i + 1);
+        break;
+    case tree_node::node_category::variable:
+        used_symbols_.insert(node->children_[i]->name());
+        break;
+    case tree_node::node_category::index:
+    case tree_node::node_category::function:
+    case tree_node::node_category::field_access:
+        used_symbols_.insert(std::dynamic_pointer_cast<applied>(node->children_[i])->variable()->name());
+        break;
+    case tree_node::node_category::operation:
+    {
+        const auto op = std::dynamic_pointer_cast<operation_node>(node->children_[i]);
+        if (op->is_assign()) {
+            optimization_switch(op, 1);
+            break;
+        }
+    }
+    default:
+        optimize(node->children_[i]);
+    }
 }
 
 tree_node_p unreachable_code_optimizer::optimize_for(const for_node_p node) {

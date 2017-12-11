@@ -42,6 +42,7 @@ namespace pascal_compiler {
             used_symbols_t used_symbols_;
 
             static bool get_int_value(const tree_node_p node, long long& value);
+            void optimization_switch(const tree_node_p node, const size_t i);
             tree_node_p optimize_for(const for_node_p node);
             tree_node_p optimize_repeat(const repeat_node_p node);
             tree_node_p optimize_while(const while_node_p node);

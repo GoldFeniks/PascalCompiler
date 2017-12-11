@@ -206,6 +206,7 @@ namespace pascal_compiler {
                 tokenizer::token::sub_types operation_type() const;
                 const tree_node_p& left() const;
                 const tree_node_p& right() const;
+                bool is_assign() const;
 
                 void to_asm_code(asm_code& code, const bool is_left = false) override;
 
@@ -217,7 +218,6 @@ namespace pascal_compiler {
                 tokenizer::token::sub_types operation_type_;
                 tree_node_p left_ = nullptr, right_ = nullptr;
                 static const std::unordered_map<tokenizer::token::sub_types, asm_command::type> ops, f_ops;
-                bool is_assign() const;
 
             };// class operation_node
 

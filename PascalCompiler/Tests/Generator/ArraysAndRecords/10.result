@@ -431,7 +431,7 @@ movsd qword ptr [esp], xmm0
 push offset __string@0
 call crt_printf
 add esp, 12
-leave
+leave 
 ret 0
 
 start:

@@ -76,7 +76,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN15AT9IFFAIL@
 mov eax, dword ptr [ebp - 8]
 sub eax, 56
@@ -150,8 +150,6 @@ add eax, 4
 add ebx, 4
 loop $LN21AT4COPYSTRUCT@
 leave 
-ret 44
-leave
 ret 44
 
 __function@LN0AT0test:
@@ -256,7 +254,7 @@ cmp dword ptr [ebx - 48], eax
 jle $LN31AT5LOOPBODY@
 $LN31AT5LOOPEND@:
 add esp, 4
-leave
+leave 
 ret 0
 
 start:

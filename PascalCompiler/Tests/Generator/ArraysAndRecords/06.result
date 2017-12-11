@@ -224,7 +224,7 @@ push dword ptr [eax]
 push offset __string@0
 call crt_printf
 add esp, 20
-leave
+leave 
 ret 0
 
 start:

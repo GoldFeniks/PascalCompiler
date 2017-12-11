@@ -360,8 +360,6 @@ add esp, 4
 movsd xmm0, qword ptr [ebp - 16]
 leave 
 ret 4
-leave
-ret 4
 
 __function@LN0AT0test:
 enter 96, 1
@@ -598,7 +596,7 @@ push offset __string@4
 push offset __string@5
 call crt_printf
 add esp, 16
-leave
+leave 
 ret 0
 
 start:

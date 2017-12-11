@@ -62,8 +62,6 @@ $LN13AT5LOOPEND@:
 add esp, 4
 leave 
 ret 44
-leave
-ret 44
 
 __function@LN0AT0test:
 enter 48, 1
@@ -133,7 +131,7 @@ push dword ptr [eax]
 push offset __string@0
 call crt_printf
 add esp, 8
-leave
+leave 
 ret 0
 
 start:

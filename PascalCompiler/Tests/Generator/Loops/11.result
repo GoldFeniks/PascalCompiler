@@ -121,7 +121,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN15AT13REPEATBODY@
 $LN15AT13REPEATEND@:
 mov eax, dword ptr [ebp - 4]
@@ -145,7 +145,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jnz $LN9AT9WHILEBODY@
 $LN9AT9WHILEEND@:
 $LN6AT5LOOPCOND@:
@@ -222,7 +222,7 @@ push dword ptr [eax]
 push offset __string@0
 call crt_printf
 add esp, 12
-leave
+leave 
 ret 0
 
 start:

@@ -46,7 +46,7 @@ push offset __string@2
 push offset __string@3
 call crt_printf
 add esp, 32
-leave
+leave 
 ret 0
 
 start:

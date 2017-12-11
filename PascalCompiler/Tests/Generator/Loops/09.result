@@ -160,7 +160,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jnz $LN14AT5WHILEBODY@
 $LN14AT5WHILEEND@:
 push 1
@@ -197,7 +197,7 @@ push dword ptr [eax]
 push offset __string@1
 call crt_printf
 add esp, 12
-leave
+leave 
 ret 0
 
 start:

@@ -40,8 +40,6 @@ call crt_printf
 add esp, 28
 leave 
 ret 8
-leave
-ret 8
 
 __function@LN0AT0test:
 enter 56, 1
@@ -157,7 +155,7 @@ add dword ptr [esp], 4
 pop eax
 push dword ptr [eax]
 call __function@LN4AT1print_sum
-leave
+leave 
 ret 0
 
 start:

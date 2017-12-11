@@ -29,7 +29,7 @@ cmp dword ptr [ebx - 8], eax
 jle $LN5AT5LOOPBODY@
 $LN5AT5LOOPEND@:
 add esp, 4
-leave
+leave 
 ret 0
 
 start:

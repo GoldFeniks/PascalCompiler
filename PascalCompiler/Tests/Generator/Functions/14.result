@@ -57,8 +57,6 @@ add ebx, 4
 loop $LN16AT4COPYSTRUCT@
 leave 
 ret 0
-leave
-ret 0
 
 __function@LN21AT1foo1:
 enter 48, 2
@@ -117,8 +115,6 @@ add ebx, 4
 loop $LN24AT4COPYSTRUCT@
 leave 
 ret 0
-leave
-ret 0
 
 __function@LN0AT0test:
 enter 4, 1
@@ -168,7 +164,7 @@ cmp dword ptr [ebx - 8], eax
 jge $LN30AT5LOOPBODY@
 $LN30AT5LOOPEND@:
 add esp, 4
-leave
+leave 
 ret 0
 
 start:

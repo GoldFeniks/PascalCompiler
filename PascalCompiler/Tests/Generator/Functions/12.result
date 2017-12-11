@@ -76,7 +76,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN18AT9IFFAIL@
 mov eax, dword ptr [ebp - 8]
 sub eax, 56
@@ -151,8 +151,6 @@ add ebx, 4
 loop $LN24AT4COPYSTRUCT@
 leave 
 ret 44
-leave
-ret 44
 
 __function@LN27AT1pick_if_divides_store:
 enter 40, 2
@@ -195,8 +193,6 @@ add eax, 4
 add ebx, 4
 loop $LN29AT4COPYSTRUCT@
 leave 
-ret 44
-leave
 ret 44
 
 __function@LN0AT0test:
@@ -301,7 +297,7 @@ cmp dword ptr [ebx - 48], eax
 jle $LN40AT5LOOPBODY@
 $LN40AT5LOOPEND@:
 add esp, 4
-leave
+leave 
 ret 0
 
 start:

@@ -465,7 +465,7 @@ push eax
 push offset __string@3
 call crt_printf
 add esp, 16
-leave
+leave 
 ret 0
 
 start:

@@ -52,10 +52,10 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jnz $LN6AT5WHILEBODY@
 $LN6AT5WHILEEND@:
-leave
+leave 
 ret 0
 
 start:

@@ -42,10 +42,10 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN9AT5REPEATBODY@
 $LN9AT5REPEATEND@:
-leave
+leave 
 ret 0
 
 start:

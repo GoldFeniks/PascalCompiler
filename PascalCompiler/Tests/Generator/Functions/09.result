@@ -20,7 +20,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN5AT5IFFAIL@
 push offset __string@0
 push offset __string@1
@@ -48,7 +48,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN10AT10IFFAIL@
 mov eax, dword ptr [ebp - 8]
 sub eax, 12
@@ -91,8 +91,6 @@ $LN5AT5IFEND@:
 mov eax, dword ptr [ebp - 12]
 leave 
 ret 4
-leave
-ret 4
 
 __function@LN0AT0test:
 enter 0, 1
@@ -108,7 +106,7 @@ push eax
 push offset __string@2
 call crt_printf
 add esp, 8
-leave
+leave 
 ret 0
 
 start:

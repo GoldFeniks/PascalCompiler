@@ -26,7 +26,7 @@ push dword ptr [__real@42374876e8000000]
 push offset __string@0
 call crt_printf
 add esp, 20
-leave
+leave 
 ret 0
 
 start:

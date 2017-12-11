@@ -133,7 +133,7 @@ mov ecx, ebx
 push offset __string@0
 call crt_printf
 add esp, 36
-leave
+leave 
 ret 0
 
 start:

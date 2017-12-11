@@ -26,7 +26,7 @@ sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN6AT5IFFAIL@
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
@@ -66,7 +66,7 @@ push offset __string@1
 call crt_printf
 add esp, 12
 $LN6AT5IFEND@:
-leave
+leave 
 ret 0
 
 start:

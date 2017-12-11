@@ -42,7 +42,7 @@ pop eax
 and eax, ebx
 push eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN7AT9IFFAIL@
 jmp $LN5AT5LOOPCOND@
 jmp $LN7AT9IFEND@
@@ -64,7 +64,7 @@ cmp dword ptr [ebx - 8], eax
 jle $LN5AT5LOOPBODY@
 $LN5AT5LOOPEND@:
 add esp, 4
-leave
+leave 
 ret 0
 
 start:

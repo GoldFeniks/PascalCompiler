@@ -71,7 +71,7 @@ pop eax
 and eax, ebx
 push eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN8AT17IFFAIL@
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
@@ -121,7 +121,7 @@ pop eax
 and eax, ebx
 push eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN10AT22IFFAIL@
 mov eax, dword ptr [ebp - 4]
 sub eax, 12
@@ -171,7 +171,7 @@ pop eax
 and eax, ebx
 push eax
 pop eax
-test eax, -1
+test eax, eax
 jz $LN12AT22IFFAIL@
 mov eax, dword ptr [ebp - 4]
 sub eax, 16
@@ -215,7 +215,7 @@ cmp dword ptr [ebx - 8], eax
 jle $LN5AT5LOOPBODY@
 $LN5AT5LOOPEND@:
 add esp, 4
-leave
+leave 
 ret 0
 
 start:

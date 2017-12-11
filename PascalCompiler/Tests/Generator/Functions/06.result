@@ -96,8 +96,6 @@ $LN14AT5LOOPEND@:
 add esp, 4
 leave 
 ret 8
-leave
-ret 8
 
 __function@LN0AT0test:
 enter 48, 1
@@ -196,7 +194,7 @@ cmp dword ptr [ebx - 48], eax
 jle $LN32AT5LOOPBODY@
 $LN32AT5LOOPEND@:
 add esp, 4
-leave
+leave 
 ret 0
 
 start:

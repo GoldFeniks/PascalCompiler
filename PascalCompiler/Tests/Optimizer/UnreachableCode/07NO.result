@@ -1,0 +1,24 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@1 db 37,115,10,0
+__string@0 db 117,110,114,101,97,99,104,97,98,108,101,0
+.code
+__function@LN6AT1f:
+enter 0, 2
+push offset __string@0
+push offset __string@1
+call crt_printf
+add esp, 8
+leave 
+ret 0
+
+__function@LN0AT0test:
+enter 4, 1
+leave 
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

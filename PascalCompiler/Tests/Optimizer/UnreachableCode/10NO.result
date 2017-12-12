@@ -1,0 +1,34 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 37,100,10,0
+.code
+__function@LN7AT1foo:
+enter 4, 2
+push 10
+pop eax
+leave 
+ret 0
+mov eax, dword ptr [ebp - 12]
+leave 
+ret 0
+
+__function@LN12AT1f:
+enter 0, 2
+call __function@LN7AT1foo
+push eax
+push offset __string@0
+call crt_printf
+add esp, 8
+leave 
+ret 0
+
+__function@LN0AT0test:
+enter 4, 1
+leave 
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

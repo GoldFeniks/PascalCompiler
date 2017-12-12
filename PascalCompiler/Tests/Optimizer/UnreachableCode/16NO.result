@@ -1,77 +1,56 @@
 include c:\masm32\include\masm32rt.inc
 .xmm
 .const
-__string@0 db 111,110,99,101,0
-__string@1 db 37,115,10,0
-__string@2 db 116,119,105,99,101,0
+__string@0 db 37,100,10,0
 .code
 __function@LN0AT0test:
-enter 4, 1
+enter 8, 1
 mov eax, dword ptr [ebp - 4]
-sub eax, 8
+sub eax, 12
 push eax
-push 3
+push 2
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
+jmp $LN7AT5WHILECOND@
+$LN7AT5WHILEBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
 push offset __string@0
-push offset __string@1
 call crt_printf
 add esp, 8
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
-mov eax, dword ptr [ebp - 4]
-sub eax, 8
-push eax
-pop eax
-push dword ptr [eax]
 push 1
-pop ebx
-pop eax
-sub eax, ebx
-push eax
 pop eax
 pop ebx
-mov dword ptr [ebx], eax
-$LN14AT5REPEATBODY@:
-push offset __string@2
-push offset __string@1
-call crt_printf
-add esp, 8
-mov eax, dword ptr [ebp - 4]
-sub eax, 8
-push eax
+add dword ptr [ebx], eax
+jmp $LN7AT5WHILEEND@
+$LN7AT5WHILECOND@:
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
 pop eax
 push dword ptr [eax]
-push 1
-pop ebx
-pop eax
-sub eax, ebx
-push eax
-pop eax
-pop ebx
-mov dword ptr [ebx], eax
-$LN14AT5REPEATCOND@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 8
+sub eax, 12
 push eax
 pop eax
 push dword ptr [eax]
-push 0
 pop ebx
 cmp dword ptr [esp], ebx
-setne al
+setge al
 sub al, 1
 movsx eax, al
 mov dword ptr [esp], eax
 pop eax
 test eax, eax
-jz $LN14AT5REPEATBODY@
-$LN14AT5REPEATEND@:
+jnz $LN7AT5WHILEBODY@
+$LN7AT5WHILEEND@:
 leave 
 ret 0
 

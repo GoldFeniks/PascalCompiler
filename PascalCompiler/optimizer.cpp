@@ -23,20 +23,16 @@ void unreachable_code_optimizer::optimize(symbols_table& table) {
             auto used_symbols = move(used_symbols_);
             optimize(t->table_);
             auto used = move(used_symbols_tables_.back()); used_symbols_tables_.pop_back();
-            for (auto& u : used)
-                if (used_symbols.find(u.first) == used_symbols.end())
-                    u.second.clear();
             for (auto& v : t->table_.vector_) {
                 if (used_symbols.find(v.first) == used_symbols.end() && v.first != "result") {
+                    for (auto& u : used)
+                        if (used_symbols.find(u.first) != used_symbols.end() &&
+                            u.second.find(v.first) != u.second.end()) {
+                            u.second.erase(v.first);
+                            goto end;
+                        }
                     if (used.find(v.first) != used.end())
                         used.erase(v.first);
-                    else {
-                        for (auto& u : used)
-                            if (u.second.find(v.first) != u.second.end()) {
-                                u.second.erase(v.first);
-                                goto end;
-                            }
-                    }
                     v.second = make_pair(nil(), nullptr);
                     t->table_.table_[v.first] = v.second;
                     remove_assignments(v.first, it.second.second, t->table_);
@@ -134,7 +130,7 @@ tree_node_p unreachable_code_optimizer::optimize_for(const for_node_p node) {
     if (!get_int_value(node->from(), from) || !get_int_value(node->to(), to))
         return optimize_loop_body(node, node->body());
     if (node->is_downto() && to < from || !node->is_downto() && from < to)
-        return optimize_loop_body(node, node->body());
+        return optimize_loop_body(node, node->body(), true);
     if (from == to)
         return remove_break_continue(node->body());
     return nullptr;
@@ -170,13 +166,15 @@ tree_node_p unreachable_code_optimizer::optimize_if(const if_node_p node) {
     return node->then_branch();
 }
 
-tree_node_p unreachable_code_optimizer::optimize_loop_body(const tree_node_p loop_node, const tree_node_p body) {
+tree_node_p unreachable_code_optimizer::optimize_loop_body(const tree_node_p loop_node, const tree_node_p body, const bool enters) {
     if (body->children_.empty()) {
         if (body->category() == tree_node::node_category::continue_op ||
             body->category() == tree_node::node_category::break_op)
             return nullptr;
         if (body->category() == tree_node::node_category::exit) {
             if (loop_node->category() == tree_node::node_category::repeat)
+                return body;
+            if (enters)
                 return body;
             return optimize_if(make_if_from_loop(loop_node));
         }
@@ -192,9 +190,10 @@ tree_node_p unreachable_code_optimizer::optimize_loop_body(const tree_node_p loo
     switch (body->children_.back()->category()) {
     case tree_node::node_category::break_op:
         body->children_.pop_back();
-        return body;
     case tree_node::node_category::exit:
         if(loop_node->category() == tree_node::node_category::repeat)
+            return body;
+        if (enters)
             return body;
         return optimize_if(make_if_from_loop(loop_node));
     default:

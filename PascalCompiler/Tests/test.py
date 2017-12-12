@@ -9,7 +9,7 @@ parser.add_argument('dir', metavar='dir', type=str, help='Tests path');
 parser.add_argument('-co', '--check_output', help='Check exe output', action='store_true')
 parser.add_argument('-go', '--generate_output', help="Don't check anything. Just get output", action='store_true')
 parser.add_argument('argument', metavar='argument', type=str, help='An argument for compiler');
-parser.add_argument('-s', '--suffix', type=str, default=1, help='Suffix to be added to files. Default is empty', const=1, nargs='?')
+parser.add_argument('-s', '--suffix', type=str, default='', help='Suffix to be added to files. Default is empty', const='', nargs='?')
 args = parser.parse_args()
 
 r = re.compile(r'(?P<name>.+)\.pas')

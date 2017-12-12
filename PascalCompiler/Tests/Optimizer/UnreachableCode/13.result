@@ -1,0 +1,13 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+.code
+__function@LN0AT0test:
+enter 0, 1
+leave 
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

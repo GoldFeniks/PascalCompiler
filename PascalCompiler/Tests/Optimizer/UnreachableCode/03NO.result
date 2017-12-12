@@ -14,6 +14,7 @@ push 3
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
+$LN10AT5REPEATBODY@:
 push offset __string@0
 push offset __string@1
 call crt_printf
@@ -34,6 +35,24 @@ push eax
 pop eax
 pop ebx
 mov dword ptr [ebx], eax
+jmp $LN10AT5REPEATEND@
+$LN10AT5REPEATCOND@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push 0
+pop ebx
+cmp dword ptr [esp], ebx
+setne al
+sub al, 1
+movsx eax, al
+mov dword ptr [esp], eax
+pop eax
+test eax, eax
+jz $LN10AT5REPEATBODY@
+$LN10AT5REPEATEND@:
 $LN14AT5REPEATBODY@:
 push offset __string@2
 push offset __string@1

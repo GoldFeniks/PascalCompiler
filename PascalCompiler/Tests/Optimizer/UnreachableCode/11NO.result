@@ -1,0 +1,29 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@0 db 37,100,10,0
+.code
+__function@LN0AT0test:
+enter 0, 1
+push -1
+pop eax
+test eax, eax
+jz $LN3AT5IFFAIL@
+push 1
+push offset __string@0
+call crt_printf
+add esp, 8
+jmp $LN3AT5IFEND@
+$LN3AT5IFFAIL@:
+push 2
+push offset __string@0
+call crt_printf
+add esp, 8
+$LN3AT5IFEND@:
+leave 
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start

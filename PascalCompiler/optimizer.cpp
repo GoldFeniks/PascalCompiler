@@ -129,10 +129,8 @@ tree_node_p unreachable_code_optimizer::optimize_for(const for_node_p node) {
     long long from, to;
     if (!get_int_value(node->from(), from) || !get_int_value(node->to(), to))
         return optimize_loop_body(node, node->body());
-    if (node->is_downto() && to < from || !node->is_downto() && from < to)
+    if (node->is_downto() && to <= from || !node->is_downto() && from <= to)
         return optimize_loop_body(node, node->body(), true);
-    if (from == to)
-        return remove_break_continue(node->body());
     return nullptr;
 }
 

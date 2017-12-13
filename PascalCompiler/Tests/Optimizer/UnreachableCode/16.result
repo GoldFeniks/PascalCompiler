@@ -15,6 +15,13 @@ mov dword ptr [ebx], eax
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
+push 0
+pop eax
+pop ebx
+mov dword ptr [ebx], eax
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
 pop eax
 push dword ptr [eax]
 mov eax, dword ptr [ebp - 4]
@@ -30,7 +37,7 @@ movsx eax, al
 mov dword ptr [esp], eax
 pop eax
 test eax, eax
-jz $LN7AT5IFFAIL@
+jz $LN8AT5IFFAIL@
 mov eax, dword ptr [ebp - 4]
 sub eax, 8
 push eax
@@ -46,9 +53,9 @@ push 1
 pop eax
 pop ebx
 add dword ptr [ebx], eax
-jmp $LN7AT5IFEND@
-$LN7AT5IFFAIL@:
-$LN7AT5IFEND@:
+jmp $LN8AT5IFEND@
+$LN8AT5IFFAIL@:
+$LN8AT5IFEND@:
 leave 
 ret 0
 

@@ -167,6 +167,8 @@ tree_node_p unreachable_code_optimizer::optimize_if(const if_node_p node) {
 }
 
 tree_node_p unreachable_code_optimizer::optimize_loop_body(const tree_node_p loop_node, const tree_node_p body, const bool enters) {
+    if (!body)
+        return nullptr;
     if (body->children_.empty()) {
         if (body->category() == tree_node::node_category::continue_op ||
             body->category() == tree_node::node_category::break_op)

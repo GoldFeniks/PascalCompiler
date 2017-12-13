@@ -25,7 +25,7 @@ dec dword ptr [ebx - 8]
 jmp $LN7AT5LOOPCOND@
 $LN7AT5LOOPBODY@:
 mov eax, dword ptr [ebp - 4]
-sub eax, 8
+sub eax, 12
 push eax
 pop eax
 push dword ptr [eax]

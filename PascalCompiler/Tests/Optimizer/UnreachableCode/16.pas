@@ -4,6 +4,7 @@ var
     j: integer;
 begin
     j := 2;
+    i := 0;
     while i < j do
     begin
         write(i);

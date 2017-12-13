@@ -415,7 +415,7 @@ namespace pascal_compiler {
             public:
 
                 explicit continue_node(const position_type& position)
-                    : tree_node("break", node_category::break_op, position) {}
+                    : tree_node("continue", node_category::continue_op, position) {}
 
                 void to_asm_code(asm_code& code, bool is_left) override;
 

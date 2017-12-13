@@ -28,7 +28,7 @@ pop eax
 test eax, eax
 jz $LN7AT5IFFAIL@
 mov eax, dword ptr [ebp - 4]
-sub eax, 8
+sub eax, 12
 push eax
 pop eax
 push dword ptr [eax]

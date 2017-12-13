@@ -1,0 +1,142 @@
+include c:\masm32\include\masm32rt.inc
+.xmm
+.const
+__string@5 db 110,111,116,104,105,110,103,0
+__string@3 db 110,111,0
+__string@0 db 37,100,10,0
+__string@1 db 111,110,99,101,0
+__string@2 db 37,115,10,0
+__string@4 db 110,111,50,0
+__string@6 db 101,109,112,116,121,0
+__string@8 db 105,105,101,102,104,101,111,100,104,105,111,104,111,102,97,105,102,0
+__string@7 db 55,57,56,49,51,50,52,56,57,48,52,50,48,48,57,0
+__string@9 db 49,48,50,55,52,56,48,49,117,51,104,105,102,97,110,107,100,102,0
+.code
+__function@LN0AT0test:
+enter 8, 1
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 8], eax
+dec dword ptr [ebx - 8]
+jmp $LN5AT5LOOPCOND@
+$LN5AT5LOOPBODY@:
+mov eax, dword ptr [ebp - 4]
+sub eax, 8
+push eax
+pop eax
+push dword ptr [eax]
+push offset __string@0
+call crt_printf
+add esp, 8
+$LN10AT9REPEATBODY@:
+push offset __string@1
+push offset __string@2
+call crt_printf
+add esp, 8
+$LN10AT9REPEATCOND@:
+push -1
+pop eax
+test eax, eax
+jz $LN10AT9REPEATBODY@
+$LN10AT9REPEATEND@:
+jmp $LN11AT9WHILECOND@
+$LN11AT9WHILEBODY@:
+push offset __string@3
+push offset __string@2
+call crt_printf
+add esp, 8
+$LN11AT9WHILECOND@:
+push 0
+pop eax
+test eax, eax
+jnz $LN11AT9WHILEBODY@
+$LN11AT9WHILEEND@:
+push -1
+pop eax
+test eax, eax
+jz $LN13AT9IFFAIL@
+push 10
+push 1
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 12], eax
+inc dword ptr [ebx - 12]
+jmp $LN14AT13LOOPCOND@
+$LN14AT13LOOPBODY@:
+push offset __string@4
+push offset __string@2
+call crt_printf
+add esp, 8
+$LN14AT13LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+dec dword ptr [ebx - 12]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 12], eax
+jge $LN14AT13LOOPBODY@
+$LN14AT13LOOPEND@:
+add esp, 4
+jmp $LN13AT9IFEND@
+$LN13AT9IFFAIL@:
+push offset __string@5
+push offset __string@2
+call crt_printf
+add esp, 8
+$LN13AT9IFEND@:
+jmp $LN18AT9WHILECOND@
+$LN18AT9WHILEBODY@:
+push 1
+push 10
+pop eax
+mov ebx, dword ptr [ebp - 4]
+mov dword ptr [ebx - 12], eax
+dec dword ptr [ebx - 12]
+jmp $LN19AT13LOOPCOND@
+$LN19AT13LOOPBODY@:
+push offset __string@6
+push offset __string@2
+call crt_printf
+add esp, 8
+$LN19AT13LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+inc dword ptr [ebx - 12]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 12], eax
+jle $LN19AT13LOOPBODY@
+$LN19AT13LOOPEND@:
+add esp, 4
+$LN18AT9WHILECOND@:
+push -1
+pop eax
+test eax, eax
+jnz $LN18AT9WHILEBODY@
+$LN18AT9WHILEEND@:
+jmp $LN5AT5LOOPCOND@
+push offset __string@7
+push offset __string@2
+call crt_printf
+add esp, 8
+push offset __string@8
+push offset __string@2
+call crt_printf
+add esp, 8
+push offset __string@9
+push offset __string@2
+call crt_printf
+add esp, 8
+$LN5AT5LOOPCOND@:
+mov ebx, dword ptr [ebp - 4]
+inc dword ptr [ebx - 8]
+mov eax, dword ptr [esp]
+cmp dword ptr [ebx - 8], eax
+jle $LN5AT5LOOPBODY@
+$LN5AT5LOOPEND@:
+add esp, 4
+leave 
+ret 0
+
+start:
+call __function@LN0AT0test
+exit
+end start
